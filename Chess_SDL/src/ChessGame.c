@@ -36,7 +36,7 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 		break;
 
 	case SAVE:
-		msg = saveGame(game,cmd.filePath);
+		msg = saveGame(game,cmd.filePath,true);
 		break;
 
 	case QUIT:
@@ -405,12 +405,12 @@ void printSteps(Step* steps,int size){
 	}
 }
 
-GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
+GAME_MESSAGE saveGame(ChessGame* game,char* filePath,bool consoleMode){
 	//opening the FILE
 	FILE* file = fopen(filePath, "w");
 	if(file == NULL)
 	{
-		printf("File cannot be created or modified\n");
+		if(consoleMode) printf("File cannot be created or modified\n");
 		return GAME_FAILED;
 	}
 	//prints to the XML file

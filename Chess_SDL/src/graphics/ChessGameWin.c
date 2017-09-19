@@ -4,40 +4,40 @@
 #include <stdio.h>
 
 
-GameWin* spGameWindowCreate() {
-	GameWin* res = (GameWin*) calloc(sizeof(GameWin), sizeof(char));
+GameWin* GameWindowCreate(ChessGame* game) {
+	GameWin* gameWin = (GameWin*) malloc(sizeof(GameWin));
 	SDL_Surface* loadingSurface = NULL; //Used as temp surface
-	if (res == NULL ) {
-		printf("Couldn't create SPGameWin struct\n");
-		return NULL ;
-	}
-	res->game = spTicTacToeCreate();
-	if (res->game == NULL ) {
-		printf("Couldn't create game\n");
-		spGameWindowDestroy(res);
+	gameWin->simpleWindow;
+	gameWin->panelButtons;
+	gameWin->grid_texture;
+	gameWin->p_white_texture;
+	gameWin->p_black_texture;
+	gameWin->b_white_texture;
+	gameWin->b_black_texture;
+	gameWin->q_white_texture;
+	gameWin->q_black_texture;
+	gameWin->k_white_texture;
+	gameWin->k_black_texture;
+	gameWin->n_white_texture;
+	gameWin->n_black_texture;
+	gameWin->r_white_texture;
+	gameWin->r_black_texture;
+	if (gameWin == NULL ) {
+		printf("Couldn't create GameWin struct\n");
 		return NULL ;
 	}
 	// Create an application window with the following settings:
-	res->window = SDL_CreateWindow("Tic-Tac-Toe", // window title
-			SDL_WINDOWPOS_CENTERED,           // initial x position
-			SDL_WINDOWPOS_CENTERED,           // initial y position
-			600,                               // width, in pixels
-			600,                               // height, in pixels
-			SDL_WINDOW_OPENGL                  // flags - see below
-			);
-
+	gameWin->simpleWindow = simpleWindowCreate(NONE_WINDOW);
 	// Check that the window was successfully created
-	if (res->window == NULL ) {
-		// In the case that the window could not be made...
-		printf("Could not create window: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+	if (gameWin->simpleWindow == NULL ) {
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
-	res->renderer = SDL_CreateRenderer(res->window, -1,
+	gameWin->renderer = SDL_CreateRenderer(gameWin->window, -1,
 			SDL_RENDERER_ACCELERATED);
-	if (res->renderer == NULL ) {
+	if (gameWin->renderer == NULL ) {
 		printf("Could not create a renderer: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
 
@@ -45,14 +45,14 @@ GameWin* spGameWindowCreate() {
 	loadingSurface = SDL_LoadBMP("./graphics/images/grid.bmp");
 	if (loadingSurface == NULL ) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
-	res->bgTexture = SDL_CreateTextureFromSurface(res->renderer,
+	gameWin->bgTexture = SDL_CreateTextureFromSurface(gameWin->renderer,
 			loadingSurface);
-	if (res->bgTexture == NULL ) {
+	if (gameWin->bgTexture == NULL ) {
 		printf("Could not create a texture: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
 	SDL_FreeSurface(loadingSurface); //We finished with the surface -> delete it
@@ -61,17 +61,17 @@ GameWin* spGameWindowCreate() {
 	loadingSurface = SDL_LoadBMP("./graphics/images/x.bmp");
 	if (loadingSurface == NULL ) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
 	//We use SetColorKey to make texture background transparent
 	//This function will make the magenta background transparent
 	SDL_SetColorKey(loadingSurface, SDL_TRUE,
 			SDL_MapRGB(loadingSurface->format, 255, 0, 255));
-	res->xTexture = SDL_CreateTextureFromSurface(res->renderer, loadingSurface);
-	if (res->xTexture == NULL ) {
+	gameWin->xTexture = SDL_CreateTextureFromSurface(gameWin->renderer, loadingSurface);
+	if (gameWin->xTexture == NULL ) {
 		printf("Could not create a texture: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
 	SDL_FreeSurface(loadingSurface);
@@ -80,24 +80,24 @@ GameWin* spGameWindowCreate() {
 	loadingSurface = SDL_LoadBMP("./graphics/images/o.bmp");
 	if (loadingSurface == NULL ) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
 	//We use SetColorKey to make texture background transparent
 	//This function will make the magenta background transparent
 	SDL_SetColorKey(loadingSurface, SDL_TRUE,
 			SDL_MapRGB(loadingSurface->format, 255, 0, 255));
-	res->oTexture = SDL_CreateTextureFromSurface(res->renderer, loadingSurface);
-	if (res->oTexture == NULL ) {
+	gameWin->oTexture = SDL_CreateTextureFromSurface(gameWin->renderer, loadingSurface);
+	if (gameWin->oTexture == NULL ) {
 		printf("Could not create a texture: %s\n", SDL_GetError());
-		spGameWindowDestroy(res);
+		GameWindowDestroy(gameWin);
 		return NULL ;
 	}
 	SDL_FreeSurface(loadingSurface);
-	return res;
+	return gameWin;
 }
 
-void spGameWindowDestroy(GameWin* src) {
+void GameWindowDestroy(GameWin* src) {
 	if (!src) {
 		return;
 	}
@@ -120,7 +120,7 @@ void spGameWindowDestroy(GameWin* src) {
 	free(src);
 }
 
-void spGameWindowDraw(GameWin* src) {
+void GameWindowDraw(GameWin* src) {
 	if(src == NULL){
 		return;
 	}
@@ -146,7 +146,7 @@ void spGameWindowDraw(GameWin* src) {
 	SDL_RenderPresent(src->renderer);
 }
 
-SP_GAME_EVENT spGameWindowHandleEvent(GameWin* src, SDL_Event* event) {
+SP_GAME_EVENT GameWindowHandleEvent(GameWin* src, SDL_Event* event) {
 	if (event == NULL || src == NULL ) {
 		return SP_GAME_EVENT_INVALID_ARGUMENT;
 	}

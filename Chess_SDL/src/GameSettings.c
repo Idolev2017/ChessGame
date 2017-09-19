@@ -125,7 +125,10 @@ ChessGame* gameCreate(int historySize){
 		free(game);
 		return NULL;
 	}
-	if(gameUpdateSetting(game) != GAME_SUCCESS) return NULL;
+	if(gameUpdateSetting(game) != GAME_SUCCESS) {
+		gameDestroy(game);
+		return NULL;
+	}
 	return game;
 }
 
@@ -272,7 +275,7 @@ Setting_Status loadGame(ChessGame* game, char* filePath){
 	FILE* file = fopen(filePath, "r");
 	if(file == NULL){
 		printf("Error: File doesn’t exist or cannot be opened\n");
-		return SETTING_FAILED;
+		return NORMAL_setting;
 	}
 	int currentPlayer, gameMode, difficulty, userColor;
 	int temp;
@@ -308,8 +311,8 @@ Setting_Status loadGame(ChessGame* game, char* filePath){
 	//closing the FILE
 	if(fclose(file) != 0)
 	{
-		printf("Error: File doesn’t exist or cannot be opened\n");
-		return SETTING_FAILED;
+		printf("Error: File cannot be closed\n");
+		return NORMAL_setting;
 	}
 	return NORMAL_setting;
 }

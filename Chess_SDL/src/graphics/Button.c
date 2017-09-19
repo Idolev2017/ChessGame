@@ -8,15 +8,20 @@
 
 Button* buttonCreate(BUTTON_TYPE type,bool isActive, bool isClickable){
 	Button* button = (Button*) malloc(sizeof(Button));
+	button->activeTexture = NULL;
+	button->inactiveTexture = NULL;
+	button->nonClickableTexture = NULL;
 	if(button == NULL){
 		printf("Couldn't create Button struct\n");
 		return NULL;
 	}
-	button->rect = typeToRect(type);
-	typeToTexture(button, type);
+	if((button->rect = typeToRect(type)) == NULL || typeToTexture(button, type) == BUTTON_FAILED){
+		buttonDestroy(button);
+		return NULL;
+	}
+	button->type = type;
 	button->isActive = isActive;
 	button->isClickable = isClickable;
-	button->type = type;
 	return button;
 }
 ButtonMessage buttonArrayCreate(Button** buttons,BUTTON_TYPE* types,bool* isActiveArray,bool* isClickableArray, int size){
@@ -30,14 +35,19 @@ ButtonMessage buttonArrayCreate(Button** buttons,BUTTON_TYPE* types,bool* isActi
 	return BUTTON_SUCCESS;
 }
 void buttonArrayDestroy(Button** buttons,int size){
+	if(buttons == NULL) return;
 	for(int i = 0; i < size; ++i){
 		buttonDestroy(buttons[i]);
+		buttons[i] = NULL;
 	}
+	free(buttons);
 }
 void buttonDestroy(Button* button){
-	SDL_DestroyTexture(button->activeTexture);
-	SDL_DestroyTexture(button->inactiveTexture);
-	SDL_DestroyTexture(button->nonClickableTexture);
+	if(button == NULL) return;
+	if(!button->activeTexture) SDL_DestroyTexture(button->activeTexture);
+	if(!button->inactiveTexture) SDL_DestroyTexture(button->inactiveTexture);
+	if(!button->nonClickableTexture) SDL_DestroyTexture(button->nonClickableTexture);
+	free(button);
 	return;
 }
 Button* copyButton(Button* button){
@@ -56,12 +66,12 @@ ButtonMessage inactivateButton(Button* button){
 ButtonMessage drawButton(Button* button,SDL_Renderer* renderer){
 	if(button == NULL) return BUTTON_FAILED;
 	if(button->isClickable == false)
-		SDL_RenderCopy(renderer, button->nonClickableTexture, NULL, button->rect);
+		if(SDL_RenderCopy(renderer, button->nonClickableTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
 	else {
 		if(button->isActive)
-			SDL_RenderCopy(renderer, button->activeTexture, NULL, button->rect);
+			if(SDL_RenderCopy(renderer, button->activeTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
 		else
-			SDL_RenderCopy(renderer, button->inactiveTexture, NULL, button->rect);
+			if(SDL_RenderCopy(renderer, button->inactiveTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
 	}
 	return BUTTON_SUCCESS;
 }

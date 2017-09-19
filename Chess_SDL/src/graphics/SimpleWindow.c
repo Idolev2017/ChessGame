@@ -8,12 +8,14 @@
 
 SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	SimpleWindow* simpleWin = NULL;
+	simpleWin->window = NULL;
+	simpleWin->renderer = NULL;
+
 	simpleWin = (SimpleWindow*) malloc(sizeof(SimpleWindow));
 	if (simpleWin == NULL ) {
 		printMallocError();
 		return NULL ;
 	}
-
 	// Create an application window with the following settings:
 	simpleWin->window = SDL_CreateWindow("CHESS", // window title
 			SDL_WINDOWPOS_CENTERED,           // initial x position
@@ -38,11 +40,14 @@ SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	simpleWin->backWindow = backWindow;
 	return simpleWin;
 }
-void simpleWindowDraw(SimpleWindow* simpleWin,Button** buttons,int numOfButtons){
+SIMPLE_WINDOW_MESSAGE simpleWindowDraw(SimpleWindow* simpleWin,Button** buttons,int numOfButtons){
+	SDL_SetRenderDrawColor(simpleWin->renderer, 255, 255, 255, 255);
+	SDL_RenderClear(simpleWin->renderer);
 	for(int i = 0; i < numOfButtons; ++i){
-		drawButton(buttons[i], simpleWin->renderer);
+		if(drawButton(buttons[i], simpleWin->renderer) == BUTTON_FAILED) return SIMPLE_WINDOW_FAILED;
 	}
 	SDL_RenderPresent(simpleWin->renderer);
+	return SIMPLE_WINDOW_SUCCESS;
 }
 void simpleWindowDestroy(SimpleWindow* simpleWin){
 	if(simpleWin == NULL) return;

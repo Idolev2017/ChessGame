@@ -15,6 +15,11 @@
 #include "../MainAux.h"
 
 typedef enum{
+	SIMPLE_WINDOW_SUCCESS,
+	SIMPLE_WINDOW_FAILED
+}SIMPLE_WINDOW_MESSAGE;
+
+typedef enum{
 	MAIN_WINDOW,
 	SETTINGS_WINDOW,
 	LOAD_WINDOW,
@@ -30,7 +35,7 @@ typedef struct {
 } SimpleWindow;
 
 SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow);
-void simpleWindowDraw(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
+SIMPLE_WINDOW_MESSAGE simpleWindowDraw(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
 void simpleWindowDestroy(SimpleWindow* simpleWin);
 void simpleWindowHide(SimpleWindow* simpleWin);
 void simpleWindowShow(SimpleWindow* simpleWin);
