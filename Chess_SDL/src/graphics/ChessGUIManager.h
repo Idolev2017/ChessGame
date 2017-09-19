@@ -1,6 +1,5 @@
 #ifndef SPTICTACTOEGUIMANAGER_H_
 #define SPTICTACTOEGUIMANAGER_H_
-#include <SDL.h>
 #include "ChessGameWin.h"
 #include "ChessMainWin.h"
 #include "ChessLoadWin.h"

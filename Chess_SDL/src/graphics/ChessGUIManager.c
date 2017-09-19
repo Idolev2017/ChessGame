@@ -59,8 +59,7 @@ MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* src,MAIN_EVENT event) {
 	return MANAGER_NONE;
 }
 
-MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* src,
-		SP_GAME_EVENT event) {
+MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* src,SP_GAME_EVENT event) {
 	if (event == SP_GAME_EVENT_NONE || src == NULL ) {
 		return MANAGER_NONE;
 	}

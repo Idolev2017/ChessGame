@@ -9,8 +9,6 @@
 #define GRAPHICS_SIMPLEWINDOW_H_
 #include <stdbool.h>
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_video.h>
 #include "Button.h"
 #include "../MainAux.h"
 

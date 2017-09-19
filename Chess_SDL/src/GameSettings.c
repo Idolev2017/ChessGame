@@ -6,8 +6,8 @@
  */
 #include "GameSettings.h"
 
-GAME_MESSAGE gameUpdateSetting(ChessGame* game){
-	Setting_Status status = gameQuerySetting(game);
+GAME_MESSAGE gameSettingMode(ChessGame* game){
+	Setting_Status status = gameUpdateSetting(game);
 	if(status == START_setting) return GAME_SUCCESS;
 	else if(status == QUIT_setting) {
 		printf("Exiting...\n");
@@ -17,7 +17,7 @@ GAME_MESSAGE gameUpdateSetting(ChessGame* game){
 	return GAME_SUCCESS;
 }
 
-Setting_Status gameQuerySetting(ChessGame* game){
+Setting_Status gameUpdateSetting(ChessGame* game){
 	int num = 1;
 	int* numOfWords = &num;
 	char* words[MAX_SETTING_COMMAND+1];
@@ -125,7 +125,7 @@ ChessGame* gameCreate(int historySize){
 		free(game);
 		return NULL;
 	}
-	if(gameUpdateSetting(game) != GAME_SUCCESS) {
+	if(gameSettingMode(game) != GAME_SUCCESS) {
 		gameDestroy(game);
 		return NULL;
 	}
@@ -196,7 +196,7 @@ GAME_MESSAGE gameInitialization(ChessGame* game,bool toClear,int historySize){
 GAME_MESSAGE gameRestart(ChessGame* game){
 	GAME_MESSAGE msg = gameInitialization(game, true, HISTORY_SIZE);
 	if(msg != GAME_SUCCESS) return msg;
-	return gameUpdateSetting(game);
+	return gameSettingMode(game);
 }
 
 ChessGame* gameCopy(ChessGame* game) {
@@ -321,24 +321,24 @@ Piece* letterToPieceGenerator(char c, int row, int col){
 	if(c == '_')
 		return NULL;
 	char d = c;
-	int flag = 1;
+	int color = WHITE;
 	if(c<'a'){
-		d=c+32;
-		flag = 0;
+		d = c + 32;
+		color = BLACK;
 	}
 	switch(d){
 	case 'r':
-		return pieceCreate(ROOK,flag,row,col);
+		return pieceCreate(ROOK,color,row,col);
 	case 'k':
-		return pieceCreate(KING,flag,row,col);
+		return pieceCreate(KING,color,row,col);
 	case 'm':
-		return pieceCreate(PAWN,flag,row,col);
+		return pieceCreate(PAWN,color,row,col);
 	case 'q':
-		return pieceCreate(QUEEN,flag,row,col);
+		return pieceCreate(QUEEN,color,row,col);
 	case 'b':
-		return pieceCreate(BISHOP,flag,row,col);
+		return pieceCreate(BISHOP,color,row,col);
 	case 'n':
-		return pieceCreate(KNIGHT,flag,row,col);
+		return pieceCreate(KNIGHT,color,row,col);
 	default:
 		return NULL;
 	}

@@ -40,7 +40,6 @@ void buttonArrayDestroy(Button** buttons,int size){
 		buttonDestroy(buttons[i]);
 		buttons[i] = NULL;
 	}
-	free(buttons);
 }
 void buttonDestroy(Button* button){
 	if(button == NULL) return;

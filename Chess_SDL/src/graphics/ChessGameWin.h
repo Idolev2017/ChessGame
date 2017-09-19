@@ -1,13 +1,17 @@
 #ifndef SPTICTACTOEGAMEWIN_H_
 #define SPTICTACTOEGAMEWIN_H_
-#include <SDL.h>
-#include <SDL_video.h>
 #include "SimpleWindow.h"
 #include "../SPTicTacToe.h"
-#include "..\MainAux.h"
+#include "../MainAux.h"
+#include <math.h>
 
-
-#define GAME_NUM_OF_PANEL_EVENTS 6
+#define PANEL_WIDTH 200
+#define GAME_BOARD_SIZE 600
+#define GAME_NUM_OF_PANEL_BUTTONS 6
+#define UNDO_IN_ARRAY 3
+#define BOARD_LINE_SIZE 8
+#define REC_SIZE (GAME_BOARD_SIZE / BOARD_LINE_SIZE)
+#define NOT_CHOOSED -10
 
 typedef enum{
 	GAME_WINDOW_SUCCESS,
@@ -26,6 +30,8 @@ typedef enum {
 	GAME_UNDO_EVENT,
 	GAME_MAIN_MENU_EVENT,
 	GAME_EXIT_EVENT,
+	GAME_NONE_EVENT,
+	GAME_EVENT_INVALID_ARGUMENT
 } GAME_EVENT;
 
 
@@ -45,13 +51,23 @@ typedef struct{
 	SDL_Texture* n_black_texture;
 	SDL_Texture* r_white_texture;
 	SDL_Texture* r_black_texture;
+	Location  chosenLoc;
+
 }GameWin;
 
 
 GameWin* GameWindowCreate();
-void GameWindowDraw(GameWin*);
+GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo);
+void updateUndoButton(GameWin* gameWin,ChessGame* game);
+GAME_WINDOW_MESSAGE GameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps);
+drawGetAllMoves(GameWin* gameWin,Step* steps,int numOfSteps);
+GAME_EVENT drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece);
+void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass);
 void GameWindowDestroy(GameWin*);
 GAME_EVENT GameWindowHandleEvent(GameWin* src, SDL_Event* event);
-
+GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin);
+Location mouseLocToBoardLoc(int x, int y);
+SDL_Rect boardLocToRect(Location loc);
+bool isClickedOnBoard(int x, int y);
 
 #endif

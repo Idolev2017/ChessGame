@@ -20,8 +20,8 @@ SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	simpleWin->window = SDL_CreateWindow("CHESS", // window title
 			SDL_WINDOWPOS_CENTERED,           // initial x position
 			SDL_WINDOWPOS_CENTERED,           // initial y position
-			400,                               // width, in pixels
-			450,                               // height, in pixels
+			800,                               // width, in pixels
+			600,                               // height, in pixels
 			SDL_WINDOW_OPENGL                  // flags - see below
 	);
 

@@ -42,9 +42,9 @@ typedef enum {
 	CHECK
 } GAME_STATUS;
 
-Setting_Status gameQuerySetting(ChessGame* game);
+Setting_Status gameUpdateSetting(ChessGame* game);
 
-GAME_MESSAGE gameUpdateSetting(ChessGame* game);
+GAME_MESSAGE gameSettingMode(ChessGame* game);
 
 Setting_Status chessChangingSettings(ChessGame* game,char** words,int numOfWords);
 

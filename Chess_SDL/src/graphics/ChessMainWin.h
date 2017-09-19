@@ -1,8 +1,6 @@
 #ifndef chessTICTACTOEMAINWIN_H_
 #define chessTICTACTOEMAINWIN_H_
-#include <SDL.h>
 #include "SimpleWindow.h"
-#include <SDL_video.h>
 #include <stdio.h>
 
 #define MAIN_NUM_OF_BUTTONS 4
