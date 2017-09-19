@@ -1,0 +1,38 @@
+þþþþþþþþþþþþþþþþþNotes:
+implement typeToRect().
+
+4 windows:
+1.back
+2.window
+
+1.main:
+	1.new game
+	2.load
+	3.exit
+2.load:
+	1.game slot 1
+	2.game slot 2
+	3....
+	4.back
+	5.load
+3.setting
+	1.game mode (two buttons - one or two)
+	if(two){
+		1.start
+		2.back
+	}
+	else{
+		1.next
+			1.difficulty:1-5, next,back
+			2.color: 2 colors, start,back
+		2.back
+	}
+4.game
+	1.panel:
+		1.restart
+		2.save
+		3.load
+		4.undo
+		5.main menu
+		6.exit
+	2.game board.
