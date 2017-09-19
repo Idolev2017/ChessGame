@@ -63,7 +63,7 @@ GameWin* GameWindowCreate(ChessGame* game) {
 }
 
 GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo) {
-	BUTTON_TYPE panelTypes = { GAME_RESTART_BUTTON,
+	BUTTON_TYPE panelTypes[GAME_NUM_OF_PANEL_BUTTONS] = { GAME_RESTART_BUTTON,
 			GAME_SAVE_BUTTON,
 			GAME_LOAD_BUTTON,
 			GAME_UNDO_BUTTON,
@@ -96,7 +96,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	}
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/blackPawn.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackPawn.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -110,7 +110,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	SDL_FreeSurface(loadingSurface);
 
 	//BISHOP
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/whiteBishop.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteBishop.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -123,7 +123,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	}
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/blackBishop.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackBishop.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -137,7 +137,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	SDL_FreeSurface(loadingSurface);
 
 	//KNIGHT
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/whiteKnight.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteKnight.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -150,7 +150,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	}
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/blackKnight.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackKnight.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -164,7 +164,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	SDL_FreeSurface(loadingSurface);
 
 	//KING
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/whiteKing.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteKing.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -177,7 +177,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	}
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/blackKing.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackKing.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -191,7 +191,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	SDL_FreeSurface(loadingSurface);
 
 	//QUEEN
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/whiteQueen.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteQueen.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -204,7 +204,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	}
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/blackQueen.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackQueen.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -218,7 +218,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	//ROOK
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/whiteRook.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteRook.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;
@@ -231,7 +231,7 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
 	}
 	SDL_FreeSurface(loadingSurface);
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/blackRook.bmp");
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackRook.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;

@@ -24,15 +24,14 @@ SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 			600,                               // height, in pixels
 			SDL_WINDOW_OPENGL                  // flags - see below
 	);
-
 	// Check that the window was successfully created
-	if (simpleWin->window == NULL ) {
+	if (simpleWin->window == NULL) {
 		simpleWindowDestroy(simpleWin);
 		printf("Could not create window: %s\n", SDL_GetError());
 		return NULL ;
 	}
 	simpleWin->renderer = SDL_CreateRenderer(simpleWin->window, -1,SDL_RENDERER_ACCELERATED);
-	if (simpleWin->renderer == NULL ) {
+	if (simpleWin->renderer == NULL) {
 		simpleWindowDestroy(simpleWin);
 		printf("Could not create window: %s\n", SDL_GetError());
 		return NULL ;

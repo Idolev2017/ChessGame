@@ -60,7 +60,7 @@ GameWin* GameWindowCreate();
 GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo);
 void updateUndoButton(GameWin* gameWin,ChessGame* game);
 GAME_WINDOW_MESSAGE GameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps);
-drawGetAllMoves(GameWin* gameWin,Step* steps,int numOfSteps);
+void drawGetAllMoves(GameWin* gameWin,Step* steps,int numOfSteps);
 GAME_EVENT drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece);
 void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass);
 void GameWindowDestroy(GameWin*);
