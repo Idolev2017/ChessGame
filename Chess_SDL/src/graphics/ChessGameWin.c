@@ -5,23 +5,13 @@
 
 GameWin* gameWindowCreate() {
 	GameWin* gameWin = (GameWin*) malloc(sizeof(GameWin));
-	SDL_Surface* loadingSurface = NULL; //Used as temp surface
 	gameWin->simpleWindow = NULL;
 	gameWin->panelButtons = NULL;
-	gameWin->grid_texture = NULL;
-	gameWin->p_white_texture = NULL;
-	gameWin->p_black_texture = NULL;
-	gameWin->b_white_texture = NULL;
-	gameWin->b_black_texture = NULL;
-	gameWin->q_white_texture = NULL;
-	gameWin->q_black_texture = NULL;
-	gameWin->k_white_texture = NULL;
-	gameWin->k_black_texture = NULL;
-	gameWin->n_white_texture = NULL;
-	gameWin->n_black_texture = NULL;
-	gameWin->r_white_texture = NULL;
-	gameWin->r_black_texture = NULL;
+	gameWin->gameTextures = NULL;
+	gameWin->steps = NULL;
+	gameWin->numOfSteps = 0;
 	gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+	gameWin->getAllMovesLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
 	gameWin->savedLastMove = true;
 	if (gameWin == NULL ) {
 		printf("Couldn't create GameWin struct\n");
@@ -34,22 +24,8 @@ GameWin* gameWindowCreate() {
 		gameWindowDestroy(gameWin);
 		return NULL;
 	}
-	//Create a background texture:
-	loadingSurface = SDL_LoadBMP("./graphics/images/grid.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		gameWindowDestroy(gameWin);
-		return NULL;
-	}
-	gameWin->grid_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer,loadingSurface);
-	if (gameWin->grid_texture == NULL) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		gameWindowDestroy(gameWin);
-		return NULL;
-	}
-	SDL_FreeSurface(loadingSurface); //We finished with the surface -> delete it
-	if(generatePieceTexture(gameWin) == GAME_WINDOW_FAILED){
+	gameWin->gameTextures = gameTexturesCreate(gameWin);
+	if(gameWin->gameTextures == NULL){
 		gameWindowDestroy(gameWin);
 		return NULL;
 	}
@@ -79,171 +55,6 @@ GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo) {
 	return GAME_WINDOW_SUCCESS;
 }
 
-GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin){
-	//PAWN
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/whitePawn.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->p_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->p_white_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/blackPawn.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->p_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->p_black_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	//BISHOP
-	loadingSurface = SDL_LoadBMP("./graphics/images/whiteBishop.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->b_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->b_white_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/blackBishop.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->b_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->b_black_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	//KNIGHT
-	loadingSurface = SDL_LoadBMP("./graphics/images/whiteKnight.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->n_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->n_white_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/blackKnight.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->n_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->n_black_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	//KING
-	loadingSurface = SDL_LoadBMP("./graphics/images/whiteKing.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->k_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->k_white_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/blackKing.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->k_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->k_black_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	//QUEEN
-	loadingSurface = SDL_LoadBMP("./graphics/images/whiteQueen.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->q_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->q_white_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/blackQueen.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->q_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->q_black_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	//ROOK
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/whiteRook.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->r_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->r_white_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-
-	loadingSurface = SDL_LoadBMP("./graphics/images/blackRook.bmp");
-	if (loadingSurface == NULL) {
-		printf("Could not create a surface: %s\n", SDL_GetError());
-		return GAME_WINDOW_FAILED;
-	}
-	gameWin->r_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
-	if (gameWin->r_black_texture == NULL ) {
-		printf("Could not create a texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(loadingSurface);
-		return GAME_WINDOW_FAILED;
-	}
-	SDL_FreeSurface(loadingSurface);
-	return GAME_WINDOW_SUCCESS;
-}
-
 void updateUndoButton(GameWin* gameWin, ChessGame* game){
 	if(gameWin == NULL || game == NULL) return;
 	Button* undoButton = gameWin->panelButtons[UNDO_IN_ARRAY];
@@ -255,23 +66,12 @@ void gameWindowDestroy(GameWin* gameWin) {
 	if (gameWin == NULL) return;
 	if(gameWin->simpleWindow != NULL) simpleWindowDestroy(gameWin->simpleWindow);
 	if(gameWin->panelButtons != NULL) buttonArrayDestroy(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
-	if(gameWin->grid_texture != NULL) SDL_DestroyTexture(gameWin->grid_texture);
-	if(gameWin->p_white_texture != NULL) SDL_DestroyTexture(gameWin->p_white_texture);
-	if(gameWin->p_black_texture != NULL) SDL_DestroyTexture(gameWin->p_black_texture);
-	if(gameWin->b_white_texture != NULL) SDL_DestroyTexture(gameWin->b_white_texture);
-	if(gameWin->b_black_texture != NULL) SDL_DestroyTexture(gameWin->b_black_texture);
-	if(gameWin->q_white_texture != NULL) SDL_DestroyTexture(gameWin->q_white_texture);
-	if(gameWin->q_black_texture != NULL) SDL_DestroyTexture(gameWin->q_black_texture);
-	if(gameWin->k_white_texture != NULL) SDL_DestroyTexture(gameWin->k_white_texture);
-	if(gameWin->k_black_texture != NULL) SDL_DestroyTexture(gameWin->k_black_texture);
-	if(gameWin->n_white_texture != NULL) SDL_DestroyTexture(gameWin->n_white_texture);
-	if(gameWin->n_black_texture != NULL) SDL_DestroyTexture(gameWin->n_black_texture);
-	if(gameWin->r_white_texture != NULL) SDL_DestroyTexture(gameWin->r_white_texture);
-	if(gameWin->r_black_texture != NULL) SDL_DestroyTexture(gameWin->r_black_texture);
+	gameTexturesDestroy(gameWin->gameTextures);
+	destroyStepsArray(gameWin);
 	free(gameWin);
 }
 
-GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps) {
+GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event) {
 	if(gameWin == NULL){
 		return GAME_WINDOW_FAILED;
 	}
@@ -281,83 +81,82 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 	SDL_Rect rec = { .x = PANEL_WIDTH, .y = 0, .w = GAME_BOARD_SIZE, .h = GAME_BOARD_SIZE };
 	SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
 	SDL_RenderClear(gameWin->simpleWindow->renderer);
-	SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->grid_texture, NULL, &rec);
-	if(drawMoves) drawGetAllMoves(gameWin,steps,numOfSteps);
-	int i = 0, j = 0;
-	Step step;
+	SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->grid_texture, NULL, &rec);
+	drawGetAllMoves(gameWin); //if no needed, the function not drawing nothing.
 	Location loc;
-	for (i = 0; i < BOARD_LINE_SIZE; i++) {
-		for (j = 0; j < BOARD_LINE_SIZE; j++) {
+	for (int i = 0; i < BOARD_LINE_SIZE; i++) {
+		for (int j = 0; j < BOARD_LINE_SIZE; j++) {
 			loc = createLocation(i,j);
 			rec = boardLocToRect(loc);
 			if(equalLocations(loc,gameWin->chosenLoc) && event->type == SDL_MOUSEMOTION &&
 					isClickedOnBoard(event->button.x,event->button.y)) continue;
 			if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,loc),false)[0]) == GAME_WINDOW_FAILED){
-				return GAME_FAILED;
+				return GAME_WINDOW_FAILED;
 			}
 		}
 	}
+	//drag
 	if(event->type == SDL_MOUSEMOTION && isClickedOnBoard(event->button.x,event->button.y)){
 		rec.x = event->button.x;
 		rec.y = event->button.y;
 		rec.h = REC_SIZE;
 		rec.w = REC_SIZE;
 		if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,gameWin->chosenLoc),false)[0]) == GAME_WINDOW_FAILED){
-			return GAME_FAILED;
+			return GAME_WINDOW_FAILED;
 		}
 	}
 	SDL_RenderPresent(gameWin->simpleWindow->renderer);
 	return GAME_WINDOW_SUCCESS;
 }
 
-void drawGetAllMoves(GameWin* gameWin,Step* steps,int numOfSteps){
-	if(gameWin == NULL || steps == NULL || numOfSteps == 0) return;
+void drawGetAllMoves(GameWin* gameWin){
+	if(gameWin == NULL || gameWin->steps == NULL || gameWin->numOfSteps == 0) return;
 	SDL_Rect rec;
 	Step step;
-	for(int i = 0; i < numOfSteps; ++i){
-		step = steps[i];
+	for(int i = 0; i < gameWin->numOfSteps; ++i){
+		step = gameWin->steps[i];
 		rec = boardLocToRect(step.dest);
 		fillRecColor(gameWin,&rec,step.class);
 	}
 }
 
-GAME_EVENT drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece){
+GAME_WINDOW_MESSAGE drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece){
 	switch(piece){
 	case 'r':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->r_white_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'k':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->k_white_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'm':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->p_white_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'q':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->q_white_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'b':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->b_white_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'n':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->n_white_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'R':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->r_black_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'K':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->k_black_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'M':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->q_black_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'Q':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->q_black_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'B':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->b_black_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	case 'N':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->n_black_texture, NULL, &rec) == -1) return GAME_WINDOW_FAILED;
+		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
 		break;
 	}
 	return GAME_WINDOW_SUCCESS;
@@ -406,13 +205,14 @@ GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* ev
 
 GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event){
 	if(!gameWin || !game) return GAME_EXIT_EVENT;
+	if(event->button.button == SDL_BUTTON_RIGHT) return GAME_NONE_EVENT;
 	gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
 	Button* button;
-	int prevDifficulty,prevGameMode,prevUserColor;
-	GAME_MESSAGE msg;
+	int prevDifficulty = game->gameDifficulty,prevGameMode = game->gameMode,prevUserColor = game->userColor;
 	bool exit;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{
+		destroyStepsArray(gameWin);
 		button = whichButtonWasClicked(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS,event->button.x, event->button.y);
 		switch(button->type){
 		case GAME_RESTART_BUTTON:
@@ -443,9 +243,14 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 			exit = confirmExitFromGame();
 			if(exit) return GAME_EXIT_EVENT;
 			return GAME_NONE_EVENT;
+		default:
+			break;
 		}
 	}
 	break;
+	case SDL_MOUSEBUTTONUP:
+		destroyStepsArray(gameWin);
+		break;
 	default:
 		return GAME_NONE_EVENT;
 	}
@@ -456,22 +261,25 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	Location tmpLoc;
 	GAME_MESSAGE msg;
 	GAME_EVENT winnerEvent;
-	ChessMove* possibleMoves[28];
-	Step* steps;
-	int num = 0;
-	int* actualSize = &num;
+	Location possibleMoves[28];
 	switch (event->type) {
 
 	case SDL_MOUSEBUTTONDOWN:
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
-			if(event->button.button == SDL_BUTTON_RIGHT){
-				msg = getAllMoves(game, tmpLoc, possibleMoves, actualSize,false);
+
+			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 2){
+				destroyStepsArray(gameWin); //remove,different or new getAllMoves
+
+				if(equalLocations(tmpLoc,gameWin->getAllMovesLoc))  return GAME_NONE_EVENT; //allready remove.
+
+				msg = getAllMoves(game, tmpLoc, possibleMoves, &(gameWin->numOfSteps),false);
 				if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
-				steps = distinguishMovesByPiece(game, possibleMoves,*actualSize, tmpLoc);
-				if(steps == NULL) return GAME_EXIT_EVENT;
-				gameWindowDraw(gameWin, game, event, true, steps, *actualSize);
+				gameWin->getAllMovesLoc = tmpLoc;
+				gameWin->steps = distinguishMovesByPiece(game, possibleMoves,gameWin->numOfSteps, tmpLoc);
+				if(gameWin->steps == NULL) return GAME_EXIT_EVENT;
 			}
+
 			else if(event->button.button == SDL_BUTTON_LEFT){
 				gameWin->chosenLoc = tmpLoc;
 			}
@@ -480,26 +288,42 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 
 
 	case SDL_MOUSEBUTTONUP:{
-		if(event->button.button != SDL_BUTTON_LEFT) return GAME_NONE_EVENT;
+		if(event->button.button == SDL_BUTTON_RIGHT) return GAME_NONE_EVENT;
 		if(gameWin->chosenLoc.row == NOT_CHOOSED) return GAME_NONE_EVENT;
+
+		//Play move
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		if((msg = playMove(game,gameWin->chosenLoc,tmpLoc,false)) == GAME_FAILED) return GAME_EXIT_EVENT;
+
+		//return the piece to his place.
 		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
-		if(playMove(game,gameWin->chosenLoc,tmpLoc,false) != GAME_SUCCESS) return GAME_NORMAL_EVENT;
+		if(msg != GAME_SUCCESS) return GAME_NORMAL_EVENT;
+
+		destroyStepsArray(gameWin); //remove getAllMoves.
+
 		//move is legal
 		winnerEvent = gameCheckingWinnerGui(game);
+
 		if(game->gameMode == 2) return winnerEvent;
+		//com play
 		else{
 			showWinnerMessage(winnerEvent);
 			SDL_Delay(1000);
 			if(chessPlayCom(game) == GAME_FAILED) return GAME_EXIT_EVENT;
 			return gameCheckingWinnerGui(game);
 		}
-
 	}
 	break;
 	}
 	return GAME_NONE_EVENT;
+}
+
+void destroyStepsArray(GameWin* gameWin){
+	if(!gameWin) return;
+	free(gameWin->steps);
+	gameWin->steps = NULL;
+	gameWin->numOfSteps = 0;
+	gameWin->getAllMovesLoc = createLocation(NOT_CHOOSED, NOT_CHOOSED);
 }
 
 Location mouseLocToBoardLoc(int x, int y){
@@ -602,8 +426,9 @@ GAME_EVENT gameCheckingWinnerGui(ChessGame* game){
 		return GetCurrentPlayer(game) == WHITE ? GAME_WHITE_CHECKMATE_EVENT : GAME_BLACK_CHECKMATE_EVENT;
 	case TIE:
 		return GAME_TIE_EVENT;
+	default:
+		return GAME_NORMAL_EVENT;
 	}
-	return GAME_NORMAL_EVENT;
 }
 
 void showWinnerMessage(GAME_EVENT event){
@@ -625,5 +450,232 @@ void showWinnerMessage(GAME_EVENT event){
 		break;
 	case GAME_NONE_EVENT:
 		break;
+	default:
+		break;
 	}
+}
+
+
+
+GameTextures* gameTexturesCreate(GameWin* gameWin){
+	GameTextures* gameTextures = (GameTextures*) malloc(sizeof(GameTextures));
+	if(gameTextures == NULL){
+		printMallocError();
+		return NULL;
+	}
+	gameTextures->grid_texture = NULL;
+	gameTextures->p_white_texture = NULL;
+	gameTextures->p_black_texture = NULL;
+	gameTextures->b_white_texture = NULL;
+	gameTextures->b_black_texture = NULL;
+	gameTextures->q_white_texture = NULL;
+	gameTextures->q_black_texture = NULL;
+	gameTextures->k_white_texture = NULL;
+	gameTextures->k_black_texture = NULL;
+	gameTextures->n_white_texture = NULL;
+	gameTextures->n_black_texture = NULL;
+	gameTextures->r_white_texture = NULL;
+	gameTextures->r_black_texture = NULL;
+	if (generateGameTexture(gameWin) == GAME_WINDOW_FAILED) return NULL;
+	return gameTextures;
+}
+
+GAME_WINDOW_MESSAGE generateGameTexture(GameWin* gameWin){
+	//grid
+
+	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/grid.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+
+	gameWin->gameTextures->grid_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer,loadingSurface);
+	if (gameWin->gameTextures->grid_texture == NULL) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	//PAWN
+	loadingSurface = SDL_LoadBMP("./graphics/images/whitePawn.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+
+	gameWin->gameTextures->p_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->p_white_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackPawn.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->p_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->p_black_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	//BISHOP
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteBishop.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->b_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->b_white_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackBishop.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->b_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->b_black_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	//KNIGHT
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteKnight.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->n_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->n_white_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackKnight.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->n_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->n_black_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	//KING
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteKing.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->k_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->k_white_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackKing.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->k_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->k_black_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	//QUEEN
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteQueen.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->q_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->q_white_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackQueen.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->q_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->q_black_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	//ROOK
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/whiteRook.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->r_white_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->r_white_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+
+	loadingSurface = SDL_LoadBMP("./graphics/images/blackRook.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		return GAME_WINDOW_FAILED;
+	}
+	gameWin->gameTextures->r_black_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer, loadingSurface);
+	if (gameWin->gameTextures->r_black_texture == NULL ) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		return GAME_WINDOW_FAILED;
+	}
+	SDL_FreeSurface(loadingSurface);
+	return GAME_WINDOW_SUCCESS;
+}
+
+void gameTexturesDestroy(GameTextures* gameTextures){
+	if(gameTextures == NULL) return;
+	if(gameTextures->grid_texture != NULL) SDL_DestroyTexture(gameTextures->grid_texture);
+	if(gameTextures->p_white_texture != NULL) SDL_DestroyTexture(gameTextures->p_white_texture);
+	if(gameTextures->p_black_texture != NULL) SDL_DestroyTexture(gameTextures->p_black_texture);
+	if(gameTextures->b_white_texture != NULL) SDL_DestroyTexture(gameTextures->b_white_texture);
+	if(gameTextures->b_black_texture != NULL) SDL_DestroyTexture(gameTextures->b_black_texture);
+	if(gameTextures->q_white_texture != NULL) SDL_DestroyTexture(gameTextures->q_white_texture);
+	if(gameTextures->q_black_texture != NULL) SDL_DestroyTexture(gameTextures->q_black_texture);
+	if(gameTextures->k_white_texture != NULL) SDL_DestroyTexture(gameTextures->k_white_texture);
+	if(gameTextures->k_black_texture != NULL) SDL_DestroyTexture(gameTextures->k_black_texture);
+	if(gameTextures->n_white_texture != NULL) SDL_DestroyTexture(gameTextures->n_white_texture);
+	if(gameTextures->n_black_texture != NULL) SDL_DestroyTexture(gameTextures->n_black_texture);
+	if(gameTextures->r_white_texture != NULL) SDL_DestroyTexture(gameTextures->r_white_texture);
+	if(gameTextures->r_black_texture != NULL) SDL_DestroyTexture(gameTextures->r_black_texture);
+	free(gameTextures);
 }

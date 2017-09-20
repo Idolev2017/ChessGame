@@ -114,7 +114,7 @@ LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* ev
 	if (!event) {
 		return LOAD_INVALID_ARGUMENT_EVENT;
 	}
-	if(event->button.button == SDL_BUTTON_RIGHT) return LOAD_NONE_EVENT;
+	if(event->button.button != SDL_BUTTON_LEFT) return LOAD_NONE_EVENT;
 	int prevSlot = loadWin->chosenSlot;
 	Button* button;
 	char path[] = SLOT1_PATH;
@@ -155,6 +155,8 @@ LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* ev
 			break;
 		case GAME_SLOT5_BUTTON:
 			loadWin->chosenSlot = 5;
+			break;
+		default:
 			break;
 		}
 		switchActiveSlotButton(loadWin,prevSlot,loadWin->chosenSlot);

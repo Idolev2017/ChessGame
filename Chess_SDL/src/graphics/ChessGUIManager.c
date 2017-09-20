@@ -59,13 +59,13 @@ void ChessGUIManagerDestroy(GuiManager* guiManager) {
 		gameWindowDestroy(guiManager->gameWin);
 	}
 	if (!guiManager->loadWin) {
-		loadWindowDestroy(guiManager->gameWin);
+		loadWindowDestroy(guiManager->loadWin);
 	}
 	if (!guiManager->mainWin) {
-		mainWindowDestroy(guiManager->gameWin);
+		mainWindowDestroy(guiManager->mainWin);
 	}
 	if (!guiManager->settingsWin) {
-		settingsWindowDestroy(guiManager->gameWin);
+		settingsWindowDestroy(guiManager->settingsWin);
 	}
 	if (!guiManager->game) {
 		gameDestroy(guiManager->game);
@@ -88,7 +88,7 @@ void ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event) {
 		settingsWindowDraw(guiManager->settingsWin);
 		return;
 	case GAME_WINDOW_ACTIVE:
-		gameWindowDraw(guiManager->gameWin,guiManager->game,event,false,NULL,0);
+		gameWindowDraw(guiManager->gameWin,guiManager->game,event);
 		return;
 	}
 }
@@ -112,6 +112,8 @@ MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* guiManager,MAIN_EVENT even
 		break;
 	case MAIN_EXIT_EVENT:
 		return MANAGER_QUIT;
+	default:
+		break;
 	}
 	return MANAGER_NONE;
 }
@@ -134,14 +136,14 @@ MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT even
 		break;
 
 	case GAME_LOAD_EVENT:
-		gameWindowHide(guiManager->game);
+		gameWindowHide(guiManager->gameWin);
 		guiManager->activeWin = LOAD_WINDOW_ACTIVE;
 		guiManager->loadWin->simpleWindow->backWindow = GAME_WINDOW;
 		loadWindowShow(guiManager->loadWin);
 		break;
 
 	case GAME_MAIN_MENU_EVENT:
-		gameWindowHide(guiManager->game);
+		gameWindowHide(guiManager->gameWin);
 		guiManager->activeWin = MAIN_WINDOW_ACTIVE;
 		mainWindowShow(guiManager->mainWin);
 		break;
@@ -152,6 +154,8 @@ MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT even
 
 	case GAME_EXIT_EVENT:
 		return MANAGER_QUIT;
+	default:
+		break;
 	}
 	return MANAGER_NONE;
 }
@@ -185,6 +189,8 @@ MANAGER_EVENT handleManagerDueToLoadEvent(GuiManager* guiManager,LOAD_EVENT even
 			guiManager->activeWin = GAME_WINDOW_ACTIVE;
 			gameWindowShow(guiManager->gameWin);
 		}
+		break;
+	default:
 		break;
 	}
 	return MANAGER_NONE;

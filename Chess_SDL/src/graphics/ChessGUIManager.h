@@ -26,9 +26,11 @@ typedef struct {
 	ACTIVE_WINDOW activeWin;
 } GuiManager;
 
-GuiManager* spManagerCreate();
+GuiManager* ChessGUIManagerCreate();
 void ChessGUIManagerDestroy(GuiManager* guiManager);
 void ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event);
+
+MANAGER_EVENT ChessGUIManagerHandleEvent(GuiManager* guiManager, SDL_Event* event);
 MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* guiManager,MAIN_EVENT event);
 MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT event);
 MANAGER_EVENT handleManagerDueToLoadEvent(GuiManager* guiManager,LOAD_EVENT event);

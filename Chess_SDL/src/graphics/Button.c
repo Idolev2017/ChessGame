@@ -64,13 +64,14 @@ ButtonMessage inactivateButton(Button* button){
 }
 ButtonMessage drawButton(Button* button,SDL_Renderer* renderer){
 	if(button == NULL) return BUTTON_FAILED;
-	if(button->isClickable == false)
+	if(!button->isClickable){
 		if(SDL_RenderCopy(renderer, button->nonClickableTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
-	else {
-		if(button->isActive)
-			if(SDL_RenderCopy(renderer, button->activeTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
-		else
-			if(SDL_RenderCopy(renderer, button->inactiveTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
+	}
+	else if(button->isActive){
+		if(SDL_RenderCopy(renderer, button->activeTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
+	}
+	else{
+		if(SDL_RenderCopy(renderer, button->inactiveTexture, NULL, button->rect) == -1) return BUTTON_FAILED;
 	}
 	return BUTTON_SUCCESS;
 }

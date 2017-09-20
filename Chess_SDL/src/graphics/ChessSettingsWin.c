@@ -19,7 +19,7 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 	settingsWin->gameModeButtons = NULL;
 	settingsWin->userColorButtons = NULL;
 	settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
-	settingsWin->gameModeButtons = NOT_CHOOSED_SETTINGS;
+	settingsWin->gameModeSelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->userColorSelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->state = GAME_MODE_STATE;
 	settingsWin->simpleWindow = simpleWindowCreate(backType);
@@ -201,7 +201,7 @@ void settingsWindowDestroy(SettingsWin* settingsWin) {
 
 SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, SDL_Event* event){
 	if (!event) return SETTINGS_EXIT_EVENT;
-	if(event->button.button == SDL_BUTTON_RIGHT) return SETTINGS_NONE_EVENT;
+	if(event->button.button != SDL_BUTTON_LEFT) return SETTINGS_NONE_EVENT;
 	SETTINGS_EVENT setEvent;
 	setEvent = settingsWindowHandleEvent(settingsWin,event);
 	if(setEvent == SETTINGS_START_EVENT){
@@ -210,11 +210,13 @@ SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, S
 	}
 	else if(setEvent == SETTINGS_NEXT_EVENT) {
 		promoteState(settingsWin);
+		updateNormalButtons(settingsWin);
 		return SETTINGS_NORMAL_EVENT;
 	}
 	else if(setEvent == SETTINGS_BACK_EVENT) {
 		if(settingsWin->state == GAME_MODE_STATE) return SETTINGS_BACK_EVENT;
 		demoteState(settingsWin);
+		updateNormalButtons(settingsWin);
 		return SETTINGS_NORMAL_EVENT;
 	}
 	return setEvent;

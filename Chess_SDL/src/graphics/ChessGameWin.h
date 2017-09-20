@@ -33,10 +33,7 @@ typedef enum {
 	GAME_EVENT_INVALID_ARGUMENT
 } GAME_EVENT;
 
-
 typedef struct{
-	SimpleWindow* simpleWindow;
-	Button** panelButtons;
 	SDL_Texture* grid_texture;
 	SDL_Texture* p_white_texture;
 	SDL_Texture* p_black_texture;
@@ -50,8 +47,16 @@ typedef struct{
 	SDL_Texture* n_black_texture;
 	SDL_Texture* r_white_texture;
 	SDL_Texture* r_black_texture;
+}GameTextures;
+
+typedef struct{
+	SimpleWindow* simpleWindow;
+	Button** panelButtons;
+	GameTextures* gameTextures;
+	Step* steps;
+	int numOfSteps;
 	Location  chosenLoc;
-	Location destLoc;
+	Location getAllMovesLoc;
 	bool savedLastMove;
 
 }GameWin;
@@ -60,15 +65,15 @@ typedef struct{
 GameWin* gameWindowCreate();
 GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo);
 void updateUndoButton(GameWin* gameWin,ChessGame* game);
-GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps);
-void drawGetAllMoves(GameWin* gameWin,Step* steps,int numOfSteps);
-GAME_EVENT drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece);
+GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event);
+void drawGetAllMoves(GameWin* gameWin);
+GAME_WINDOW_MESSAGE drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece);
 void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass);
 void gameWindowDestroy(GameWin*);
 GAME_EVENT gameWindowHandleEvent(GameWin* src,ChessGame* game, SDL_Event* event);
 GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event);
 GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event);
-GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin);
+void destroyStepsArray(GameWin* gameWin);
 Location mouseLocToBoardLoc(int x, int y);
 SDL_Rect boardLocToRect(Location loc);
 bool isClickedOnBoard(int x, int y);
@@ -79,4 +84,8 @@ void gameWindowHide(GameWin* gameWin);
 void gameWindowShow(GameWin* gameWin);
 GAME_EVENT gameCheckingWinnerGui(ChessGame* game);
 void showWinnerMessage(GAME_EVENT event);
+
+GameTextures* gameTexturesCreate(GameWin* gameWin);
+GAME_WINDOW_MESSAGE generateGameTexture(GameWin* gameWin);
+void gameTexturesDestroy(GameTextures* gameTextures);
 #endif

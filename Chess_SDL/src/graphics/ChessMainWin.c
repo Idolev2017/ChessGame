@@ -58,7 +58,7 @@ void mainWindowDestroy(MainWin* mainWin) {
 
 MAIN_EVENT mainWindowHandleEvent(MainWin* mainWin, SDL_Event* event) {
 	if (!event) return MAIN_EXIT_EVENT;
-	if(event->button.button == SDL_BUTTON_RIGHT) return MAIN_NONE_EVENT;
+	if(event->button.button != SDL_BUTTON_LEFT) return MAIN_NONE_EVENT;
 	Button* button;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{

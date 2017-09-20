@@ -11,8 +11,8 @@
 #include <SDL_video.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "graphics/ChessMainWin.h"
-#include "graphics/ChessGUIManager.h"
+#include "graphics//ChessMainWin.h"
+#include "graphics//ChessGUIManager.h"
 
 int main(int argc, char** argv) {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) { //SDL2 INIT
