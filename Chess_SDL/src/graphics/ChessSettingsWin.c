@@ -359,6 +359,7 @@ void settingsWindowHide(SettingsWin* settingsWin) {
 }
 
 void settingsWindowShow(SettingsWin* settingsWin) {
+	updateNormalButtons(settingsWin);
 	simpleWindowShow(settingsWin->simpleWindow);
 }
 

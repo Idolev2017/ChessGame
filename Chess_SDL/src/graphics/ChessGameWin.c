@@ -455,8 +455,6 @@ void showWinnerMessage(GAME_EVENT event){
 	}
 }
 
-
-
 GameTextures* gameTexturesCreate(GameWin* gameWin){
 	GameTextures* gameTextures = (GameTextures*) malloc(sizeof(GameTextures));
 	if(gameTextures == NULL){
