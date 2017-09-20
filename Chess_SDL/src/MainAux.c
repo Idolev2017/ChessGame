@@ -21,8 +21,6 @@ GAME_MESSAGE chessPlayCom(ChessGame* game){
 	Piece* movingPiece = getPieceOnBoard(game, move[1]);
 	if(((movingPiece->color == WHITE && move[1].row == 7) || (movingPiece->color == BLACK && move[1].row == 0)) && movingPiece->type == PAWN)
 		movingPiece->type = *type;
-
-
 	free(move);
 	return msg;
 }

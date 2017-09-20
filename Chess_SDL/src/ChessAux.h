@@ -12,6 +12,8 @@
 #include <string.h>
 typedef enum game_message_t {
 	GAME_INVALID_MOVE,
+	GAME_INVALID_PIECE,
+	GAME_INVALID_POSITION,
 	GAME_INVALID_ARGUMENT,
 	GAME_NO_HISTORY,
 	GAME_SUCCESS,
@@ -24,7 +26,7 @@ typedef enum game_message_t {
 typedef enum {
 	START_setting,
 	QUIT_setting,
-	NORMAL_setting,
+	NORMAL_SETTINGS,
 	SETTING_FAILED
 }Setting_Status;
 

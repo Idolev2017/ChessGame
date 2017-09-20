@@ -13,7 +13,7 @@ typedef enum{
 }ACTIVE_WINDOW;
 
 typedef enum{
-	MANAGER_QUTT,
+	MANAGER_QUIT,
 	MANAGER_NONE,
 }MANAGER_EVENT;
 
@@ -22,7 +22,7 @@ typedef struct {
 	MainWin* mainWin;
 	LoadWin* loadWin;
 	SettingsWin* settingsWin;
-	int numOfSlots;
+	ChessGame* game;
 	ACTIVE_WINDOW activeWin;
 } GuiManager;
 
@@ -32,11 +32,8 @@ void spManagerDestroy(GuiManager* src);
 
 void spManagerDraw(GuiManager* src);
 
-MANAGER_EVENT spManagerHandleEvent(GuiManager* src, SDL_Event* event) ;
+LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game,int numOfSlots, SDL_Event* event);
 
-int scanSlotsInDirectory();
-
-void addGameSlot(LoadWin* loadWin,ChessGame* game);
 
 
 #endif

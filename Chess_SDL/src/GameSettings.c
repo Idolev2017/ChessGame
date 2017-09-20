@@ -46,8 +46,8 @@ Setting_Status gameUpdateSetting(ChessGame* game){
 			printf("invalid command\n");
 			continue;
 		}
-		status = chessChangingSettings(game,words,*numOfWords);
-		if(status != NORMAL_setting) {
+		status = gameChangingSettings(game,words,*numOfWords);
+		if(status != NORMAL_SETTINGS) {
 			free(line);
 			freeArray(words, *numOfWords);
 			return status;
@@ -55,7 +55,7 @@ Setting_Status gameUpdateSetting(ChessGame* game){
 	}
 }
 
-Setting_Status chessChangingSettings(ChessGame* game,char** words,int numOfWords){
+Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords){
 	char* command = words[0];
 	if(numOfWords == 1){
 		if(strcmp(command,"print_setting") == 0){
@@ -80,7 +80,7 @@ Setting_Status chessChangingSettings(ChessGame* game,char** words,int numOfWords
 		}
 		else{
 			printf("Invalid command\n");
-			return NORMAL_setting;
+			return NORMAL_SETTINGS;
 		}
 	}
 	else if(numOfWords == 2){
@@ -103,18 +103,27 @@ Setting_Status chessChangingSettings(ChessGame* game,char** words,int numOfWords
 			else printf("Wrong game mode\n");
 		}
 		else if(strcmp(command,"load") == 0){
-			return loadGame(game, words[1]);
+			bool flag = false;
+			bool* loaded = &flag;
+			return loadGame(game, words[1],loaded);
 		}
 		else{
 			printf("Invalid command\n");
-			return NORMAL_setting;
+			return NORMAL_SETTINGS;
 		}
 	}
 	else printf("Invalid command\n");
-	return NORMAL_setting;
+	return NORMAL_SETTINGS;
 }
 
-ChessGame* gameCreate(int historySize){
+void simpleSettingsSetter(ChessGame* game, int difficulty,int gameMode,int userColor){
+	if (game == NULL) return;
+	game->gameDifficulty = difficulty;
+	game->gameMode = gameMode;
+	game->userColor = userColor;
+}
+
+ChessGame* gameCreate(int historySize, bool consoleMode){
 	ChessGame* game = (ChessGame*)malloc(sizeof(ChessGame)); //mallocHandling
 	if(game == NULL) {
 		printMallocError();
@@ -125,9 +134,11 @@ ChessGame* gameCreate(int historySize){
 		free(game);
 		return NULL;
 	}
-	if(gameSettingMode(game) != GAME_SUCCESS) {
-		gameDestroy(game);
-		return NULL;
+	if(consoleMode){
+		if(gameSettingMode(game) != GAME_SUCCESS) {
+			gameDestroy(game);
+			return NULL;
+		}
 	}
 	return game;
 }
@@ -271,11 +282,16 @@ void gamePrintBoard(ChessGame* game){
 
 }
 
-Setting_Status loadGame(ChessGame* game, char* filePath){
+Color GetCurrentPlayer(ChessGame* game){
+	return game->currentPlayer;
+}
+
+Setting_Status loadGame(ChessGame* game, char* filePath,bool* loaded){
 	FILE* file = fopen(filePath, "r");
 	if(file == NULL){
 		printf("Error: File doesn’t exist or cannot be opened\n");
-		return NORMAL_setting;
+		*loaded = false;
+		return NORMAL_SETTINGS;
 	}
 	int currentPlayer, gameMode, difficulty, userColor;
 	int temp;
@@ -284,6 +300,8 @@ Setting_Status loadGame(ChessGame* game, char* filePath){
 	fscanf(file, "\t<game_mode>%d</game_ mode>\n", &gameMode);
 	fscanf(file, "\t<difficulty>%d</difficulty>\n", &difficulty);
 	fscanf(file, "\t<user_color>%d</user_color>\n", &userColor);
+	gameDestroy(game);
+	gameCreate(HISTORY_SIZE,false);
 	game->currentPlayer = currentPlayer;
 	game->gameMode = gameMode;
 	game->gameDifficulty = difficulty;
@@ -312,9 +330,11 @@ Setting_Status loadGame(ChessGame* game, char* filePath){
 	if(fclose(file) != 0)
 	{
 		printf("Error: File cannot be closed\n");
-		return NORMAL_setting;
+		*loaded = false;
+		return NORMAL_SETTINGS;
 	}
-	return NORMAL_setting;
+	*loaded = true;
+	return NORMAL_SETTINGS;
 }
 
 Piece* letterToPieceGenerator(char c, int row, int col){

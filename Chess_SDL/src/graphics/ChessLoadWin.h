@@ -15,6 +15,9 @@
 
 #define LOAD_NUM_OF_REGULAR_BUTTONS 3
 #define LOAD_NUM_OF_SLOTS 5
+#define SLOT1_PATH ".//src//GameSlots//gameSlot1.xml"
+#define NOT_CHOOSED 0
+#define LOAD_INDEX 2
 
 typedef enum{
 	LOAD_SUCCESS,
@@ -30,6 +33,7 @@ typedef enum {
 	LOAD_BACK_EVENT,
 	LOAD_LOAD_EVENT,
 	LOAD_EXIT_EVENT,
+	LOAD_NORMAL_EVENT,
 	LOAD_INVALID_ARGUMENT_EVENT,
 	LOAD_NONE_EVENT
 } LOAD_EVENT;
@@ -38,16 +42,19 @@ typedef struct{
 	SimpleWindow* simpleWindow;
 	Button** regularButtons;
 	Button** slotsButtons;
+	int numOfSlots;
+	int chosenSlot;
 }LoadWin;
 
 LoadWin* loadWindowCreate(WINDOW_TYPE backType);
 LOAD_MESSAGE generateRegularButtons(LoadWin* loadWin);
 LOAD_MESSAGE generateSlotsButtons(LoadWin* loadWin);
-LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin, int numOfSlots);
+LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin);
 void loadWindowDestroy(LoadWin* loadWin);
+LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,int numOfSlots, SDL_Event* event);
+int scanSlotsInDirectory();
+LOAD_MESSAGE addGameSlot(LoadWin* loadWin,ChessGame* game);
+void switchActiveSlotButton(LoadWin* loadWin,int prevSlot,int newSlot);
 void loadWindowHide(LoadWin* loadWin);
 void loadWindowShow(LoadWin* loadWin);
-LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,int numOfSlots, SDL_Event* event);
-
-
 #endif /* GRAPHICS_CHESSLOADWIN_H_ */

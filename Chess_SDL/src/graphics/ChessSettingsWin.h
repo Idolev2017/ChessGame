@@ -14,6 +14,10 @@
 #define SETTINGS_NUM_OF_USERCOLOR_BUTTONS 3
 #define SETTINGS_NUM_OF_GAMEMODE_BUTTONS 3
 #define SETTINGS_NUM_OF_NORMAL_BUTTONS 4
+#define NOT_CHOOSED -1
+#define START_INDEX 0
+#define NEXT_INDEX 1
+#define BACK_INDEX 2
 
 typedef enum{
 	SETTINGS_SUCCESS,
@@ -27,18 +31,10 @@ typedef enum{
 }SETTING_STATE;
 
 typedef enum {
-	SETTING_START_EVENT,
+	SETTINGS_START_EVENT,
 	SETTINGS_NEXT_EVENT,
 	SETTINGS_BACK_EVENT,
-	GAME_MODE_1_EVENT,
-	GAME_MODE_2_EVENT,
-	DIFFICULTY_1_EVENT,
-	DIFFICULTY_2_EVENT,
-	DIFFICULTY_3_EVENT,
-	DIFFICULTY_4_EVENT,
-	DIFFICULTY_5_EVENT,
-	COLOR_BLACK_PLAYER_EVENT,
-	COLOR_WHITE_PLAYER_EVENT,
+	SETTINGS_NORMAL_EVENT,
 	SETTINGS_INVALID_ARGUMENT_EVENT,
 	SETTINGS_EXIT_EVENT,
 	SETTINGS_NONE_EVENT
@@ -50,20 +46,29 @@ typedef struct{
 	Button** gameModeButtons;
 	Button** userColorButtons;
 	Button** normalButtons; //start,next,back
+	int difficultySelect;
+	int gameModeSelect;
+	int userColorSelect;
+	SETTING_STATE state;
 }SettingsWin;
 
 SettingsWin* settingsWindowCreate(WINDOW_TYPE backType);
+SETTINGS_MESSAGE updateSettingsWindow(SettingsWin* settingsWin);
+void updateNormalButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateDifficutyButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateGameModeButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateUserColorButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin);
-SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin,SETTING_STATE state);
+SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin);
 void settingsWindowDestroy(SettingsWin* settingsWin);
 void settingsWindowHide(SettingsWin* settingsWin);
 void settingsWindowShow(SettingsWin* settingsWin);
-SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* event,SETTING_STATE state);
-SETTINGS_EVENT difficultyHandleEvent(Button* button);
-SETTINGS_EVENT gameModeHandleEvent(Button* button);
-SETTINGS_EVENT userColorHandleEvent(Button* button);
+SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* event);
+SETTINGS_EVENT difficultyHandleEvent(SettingsWin* settingsWin, Button* button);
+SETTINGS_EVENT gameModeHandleEvent(SettingsWin* settingsWin, Button* button);
+SETTINGS_EVENT userColorHandleEvent(SettingsWin* settingsWin, Button* button);
+void switchActiveButtons(Button** buttons, int prevButton,int newButton);
+void promoteState(SettingsWin* settingsWin);
+void demoteState(SettingsWin* settingsWin);
 
 #endif /* GRAPHICS_CHESSSETTINGSWIN_H_ */

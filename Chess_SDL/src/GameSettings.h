@@ -46,9 +46,11 @@ Setting_Status gameUpdateSetting(ChessGame* game);
 
 GAME_MESSAGE gameSettingMode(ChessGame* game);
 
-Setting_Status chessChangingSettings(ChessGame* game,char** words,int numOfWords);
+Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords);
 
-ChessGame* gameCreate(int historySize);
+void simpleSettingsSetter(ChessGame* game, int difficulty,int gameMode,int userColor);
+
+ChessGame* gameCreate(int historySize, bool consoleMode);
 
 GAME_MESSAGE gameInitialization(ChessGame* game,bool toClear,int historySize);
 
@@ -64,7 +66,7 @@ void gamePrintBoard(ChessGame* game);
 
 Color GetCurrentPlayer(ChessGame* game);
 
-Setting_Status loadGame(ChessGame* game, char* filepath);
+Setting_Status loadGame(ChessGame* game, char* filepath,bool* loaded);
 
 Piece* letterToPieceGenerator(char c, int row, int col);
 #endif /* GAMESETTING_H_ */

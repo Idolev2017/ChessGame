@@ -3,13 +3,13 @@
 
 MainWin* mainWindowCreate() {
 	MainWin* mainWin = NULL;
-	mainWin->simpleWindow = NULL;
-	mainWin->buttons = NULL;
 	mainWin = (MainWin*) malloc(sizeof(MainWin));
 	if (mainWin == NULL ) {
 		printMallocError();
 		return NULL;
 	}
+	mainWin->simpleWindow = NULL;
+	mainWin->buttons = NULL;
 	mainWin->simpleWindow = simpleWindowCreate(NONE_WINDOW);
 	// Check that the window was successfully created
 	if (mainWin->simpleWindow == NULL) {
@@ -57,9 +57,8 @@ void mainWindowDestroy(MainWin* mainWin) {
 }
 
 MAIN_EVENT mainWindowHandleEvent(MainWin* mainWin, SDL_Event* event) {
-	if (!event) {
-		return MAIN_INVALID_ARGUMENT_EVENT;
-	}
+	if (!event) return MAIN_EXIT_EVENT;
+	if(event->button.button == SDL_BUTTON_RIGHT) return MAIN_NONE_EVENT;
 	Button* button;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{

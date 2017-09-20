@@ -19,18 +19,17 @@ typedef enum{
 }GAME_WINDOW_MESSAGE;
 
 typedef enum {
-	GAME_WHITH_CHECK_EVENT,
+	GAME_WHITE_CHECK_EVENT,
 	GAME_BLACK_CHECK_EVENT,
-	GAME_WHITH_CHECKMATE_EVENT,
+	GAME_WHITE_CHECKMATE_EVENT,
 	GAME_BLACK_CHECKMATE_EVENT,
 	GAME_TIE_EVENT,
-	GAME_RESTART_EVENT,
 	GAME_SAVE_EVENT,
 	GAME_LOAD_EVENT,
-	GAME_UNDO_EVENT,
 	GAME_MAIN_MENU_EVENT,
 	GAME_EXIT_EVENT,
 	GAME_NONE_EVENT,
+	GAME_NORMAL_EVENT,
 	GAME_EVENT_INVALID_ARGUMENT
 } GAME_EVENT;
 
@@ -52,22 +51,31 @@ typedef struct{
 	SDL_Texture* r_white_texture;
 	SDL_Texture* r_black_texture;
 	Location  chosenLoc;
+	Location destLoc;
+	bool savedLastMove;
 
 }GameWin;
 
 
-GameWin* GameWindowCreate();
+GameWin* gameWindowCreate();
 GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo);
 void updateUndoButton(GameWin* gameWin,ChessGame* game);
-GAME_WINDOW_MESSAGE GameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps);
+GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps);
 void drawGetAllMoves(GameWin* gameWin,Step* steps,int numOfSteps);
 GAME_EVENT drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece);
 void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass);
-void GameWindowDestroy(GameWin*);
-GAME_EVENT GameWindowHandleEvent(GameWin* src, SDL_Event* event);
+void gameWindowDestroy(GameWin*);
+GAME_EVENT gameWindowHandleEvent(GameWin* src,ChessGame* game, SDL_Event* event);
+GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event);
+GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event);
 GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin);
 Location mouseLocToBoardLoc(int x, int y);
 SDL_Rect boardLocToRect(Location loc);
 bool isClickedOnBoard(int x, int y);
-
+GAME_EVENT gameUndoGui(ChessGame* game);
+void gameRestartGui(int prevDifficulty, int prevGameMode, int prevUserColor, ChessGame* game);
+void gameWindowHide(GameWin* gameWin);
+void gameWindowShow(GameWin* gameWin);
+GAME_EVENT gameCheckingWinnerGui(ChessGame* game);
+void showWinnerMessage(GAME_EVENT event)
 #endif

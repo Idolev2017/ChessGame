@@ -3,9 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-
-
-GameWin* GameWindowCreate(ChessGame* game) {
+GameWin* gameWindowCreate() {
 	GameWin* gameWin = (GameWin*) malloc(sizeof(GameWin));
 	SDL_Surface* loadingSurface = NULL; //Used as temp surface
 	gameWin->simpleWindow = NULL;
@@ -24,6 +22,7 @@ GameWin* GameWindowCreate(ChessGame* game) {
 	gameWin->r_white_texture = NULL;
 	gameWin->r_black_texture = NULL;
 	gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+	gameWin->savedLastMove = true;
 	if (gameWin == NULL ) {
 		printf("Couldn't create GameWin struct\n");
 		return NULL ;
@@ -32,31 +31,30 @@ GameWin* GameWindowCreate(ChessGame* game) {
 	gameWin->simpleWindow = simpleWindowCreate(NONE_WINDOW);
 	// Check that the window was successfully created
 	if (gameWin->simpleWindow == NULL ) {
-		GameWindowDestroy(gameWin);
+		gameWindowDestroy(gameWin);
 		return NULL;
 	}
 	//Create a background texture:
 	loadingSurface = SDL_LoadBMP("./graphics/images/grid.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
-		GameWindowDestroy(gameWin);
+		gameWindowDestroy(gameWin);
 		return NULL;
 	}
 	gameWin->grid_texture = SDL_CreateTextureFromSurface(gameWin->simpleWindow->renderer,loadingSurface);
 	if (gameWin->grid_texture == NULL) {
 		printf("Could not create a texture: %s\n", SDL_GetError());
 		SDL_FreeSurface(loadingSurface);
-		GameWindowDestroy(gameWin);
+		gameWindowDestroy(gameWin);
 		return NULL;
 	}
 	SDL_FreeSurface(loadingSurface); //We finished with the surface -> delete it
 	if(generatePieceTexture(gameWin) == GAME_WINDOW_FAILED){
-		GameWindowDestroy(gameWin);
+		gameWindowDestroy(gameWin);
 		return NULL;
 	}
-	bool canUndo = game->gameMode == 1 && !ChessArrayListIsEmpty(game->LastMoves) && game->gameDifficulty <=2;
-	if(generatePanelButtons(gameWin,canUndo) == GAME_WINDOW_FAILED){
-		GameWindowDestroy(gameWin);
+	if(generatePanelButtons(gameWin,false) == GAME_WINDOW_FAILED){
+		gameWindowDestroy(gameWin);
 		return NULL;
 	}
 	return gameWin;
@@ -253,7 +251,7 @@ void updateUndoButton(GameWin* gameWin, ChessGame* game){
 	return;
 }
 
-void GameWindowDestroy(GameWin* gameWin) {
+void gameWindowDestroy(GameWin* gameWin) {
 	if (gameWin == NULL) return;
 	if(gameWin->simpleWindow != NULL) simpleWindowDestroy(gameWin->simpleWindow);
 	if(gameWin->panelButtons != NULL) buttonArrayDestroy(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
@@ -273,7 +271,7 @@ void GameWindowDestroy(GameWin* gameWin) {
 	free(gameWin);
 }
 
-GAME_WINDOW_MESSAGE GameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps) {
+GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event,bool drawMoves,Step* steps,int numOfSteps) {
 	if(gameWin == NULL){
 		return GAME_WINDOW_FAILED;
 	}
@@ -383,23 +381,18 @@ void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass){
 	SDL_RenderFillRect(gameWin->simpleWindow->renderer,rec);
 }
 
-GAME_EVENT GameWindowHandleEvent(GameWin* gameWin, SDL_Event* event) {
+GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event) {
 	if (event == NULL || gameWin == NULL ) {
 		return GAME_EVENT_INVALID_ARGUMENT;
 	}
 	switch (event->type) {
+	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
-		spTicTacToeSetMove(gameWin->game, event->button.y / 200,
-				event->button.x / 200);
-		char winner = spTicTacToeCheckWinner(gameWin->game);
-		if (winner == SP_PLAYER_1_SYMBOL) {
-			return GAME_EVENT_X_WON;
-		} else if (winner == SP_PLAYER_2_SYMBOL) {
-			return GAME_EVENT_O_WON;
-		} else if (spTicTacToeIsGameOver(gameWin->game)) {
-			return GAME_EVENT_TIE;
+		if(!isClickedOnBoard(event->button.x,event->button.y) && event->button.button == SDL_BUTTON_LEFT) {
+			gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+			return gameWindowPanelHandleEvent(gameWin,event);
 		}
-		break;
+		else return gameWindowBoardHandleEvent(gameWin,event);
 	case SDL_WINDOWEVENT:
 		if (event->window.event == SDL_WINDOWEVENT_CLOSE) {
 			return GAME_EXIT_EVENT;
@@ -407,6 +400,97 @@ GAME_EVENT GameWindowHandleEvent(GameWin* gameWin, SDL_Event* event) {
 		break;
 	default:
 		return GAME_NONE_EVENT;
+	}
+	return GAME_NONE_EVENT;
+}
+
+GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event){
+	if(!gameWin || !game) return GAME_EXIT_EVENT;
+	gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+	Button* button;
+	int prevDifficulty,prevGameMode,prevUserColor;
+	GAME_MESSAGE msg;
+	bool exit;
+	switch (event->type) {
+	case SDL_MOUSEBUTTONDOWN:{
+		button = whichButtonWasClicked(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS,event->button.x, event->button.y);
+		switch(button->type){
+		case GAME_RESTART_BUTTON:
+			gameRestartGui(prevDifficulty, prevGameMode, prevUserColor, game);
+			gameWin->savedLastMove = true;
+			return GAME_NORMAL_EVENT;
+
+		case GAME_SAVE_BUTTON:
+			gameWin->savedLastMove = true;
+			return GAME_SAVE_EVENT;
+
+		case GAME_LOAD_BUTTON:
+			gameWin->savedLastMove = true;
+			return GAME_LOAD_EVENT;
+
+		case GAME_UNDO_BUTTON:
+			gameWin->savedLastMove = false;
+			return gameUndoGui(game);
+
+		case GAME_MAIN_MENU_BUTTON:
+			if(gameWin->savedLastMove) return GAME_MAIN_MENU_EVENT;
+			exit = confirmExitFromGame();
+			if(exit) return GAME_MAIN_MENU_EVENT;
+			return GAME_NONE_EVENT;
+
+		case GAME_EXIT_BUTTON:
+			if(gameWin->savedLastMove) return GAME_EXIT_EVENT;
+			exit = confirmExitFromGame();
+			if(exit) return GAME_EXIT_EVENT;
+			return GAME_NONE_EVENT;
+		}
+	}
+	break;
+	default:
+		return GAME_NONE_EVENT;
+	}
+	return GAME_NONE_EVENT;
+}
+
+GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event){
+	Location tmpLoc;
+	GAME_MESSAGE msg;
+	GAME_EVENT winnerEvent;
+
+	switch (event->type) {
+
+	case SDL_MOUSEBUTTONDOWN:
+		if(event->button.button == SDL_BUTTON_RIGHT){
+			drawGetAllMoves()
+		}
+		else if(event->button.button == SDL_BUTTON_LEFT){
+			tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
+			if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
+				gameWin->chosenLoc = tmpLoc;
+			}
+		}
+		break;
+
+
+	case SDL_MOUSEBUTTONUP:{
+		if(event->button.button != SDL_BUTTON_LEFT) return GAME_NONE_EVENT;
+		if(gameWin->chosenLoc.row == NOT_CHOOSED) return GAME_NONE_EVENT;
+		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
+		if((msg = playMove(game,gameWin->chosenLoc,tmpLoc,false)) == GAME_FAILED) return GAME_EXIT_EVENT;
+		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+		if(playMove(game,gameWin->chosenLoc,tmpLoc,false) != GAME_SUCCESS) return GAME_NORMAL_EVENT;
+		//move is legal
+		winnerEvent = gameCheckingWinnerGui(game);
+		if(game->gameMode == 2) return winnerEvent;
+		else{
+			showWinnerMessage(winnerEvent);
+			SDL_Delay(1000);
+			if(chessPlayCom(game) == GAME_FAILED) return GAME_EXIT_EVENT;
+			return gameCheckingWinnerGui(game);
+		}
+
+	}
+	break;
 	}
 	return GAME_NONE_EVENT;
 }
@@ -430,4 +514,109 @@ SDL_Rect boardLocToRect(Location loc){
 
 bool isClickedOnBoard(int x, int y){
 	return PANEL_WIDTH <= x;
+}
+
+bool confirmExitFromGame(){
+	SDL_MessageBoxButtonData buttons[] = {
+			{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "cancel" },
+			{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes" },
+	};
+	SDL_MessageBoxColorScheme colorScheme = {
+			{ /* .colors (.r, .g, .b) */
+					/* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+					{ 255,   0,   0 },
+					/* [SDL_MESSAGEBOX_COLOR_TEXT] */
+					{   0, 255,   0 },
+					/* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+					{ 255, 255,   0 },
+					/* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+					{   0,   0, 255 },
+					/* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+					{ 255,   0, 255 }
+			}
+	};
+	SDL_MessageBoxData messageboxdata = {
+			SDL_MESSAGEBOX_INFORMATION, /* .flags */
+			NULL, /* .window */
+			"warning", /* .title */
+			"Are you sure you want to exit before saving the game?", /* .message */
+			SDL_arraysize(buttons), /* .numbuttons */
+			buttons, /* .buttons */
+			&colorScheme /* .colorScheme */
+	};
+	int buttonid;
+	if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+		SDL_Log("error displaying message box");
+		return 1;
+	}
+	return (buttonid == 1) ? true : false;
+}
+
+void gameRestartGui(int prevDifficulty, int prevGameMode, int prevUserColor, ChessGame* game) {
+	prevDifficulty = game->gameDifficulty;
+	prevGameMode = game->gameMode;
+	prevUserColor = game->userColor;
+	gameInitialization(game, true, HISTORY_SIZE);
+	simpleSettingsSetter(game, prevDifficulty, prevGameMode, prevUserColor);
+}
+
+GAME_EVENT gameUndoGui(ChessGame* game){
+	GAME_MESSAGE msg;
+	msg = undoPrevMove(game,false);
+	if(msg == GAME_FAILED) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error",
+				"undo move cannot be done",NULL);
+		return GAME_EXIT_EVENT;
+	}
+	if(msg == GAME_SUCCESS) return GAME_NORMAL_EVENT;
+	if(msg == GAME_NO_HISTORY) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Empty history","move cannot be undone",NULL);
+	}
+	else if(msg == GAME_INVALID_ARGUMENT) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Invalid move","Undo command not available in 2 players mode",NULL);
+	}
+	return GAME_NONE_EVENT;
+}
+
+void gameWindowHide(GameWin* gameWin) {
+	simpleWindowHide(gameWin->simpleWindow);
+}
+
+void gameWindowShow(GameWin* gameWin) {
+	simpleWindowShow(gameWin->simpleWindow);
+}
+
+GAME_EVENT gameCheckingWinnerGui(ChessGame* game){
+	GAME_STATUS winnerStatus = checkingWinner(game);
+	switch(winnerStatus){
+	case CHECK:
+		return GetCurrentPlayer(game) == WHITE ? GAME_WHITE_CHECK_EVENT : GAME_BLACK_CHECK_EVENT;
+	case CHECKMATE:
+		return GetCurrentPlayer(game) == WHITE ? GAME_WHITE_CHECKMATE_EVENT : GAME_BLACK_CHECKMATE_EVENT;
+	case TIE:
+		return GAME_TIE_EVENT;
+	}
+	return GAME_NORMAL_EVENT;
+}
+
+void showWinnerMessage(GAME_EVENT event){
+	switch(event){
+	case GAME_WHITE_CHECK_EVENT:
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Check", "white king threatened",NULL);
+		break;
+	case GAME_BLACK_CHECK_EVENT:
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Check", "black king threatened",NULL);
+		break;
+	case GAME_WHITE_CHECKMATE_EVENT:
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "white player won",NULL);
+		break;
+	case GAME_BLACK_CHECKMATE_EVENT:
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "black player won",NULL);
+		break;
+	case GAME_TIE_EVENT:
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "it's a TIE",NULL);
+		break;
+	case GAME_NONE_EVENT:
+		break;
+	}
 }

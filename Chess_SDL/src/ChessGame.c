@@ -36,7 +36,7 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 		break;
 
 	case SAVE:
-		msg = saveGame(game,cmd.filePath,true);
+		msg = saveGame(game,cmd.filePath);
 		break;
 
 	case QUIT:
@@ -92,7 +92,7 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool toPrint){
 	if(isLegalLoc(src) + isLegalLoc(dest) != 2){
 		if(toPrint) printf("Invalid position on the board\n");
-		return GAME_INVALID_MOVE;
+		return GAME_INVALID_POSITION;
 	}
 	if(equalLocations(src, dest)){
 		if(toPrint) printf("Illegal move\n");
@@ -105,7 +105,7 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool toPrint
 	Piece* destPiece = copyPiece(getPieceOnBoard(game, dest));
 	if(movingPiece == NULL || (movingPiece->color != game->currentPlayer)){
 		if(toPrint) printf("The specified position does not contain your piece\n");
-		return GAME_INVALID_MOVE;
+		return GAME_INVALID_PIECE;
 	}
 
 	switch(movingPiece->type){
@@ -405,12 +405,12 @@ void printSteps(Step* steps,int size){
 	}
 }
 
-GAME_MESSAGE saveGame(ChessGame* game,char* filePath,bool consoleMode){
+GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	//opening the FILE
 	FILE* file = fopen(filePath, "w");
 	if(file == NULL)
 	{
-		if(consoleMode) printf("File cannot be created or modified\n");
+		printf("File cannot be created or modified\n");
 		return GAME_FAILED;
 	}
 	//prints to the XML file

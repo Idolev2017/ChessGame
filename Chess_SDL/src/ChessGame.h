@@ -56,7 +56,7 @@ Step* distinguishMovesByPiece(ChessGame* game, Location* locArray,int size, Loca
 
 void printSteps(Step* steps,int size);
 
-GAME_MESSAGE saveGame(ChessGame* game,char* filePath,bool consoleMode);
+GAME_MESSAGE saveGame(ChessGame* game,char* filePath);
 
 GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint);
 

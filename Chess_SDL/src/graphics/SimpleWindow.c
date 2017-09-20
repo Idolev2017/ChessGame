@@ -8,14 +8,13 @@
 
 SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	SimpleWindow* simpleWin = NULL;
-	simpleWin->window = NULL;
-	simpleWin->renderer = NULL;
-
 	simpleWin = (SimpleWindow*) malloc(sizeof(SimpleWindow));
 	if (simpleWin == NULL ) {
 		printMallocError();
 		return NULL ;
 	}
+	simpleWin->window = NULL;
+	simpleWin->renderer = NULL;
 	// Create an application window with the following settings:
 	simpleWin->window = SDL_CreateWindow("CHESS", // window title
 			SDL_WINDOWPOS_CENTERED,           // initial x position

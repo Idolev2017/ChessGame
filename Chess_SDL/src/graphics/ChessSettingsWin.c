@@ -8,16 +8,20 @@
 
 SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 	SettingsWin* settingsWin = NULL;
-	settingsWin->simpleWindow = NULL;
-	settingsWin->difficultyButtons = NULL;
-	settingsWin->normalButtons = NULL;
-	settingsWin->gameModeButtons = NULL;
-	settingsWin->userColorButtons = NULL;
 	settingsWin = (SettingsWin*) malloc(sizeof(SettingsWin));
 	if (settingsWin == NULL) {
 		printMallocError();
 		return NULL;
 	}
+	settingsWin->simpleWindow = NULL;
+	settingsWin->difficultyButtons = NULL;
+	settingsWin->normalButtons = NULL;
+	settingsWin->gameModeButtons = NULL;
+	settingsWin->userColorButtons = NULL;
+	settingsWin->difficultySelect = NOT_CHOOSED;
+	settingsWin->gameModeButtons = NOT_CHOOSED;
+	settingsWin->userColorSelect = NOT_CHOOSED;
+	settingsWin->state = GAME_MODE_STATE;
 	settingsWin->simpleWindow = simpleWindowCreate(backType);
 	// Check that the window was successfully created
 	if (settingsWin->simpleWindow == NULL) {
@@ -30,6 +34,52 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 		return NULL;
 	}
 	return settingsWin;
+}
+
+SETTINGS_MESSAGE updateSettingsWindow(SettingsWin* settingsWin){
+	settingsWin->difficultySelect = NOT_CHOOSED;
+	settingsWin->gameModeSelect = NOT_CHOOSED;
+	settingsWin->userColorSelect = NOT_CHOOSED;
+	buttonArrayDestroy(settingsWin->difficultyButtons);
+	free(settingsWin->difficultyButtons);
+	settingsWin->difficultyButtons = NULL;
+
+	buttonArrayDestroy(settingsWin->gameModeButtons);
+	free(settingsWin->gameModeButtons);
+	settingsWin->gameModeButtons = NULL;
+
+	buttonArrayDestroy(settingsWin->userColorButtons);
+	free(settingsWin->userColorButtons);
+	settingsWin->userColorButtons = NULL;
+
+	buttonArrayDestroy(settingsWin->normalButtons);
+	free(settingsWin->normalButtons);
+	settingsWin->normalButtons = NULL;
+
+	if(generateDifficutyButtons(settingsWin) == SETTINGS_FAILED || generateGameModeButtons(settingsWin) == SETTINGS_FAILED ||
+			generateUserColorButtons(settingsWin) == SETTINGS_FAILED || generateNormalButtons(settingsWin) == SETTINGS_FAILED){
+		return SETTINGS_FAILED;
+	}
+	return SETTINGS_SUCCESS;
+}
+
+void updateNormalButtons(SettingsWin* settingsWin){
+
+	settingsWin->normalButtons[START_INDEX]->isClickable = false;
+	settingsWin->normalButtons[NEXT_INDEX]->isClickable = false;
+
+	switch(settingsWin->state){
+	case DIFFICULTY_STATE:
+		settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->difficultySelect != NOT_CHOOSED)? true : false;
+		break;
+	case GAME_MODE_STATE:
+		if(settingsWin->gameModeSelect == 2) settingsWin->normalButtons[START_INDEX]->isClickable = true;
+		else settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->gameModeSelect != NOT_CHOOSED) ? true : false;
+		break;
+	case USER_COLOR_STATE:
+		settingsWin->normalButtons[START_INDEX]->isClickable = (settingsWin->userColorSelect != NOT_CHOOSED) ? true : false;
+		break;
+	}
 }
 
 SETTINGS_MESSAGE generateDifficutyButtons(SettingsWin* settingsWin) {
@@ -105,8 +155,8 @@ SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin) {
 			SETTINGS_START_BUTTON,
 			SETTINGS_NEXT_BUTTON,
 			SETTINGS_BACK_BUTTON };
-	bool ActiveNormalButtons[SETTINGS_NUM_OF_NORMAL_BUTTONS] = {true, false, false};
-	bool ClickableNormalButtons[SETTINGS_NUM_OF_NORMAL_BUTTONS] = {false, true, true};
+	bool ActiveNormalButtons[SETTINGS_NUM_OF_NORMAL_BUTTONS] = {true, true, true};
+	bool ClickableNormalButtons[SETTINGS_NUM_OF_NORMAL_BUTTONS] = {false, false, true};
 	if (buttonArrayCreate(settingsWin->normalButtons, normalTypes, ActiveNormalButtons, ClickableNormalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->normalButtons);
 		settingsWin->normalButtons = NULL;
@@ -115,25 +165,27 @@ SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin) {
 	return SETTINGS_SUCCESS;
 }
 
-SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin, SETTING_STATE state){
-	switch(state){
+SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
+	int gameModeButton = (settingsWin->gameModeSelect == 2) ? START_INDEX : NEXT_INDEX;
+	switch(settingsWin->state){
 	case DIFFICULTY_STATE:
 		if (simpleWindowDraw(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				drawButton(settingsWin->normalButtons[1], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
+				drawButton(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
 			return SETTINGS_FAILED;
 		break;
 	case GAME_MODE_STATE:
 		if (simpleWindowDraw(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				drawButton(settingsWin->normalButtons[1], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
+				drawButton(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
 			return SETTINGS_FAILED;
 		break;
 	case USER_COLOR_STATE:
 		if (simpleWindowDraw(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				drawButton(settingsWin->normalButtons[0], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing start button
+				drawButton(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing start button
 			return SETTINGS_FAILED;
 		break;
 	}
-	if (drawButton(settingsWin->normalButtons[2], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) return SETTINGS_FAILED; // drawing back button
+	if (drawButton(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) return SETTINGS_FAILED; // drawing back button
+	SDL_RenderPresent(settingsWin->simpleWindow->renderer);
 	return SETTINGS_SUCCESS;
 }
 
@@ -147,29 +199,52 @@ void settingsWindowDestroy(SettingsWin* settingsWin) {
 
 }
 
-SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* event,SETTING_STATE state) {
+SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin, SDL_Event* event,ChessGame* game){
+	if (!event) return SETTINGS_EXIT_EVENT;
+	if(event->button.button == SDL_BUTTON_RIGHT) return SETTINGS_NONE_EVENT;
+	SETTINGS_EVENT setEvent;
+	setEvent = settingsWindowHandleEvent(settingsWin,event);
+	if(setEvent == SETTINGS_START_EVENT){
+		simpleSettingsSetter(game,settingsWin->difficultySelect,settingsWin->gameModeSelect,settingsWin->userColorSelect);
+		return SETTINGS_START_EVENT;
+	}
+	else if(setEvent == SETTINGS_NEXT_EVENT) {
+		promoteState(settingsWin);
+		return SETTINGS_NORMAL_EVENT;
+	}
+	else if(setEvent == SETTINGS_BACK_EVENT) {
+		if(settingsWin->state == GAME_MODE_STATE) return SETTINGS_BACK_EVENT;
+		demoteState(settingsWin);
+		return SETTINGS_NORMAL_EVENT;
+	}
+	return setEvent;
+
+}
+
+SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* event) {
 	if (!event) {
 		return SETTINGS_FAILED;
 	}
 	Button* button;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{
-		switch(state){
+		button = whichButtonWasClicked(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS,event->button.x, event->button.y);
+		switch(settingsWin->state){
 		case DIFFICULTY_STATE:
-			button = whichButtonWasClicked(settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS,event->button.x, event->button.y);
-			if(button == NULL) button = whichButtonWasClicked(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS,event->button.x, event->button.y);
-			return difficultyHandleEvent(button);
+			if(button == NULL) button = whichButtonWasClicked(settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS,event->button.x, event->button.y);
+			return difficultyHandleEvent(settingsWin,button);
 		case GAME_MODE_STATE:
-			button = whichButtonWasClicked(settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS,event->button.x, event->button.y);
-			if(button == NULL) button = whichButtonWasClicked(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS,event->button.x, event->button.y);
-			return gameModeHandleEvent(button);
+			if(button == NULL) button = whichButtonWasClicked(settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS,event->button.x, event->button.y);
+			return gameModeHandleEvent(settingsWin,button);
 		case USER_COLOR_STATE:
-			button = whichButtonWasClicked(settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS,event->button.x, event->button.y);
-			if(button == NULL) button = whichButtonWasClicked(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS,event->button.x, event->button.y);
-			return userColorHandleEvent(button);
+			if(button == NULL) button = whichButtonWasClicked(settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS,event->button.x, event->button.y);
+			return userColorHandleEvent(settingsWin,button);
 		default:
 			break;
 		}
+
+
+
 		break;
 	}
 	case SDL_WINDOWEVENT:
@@ -182,44 +257,24 @@ SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* ev
 	return SETTINGS_NONE_EVENT;
 }
 
-SETTINGS_EVENT difficultyHandleEvent(Button* button){
+SETTINGS_EVENT difficultyHandleEvent(SettingsWin* settingsWin, Button* button){
 	if(button == NULL) return SETTINGS_NONE_EVENT;
+	int prevDifficulty = settingsWin->difficultySelect;
 	switch(button->type){
 	case DIFFICULTY_1_BUTTON:
-		return DIFFICULTY_1_EVENT;
+		settingsWin->difficultySelect = 1;
 		break;
 	case DIFFICULTY_2_BUTTON:
-		return DIFFICULTY_2_EVENT;
+		settingsWin->difficultySelect = 2;
 		break;
 	case DIFFICULTY_3_BUTTON:
-		return DIFFICULTY_3_EVENT;
+		settingsWin->difficultySelect = 3;
 		break;
 	case DIFFICULTY_4_BUTTON:
-		return DIFFICULTY_4_EVENT;
+		settingsWin->difficultySelect = 4;
 		break;
 	case DIFFICULTY_5_BUTTON:
-		return DIFFICULTY_5_EVENT;
-		break;
-	case SETTINGS_NEXT_BUTTON:
-		return SETTINGS_NEXT_EVENT;
-		break;
-	case SETTINGS_BACK_BUTTON:
-		return SETTINGS_BACK_EVENT;
-		break;
-	default:
-		return SETTINGS_NONE_EVENT;
-
-	}
-}
-
-SETTINGS_EVENT gameModeHandleEvent(Button* button){
-	if(button == NULL) return SETTINGS_NONE_EVENT;
-	switch(button->type){
-	case GAME_MODE_1_BUTTON:
-		return GAME_MODE_1_EVENT;
-		break;
-	case GAME_MODE_2_BUTTON:
-		return GAME_MODE_2_EVENT;
+		settingsWin->difficultySelect = 5;
 		break;
 	case SETTINGS_NEXT_BUTTON:
 		return SETTINGS_NEXT_EVENT;
@@ -230,19 +285,60 @@ SETTINGS_EVENT gameModeHandleEvent(Button* button){
 	default:
 		return SETTINGS_NONE_EVENT;
 	}
+	if(settingsWin->difficultySelect == prevDifficulty) return SETTINGS_NONE_EVENT;
+	switchActiveButtons(settingsWin->difficultyButtons,prevDifficulty, settingsWin->difficultySelect);
+	settingsWin->normalButtons[NEXT_INDEX]->isClickable = true;
+	return SETTINGS_NORMAL_EVENT;
 }
 
-SETTINGS_EVENT userColorHandleEvent(Button* button){
+SETTINGS_EVENT gameModeHandleEvent(SettingsWin* settingsWin, Button* button){
 	if(button == NULL) return SETTINGS_NONE_EVENT;
+	int prevGameMode = settingsWin->gameModeSelect;
 	switch(button->type){
 	case GAME_MODE_1_BUTTON:
-		return GAME_MODE_1_EVENT;
+		settingsWin->gameModeSelect = 1;
 		break;
 	case GAME_MODE_2_BUTTON:
-		return GAME_MODE_2_EVENT;
+		settingsWin->gameModeSelect = 2;
+		break;
+	case SETTINGS_NEXT_BUTTON:
+		return SETTINGS_NEXT_EVENT;
+		break;
+	case SETTINGS_BACK_BUTTON:
+		return SETTINGS_BACK_EVENT;
 		break;
 	case SETTINGS_START_BUTTON:
-		return SETTING_START_EVENT;
+		return SETTINGS_START_EVENT;
+		break;
+	default:
+		return SETTINGS_NONE_EVENT;
+	}
+	if(settingsWin->gameModeSelect == prevGameMode) return SETTINGS_NONE_EVENT;
+	switchActiveButtons(settingsWin->gameModeButtons,prevGameMode,settingsWin->gameModeSelect);
+
+	if(settingsWin->gameModeSelect == 2) {
+		settingsWin->normalButtons[START_INDEX]->isClickable = true;
+		settingsWin->normalButtons[NEXT_INDEX]->isClickable = false;
+	}
+	else {
+		settingsWin->normalButtons[NEXT_INDEX]->isClickable = true ;
+		settingsWin->normalButtons[START_INDEX]->isClickable = false;
+	}
+	return SETTINGS_NORMAL_EVENT;
+}
+
+SETTINGS_EVENT userColorHandleEvent(SettingsWin* settingsWin, Button* button){
+	if(button == NULL) return SETTINGS_NONE_EVENT;
+	int prevUserColor = settingsWin->userColorSelect;
+	switch(button->type){
+	case COLOR_BLACK_PLAYER_BUTTON:
+		settingsWin->userColorSelect = 0;
+		break;
+	case COLOR_WHITE_PLAYER_BUTTON:
+		settingsWin->userColorSelect = 1;
+		break;
+	case SETTINGS_START_BUTTON:
+		return SETTINGS_START_EVENT;
 		break;
 	case SETTINGS_BACK_BUTTON:
 		return SETTINGS_BACK_EVENT;
@@ -250,6 +346,10 @@ SETTINGS_EVENT userColorHandleEvent(Button* button){
 	default:
 		return SETTINGS_NONE_EVENT;
 	}
+	if(settingsWin->userColorSelect == prevUserColor) return SETTINGS_NONE_EVENT;
+	switchActiveButtons(settingsWin->userColorButtons,prevUserColor,settingsWin->userColorSelect);
+	settingsWin->normalButtons[START_INDEX]->isClickable = true;
+	return SETTINGS_NORMAL_EVENT;
 }
 
 void settingsWindowHide(SettingsWin* settingsWin) {
@@ -258,4 +358,38 @@ void settingsWindowHide(SettingsWin* settingsWin) {
 
 void settingsWindowShow(SettingsWin* settingsWin) {
 	simpleWindowShow(settingsWin->simpleWindow);
+}
+
+void switchActiveButtons(Button** buttons, int prevButton,int newButton){
+	buttons[newButton]->isActive = true;
+	if(prevButton != NOT_CHOOSED) buttons[prevButton]->isActive = false;
+}
+
+void promoteState(SettingsWin* settingsWin){
+	if(!settingsWin) return;
+	SETTING_STATE state = settingsWin->state;
+	switch(state){
+	case GAME_MODE_STATE:
+		settingsWin->state = DIFFICULTY_STATE;
+		break;
+	case DIFFICULTY_STATE:
+		settingsWin->state = USER_COLOR_STATE;
+		break;
+	default:
+		break;
+	}
+}
+void demoteState(SettingsWin* settingsWin){
+	if(!settingsWin) return;
+	SETTING_STATE state = settingsWin->state;
+	switch(state){
+	case DIFFICULTY_STATE:
+		settingsWin->state = GAME_MODE_STATE;
+		break;
+	case USER_COLOR_STATE:
+		settingsWin->state = DIFFICULTY_STATE;
+		break;
+	default:
+		break;
+	}
 }
