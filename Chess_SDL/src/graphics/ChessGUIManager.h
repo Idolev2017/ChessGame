@@ -27,12 +27,12 @@ typedef struct {
 } GuiManager;
 
 GuiManager* spManagerCreate();
-
-void spManagerDestroy(GuiManager* src);
-
-void spManagerDraw(GuiManager* src);
-
-LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game,int numOfSlots, SDL_Event* event);
+void ChessGUIManagerDestroy(GuiManager* guiManager);
+void ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event);
+MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* guiManager,MAIN_EVENT event);
+MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT event);
+MANAGER_EVENT handleManagerDueToLoadEvent(GuiManager* guiManager,LOAD_EVENT event);
+MANAGER_EVENT handleManagerDueToSettingsEvent(GuiManager* guiManager,SETTINGS_EVENT event);
 
 
 

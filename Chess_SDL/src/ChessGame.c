@@ -26,7 +26,6 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 
 	case GET_MOVES:
 		msg = getAllMoves(game, cmd.src, possibleMoves, actualSize,true);
-		qsort(possibleMoves,*actualSize,sizeof(Location),*compareFunc);
 		Step* steps = distinguishMovesByPiece(game, possibleMoves,*actualSize, cmd.src);
 		if(steps == NULL) msg = GAME_FAILED;
 		else{
@@ -181,6 +180,8 @@ GAME_MESSAGE getAllMoves(ChessGame* game, Location loc,Location* possibleMoves, 
 		msg = getAllMovesKnight(game, piece,possibleMoves,actualSize);
 		break;
 	}
+	if(msg == GAME_FAILED) return msg;
+	qsort(possibleMoves,*actualSize,sizeof(Location),*compareFunc);
 	return msg;
 
 }

@@ -17,7 +17,7 @@ LoadWin* loadWindowCreate(WINDOW_TYPE backType) {
 	loadWin->simpleWindow = NULL;
 	loadWin->regularButtons = NULL;
 	loadWin->slotsButtons = NULL;
-	loadWin->chosenSlot = NOT_CHOOSED;
+	loadWin->chosenSlot = NOT_CHOOSED_SLOT;
 	loadWin->simpleWindow = simpleWindowCreate(backType);
 	// Check that the window was successfully created
 	if (loadWin->simpleWindow == NULL) {
@@ -34,12 +34,12 @@ LoadWin* loadWindowCreate(WINDOW_TYPE backType) {
 }
 
 LOAD_MESSAGE InitializeLoadWindow(LoadWin* loadWin){
-	loadWin->chosenSlot = NOT_CHOOSED;
-	buttonArrayDestroy(loadWin->regularButtons);
+	loadWin->chosenSlot = NOT_CHOOSED_SLOT;
+	buttonArrayDestroy(loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS);
 	free(loadWin->regularButtons);
 	loadWin->regularButtons = NULL;
 
-	buttonArrayDestroy(loadWin->slotsButtons);
+	buttonArrayDestroy(loadWin->slotsButtons,LOAD_NUM_OF_SLOTS);
 	free(loadWin->slotsButtons);
 	loadWin->slotsButtons = NULL;
 
@@ -110,7 +110,7 @@ void loadWindowDestroy(LoadWin* loadWin) {
 	free(loadWin);
 }
 
-LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game,int numOfSlots, SDL_Event* event) {
+LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* event) {
 	if (!event) {
 		return LOAD_INVALID_ARGUMENT_EVENT;
 	}
@@ -123,13 +123,13 @@ LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game,int numOfSlots
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{
 		button = whichButtonWasClicked(loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS,event->button.x, event->button.y);
-		if(button == NULL) button = whichButtonWasClicked(loadWin->slotsButtons,numOfSlots,event->button.x, event->button.y);
+		if(button == NULL) button = whichButtonWasClicked(loadWin->slotsButtons,loadWin->numOfSlots,event->button.x, event->button.y);
 		if(button == NULL) return LOAD_NONE_EVENT;
 		switch(button->type){
 		case LOAD_BACK_BUTTON:
 			return LOAD_BACK_EVENT;
 		case LOAD_LOAD_BUTTON:
-			if(loadWin->chosenSlot == NOT_CHOOSED) {
+			if(loadWin->chosenSlot == NOT_CHOOSED_SLOT) {
 				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"ERROR","load button is clickable", NULL);
 				return LOAD_EXIT_EVENT;
 			}
@@ -219,15 +219,7 @@ LOAD_MESSAGE addGameSlot(LoadWin* loadWin,ChessGame* game){
 
 void switchActiveSlotButton(LoadWin* loadWin,int prevSlot,int newSlot){
 	loadWin->slotsButtons[newSlot-1]->isActive = true;
-	if(prevSlot != NOT_CHOOSED){
+	if(prevSlot != NOT_CHOOSED_SLOT){
 		loadWin->slotsButtons[prevSlot-1]->isActive = false;
 	}
-}
-
-void loadWindowHide(LoadWin* loadWin) {
-	simpleWindowHide(loadWin->simpleWindow);
-}
-
-void loadWindowShow(LoadWin* loadWin) {
-	simpleWindowShow(loadWin->simpleWindow);
 }

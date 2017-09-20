@@ -18,9 +18,9 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 	settingsWin->normalButtons = NULL;
 	settingsWin->gameModeButtons = NULL;
 	settingsWin->userColorButtons = NULL;
-	settingsWin->difficultySelect = NOT_CHOOSED;
-	settingsWin->gameModeButtons = NOT_CHOOSED;
-	settingsWin->userColorSelect = NOT_CHOOSED;
+	settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
+	settingsWin->gameModeButtons = NOT_CHOOSED_SETTINGS;
+	settingsWin->userColorSelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->state = GAME_MODE_STATE;
 	settingsWin->simpleWindow = simpleWindowCreate(backType);
 	// Check that the window was successfully created
@@ -37,22 +37,22 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 }
 
 SETTINGS_MESSAGE updateSettingsWindow(SettingsWin* settingsWin){
-	settingsWin->difficultySelect = NOT_CHOOSED;
-	settingsWin->gameModeSelect = NOT_CHOOSED;
-	settingsWin->userColorSelect = NOT_CHOOSED;
-	buttonArrayDestroy(settingsWin->difficultyButtons);
+	settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
+	settingsWin->gameModeSelect = NOT_CHOOSED_SETTINGS;
+	settingsWin->userColorSelect = NOT_CHOOSED_SETTINGS;
+	buttonArrayDestroy(settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
 	free(settingsWin->difficultyButtons);
 	settingsWin->difficultyButtons = NULL;
 
-	buttonArrayDestroy(settingsWin->gameModeButtons);
+	buttonArrayDestroy(settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
 	free(settingsWin->gameModeButtons);
 	settingsWin->gameModeButtons = NULL;
 
-	buttonArrayDestroy(settingsWin->userColorButtons);
+	buttonArrayDestroy(settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
 	free(settingsWin->userColorButtons);
 	settingsWin->userColorButtons = NULL;
 
-	buttonArrayDestroy(settingsWin->normalButtons);
+	buttonArrayDestroy(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS);
 	free(settingsWin->normalButtons);
 	settingsWin->normalButtons = NULL;
 
@@ -70,14 +70,14 @@ void updateNormalButtons(SettingsWin* settingsWin){
 
 	switch(settingsWin->state){
 	case DIFFICULTY_STATE:
-		settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->difficultySelect != NOT_CHOOSED)? true : false;
+		settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->difficultySelect != NOT_CHOOSED_SETTINGS)? true : false;
 		break;
 	case GAME_MODE_STATE:
 		if(settingsWin->gameModeSelect == 2) settingsWin->normalButtons[START_INDEX]->isClickable = true;
-		else settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->gameModeSelect != NOT_CHOOSED) ? true : false;
+		else settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->gameModeSelect != NOT_CHOOSED_SETTINGS) ? true : false;
 		break;
 	case USER_COLOR_STATE:
-		settingsWin->normalButtons[START_INDEX]->isClickable = (settingsWin->userColorSelect != NOT_CHOOSED) ? true : false;
+		settingsWin->normalButtons[START_INDEX]->isClickable = (settingsWin->userColorSelect != NOT_CHOOSED_SETTINGS) ? true : false;
 		break;
 	}
 }
@@ -199,7 +199,7 @@ void settingsWindowDestroy(SettingsWin* settingsWin) {
 
 }
 
-SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin, SDL_Event* event,ChessGame* game){
+SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, SDL_Event* event){
 	if (!event) return SETTINGS_EXIT_EVENT;
 	if(event->button.button == SDL_BUTTON_RIGHT) return SETTINGS_NONE_EVENT;
 	SETTINGS_EVENT setEvent;
@@ -362,7 +362,7 @@ void settingsWindowShow(SettingsWin* settingsWin) {
 
 void switchActiveButtons(Button** buttons, int prevButton,int newButton){
 	buttons[newButton]->isActive = true;
-	if(prevButton != NOT_CHOOSED) buttons[prevButton]->isActive = false;
+	if(prevButton != NOT_CHOOSED_SETTINGS) buttons[prevButton]->isActive = false;
 }
 
 void promoteState(SettingsWin* settingsWin){

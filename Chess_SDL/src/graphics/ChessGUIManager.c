@@ -234,23 +234,27 @@ MANAGER_EVENT ChessGUIManagerHandleEvent(GuiManager* guiManager, SDL_Event* even
 	if (guiManager == NULL || event == NULL) {
 		return MANAGER_NONE;
 	}
+	MAIN_EVENT mainEvent;
+	LOAD_EVENT loadEvent;
+	SETTINGS_EVENT settingsEvent;
+	GAME_EVENT gameEvent;
 	switch(guiManager->activeWin){
 
 	case MAIN_WINDOW_ACTIVE:
-		MAIN_EVENT mainEvent = mainWindowHandleEvent(guiManager->mainWin, event);
+		mainEvent = mainWindowHandleEvent(guiManager->mainWin, event);
 		return handleManagerDueToMainEvent(guiManager, mainEvent);
 
 	case LOAD_WINDOW_ACTIVE:
-		LOAD_EVENT loadEvent = loadWindowHandleEvent(guiManager->loadWin, event,guiManager->game);
+		loadEvent = loadWindowHandleEvent(guiManager->loadWin,guiManager->game,event);
 		return handleManagerDueToLoadEvent(guiManager, loadEvent);
 
 	case SETTINGS_WINDOW_ACTIVE:
-		SETTINGS_EVENT settingsEvent = settingsWindowManager(guiManager->settingsWin, event);
+		settingsEvent = settingsWindowManager(guiManager->settingsWin,guiManager->game, event);
 		return handleManagerDueToSettingsEvent(guiManager, settingsEvent);
 
 	case GAME_WINDOW_ACTIVE:
-		GAME_EVENT gameEvent = gameWindowHandleEvent(guiManager->gameWin, event);
-		updateUndoButton(guiManager->game,guiManager->game);
+		gameEvent = gameWindowHandleEvent(guiManager->gameWin,guiManager->game, event);
+		updateUndoButton(guiManager->gameWin,guiManager->game);
 		ChessGUIManagerDraw(guiManager,event);
 		return handleManagerDueToGameEvent(guiManager, gameEvent);
 	}

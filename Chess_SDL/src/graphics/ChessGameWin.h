@@ -72,10 +72,11 @@ GAME_WINDOW_MESSAGE generatePieceTexture(GameWin* gameWin);
 Location mouseLocToBoardLoc(int x, int y);
 SDL_Rect boardLocToRect(Location loc);
 bool isClickedOnBoard(int x, int y);
+bool confirmExitFromGame();
 GAME_EVENT gameUndoGui(ChessGame* game);
 void gameRestartGui(int prevDifficulty, int prevGameMode, int prevUserColor, ChessGame* game);
 void gameWindowHide(GameWin* gameWin);
 void gameWindowShow(GameWin* gameWin);
 GAME_EVENT gameCheckingWinnerGui(ChessGame* game);
-void showWinnerMessage(GAME_EVENT event)
+void showWinnerMessage(GAME_EVENT event);
 #endif

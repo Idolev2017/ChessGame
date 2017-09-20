@@ -290,19 +290,19 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 		for (j = 0; j < BOARD_LINE_SIZE; j++) {
 			loc = createLocation(i,j);
 			rec = boardLocToRect(loc);
-			if(equalLocations(loc,gameWin->chosenLoc) && event->type == SDL_MouseMotionEvent &&
+			if(equalLocations(loc,gameWin->chosenLoc) && event->type == SDL_MOUSEMOTION &&
 					isClickedOnBoard(event->button.x,event->button.y)) continue;
-			if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,false))[0]) == GAME_WINDOW_FAILED){
+			if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,loc),false)[0]) == GAME_WINDOW_FAILED){
 				return GAME_FAILED;
 			}
 		}
 	}
-	if(event->type == SDL_MouseMotionEvent && isClickedOnBoard(event->button.x,event->button.y)){
+	if(event->type == SDL_MOUSEMOTION && isClickedOnBoard(event->button.x,event->button.y)){
 		rec.x = event->button.x;
 		rec.y = event->button.y;
 		rec.h = REC_SIZE;
 		rec.w = REC_SIZE;
-		if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,false))[0]) == GAME_WINDOW_FAILED){
+		if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,gameWin->chosenLoc),false)[0]) == GAME_WINDOW_FAILED){
 			return GAME_FAILED;
 		}
 	}
@@ -390,9 +390,9 @@ GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* ev
 	case SDL_MOUSEBUTTONUP:
 		if(!isClickedOnBoard(event->button.x,event->button.y) && event->button.button == SDL_BUTTON_LEFT) {
 			gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
-			return gameWindowPanelHandleEvent(gameWin,event);
+			return gameWindowPanelHandleEvent(gameWin,game,event);
 		}
-		else return gameWindowBoardHandleEvent(gameWin,event);
+		else return gameWindowBoardHandleEvent(gameWin,game,event);
 	case SDL_WINDOWEVENT:
 		if (event->window.event == SDL_WINDOWEVENT_CLOSE) {
 			return GAME_EXIT_EVENT;
@@ -456,16 +456,23 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	Location tmpLoc;
 	GAME_MESSAGE msg;
 	GAME_EVENT winnerEvent;
-
+	ChessMove* possibleMoves[28];
+	Step* steps;
+	int num = 0;
+	int* actualSize = &num;
 	switch (event->type) {
 
 	case SDL_MOUSEBUTTONDOWN:
-		if(event->button.button == SDL_BUTTON_RIGHT){
-			drawGetAllMoves()
-		}
-		else if(event->button.button == SDL_BUTTON_LEFT){
-			tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
-			if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
+		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
+		if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
+			if(event->button.button == SDL_BUTTON_RIGHT){
+				msg = getAllMoves(game, tmpLoc, possibleMoves, actualSize,false);
+				if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
+				steps = distinguishMovesByPiece(game, possibleMoves,*actualSize, tmpLoc);
+				if(steps == NULL) return GAME_EXIT_EVENT;
+				gameWindowDraw(gameWin, game, event, true, steps, *actualSize);
+			}
+			else if(event->button.button == SDL_BUTTON_LEFT){
 				gameWin->chosenLoc = tmpLoc;
 			}
 		}

@@ -14,7 +14,7 @@
 #define SETTINGS_NUM_OF_USERCOLOR_BUTTONS 3
 #define SETTINGS_NUM_OF_GAMEMODE_BUTTONS 3
 #define SETTINGS_NUM_OF_NORMAL_BUTTONS 4
-#define NOT_CHOOSED -1
+#define NOT_CHOOSED_SETTINGS -1
 #define START_INDEX 0
 #define NEXT_INDEX 1
 #define BACK_INDEX 2
@@ -61,6 +61,7 @@ SETTINGS_MESSAGE generateUserColorButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin);
 void settingsWindowDestroy(SettingsWin* settingsWin);
+SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, SDL_Event* event);
 void settingsWindowHide(SettingsWin* settingsWin);
 void settingsWindowShow(SettingsWin* settingsWin);
 SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* event);
