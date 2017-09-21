@@ -18,6 +18,7 @@ LoadWin* loadWindowCreate(WINDOW_TYPE backType) {
 	loadWin->regularButtons = NULL;
 	loadWin->slotsButtons = NULL;
 	loadWin->chosenSlot = NOT_CHOOSED_SLOT;
+	loadWin->gridTexture = NULL;
 	loadWin->simpleWindow = simpleWindowCreate(backType);
 	// Check that the window was successfully created
 	if (loadWin->simpleWindow == NULL) {
@@ -29,7 +30,23 @@ LoadWin* loadWindowCreate(WINDOW_TYPE backType) {
 		loadWindowDestroy(loadWin);
 		return NULL;
 	}
-	loadWin->numOfSlots = scanSlotsInDirectory();;
+	loadWin->numOfSlots = scanSlotsInDirectory();
+
+	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/gameLoad.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		loadWindowDestroy(loadWin);
+		return NULL;
+	}
+
+	loadWin->gridTexture = SDL_CreateTextureFromSurface(loadWin->simpleWindow->renderer,loadingSurface);
+	if (loadWin->gridTexture == NULL) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		loadWindowDestroy(loadWin);
+		return NULL;
+	}
+	SDL_FreeSurface(loadingSurface);
 	return loadWin;
 }
 
@@ -57,12 +74,11 @@ LOAD_MESSAGE generateRegularButtons(LoadWin* loadWin) {
 		return LOAD_FAILED;
 	}
 	BUTTON_TYPE loadRegularTypes[LOAD_NUM_OF_REGULAR_BUTTONS] = {
-			LOAD_TITLE_BUTTON,
 			LOAD_BACK_BUTTON,
 			LOAD_LOAD_BUTTON };
-	bool loadActiveRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {true,true,false};
-	bool loadClickableRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {false,true, false};
-	if (buttonArrayCreate(loadWin->regularButtons, loadRegularTypes,loadActiveRegularButtons, loadClickableRegularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == BUTTON_FAILED) {
+	bool loadActiveRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {true,false};
+	bool loadClickableRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {true, false};
+	if (buttonArrayCreate(loadWin->simpleWindow->renderer,loadWin->regularButtons, loadRegularTypes,loadActiveRegularButtons, loadClickableRegularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == BUTTON_FAILED) {
 		free(loadWin->regularButtons);
 		loadWin->regularButtons = NULL;
 		return LOAD_FAILED;
@@ -85,7 +101,7 @@ LOAD_MESSAGE generateSlotsButtons(LoadWin* loadWin) {
 
 	bool loadActiveSlotsButtons[LOAD_NUM_OF_SLOTS] = {false,false,false,false,false};
 	bool loadClickableSlotsButtons[LOAD_NUM_OF_SLOTS] = {true,true, true,true,true};
-	if (buttonArrayCreate(loadWin->slotsButtons, loadSlotsTypes,loadActiveSlotsButtons, loadClickableSlotsButtons,LOAD_NUM_OF_SLOTS) == BUTTON_FAILED) {
+	if (buttonArrayCreate(loadWin->simpleWindow->renderer,loadWin->slotsButtons, loadSlotsTypes,loadActiveSlotsButtons, loadClickableSlotsButtons,LOAD_NUM_OF_SLOTS) == BUTTON_FAILED) {
 		free(loadWin->slotsButtons);
 		loadWin->slotsButtons = NULL;
 		return LOAD_FAILED;
@@ -94,11 +110,15 @@ LOAD_MESSAGE generateSlotsButtons(LoadWin* loadWin) {
 }
 
 LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin){
-
-	if(simpleWindowDraw(loadWin->simpleWindow,loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-			simpleWindowDraw(loadWin->simpleWindow,loadWin->slotsButtons,loadWin->numOfSlots) == SIMPLE_WINDOW_FAILED){
+	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
+	SDL_SetRenderDrawColor(loadWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
+	SDL_RenderClear(loadWin->simpleWindow->renderer);
+	SDL_RenderCopy(loadWin->simpleWindow->renderer, loadWin->gridTexture, NULL, &rec);
+	if(simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
+			simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->slotsButtons,loadWin->numOfSlots) == SIMPLE_WINDOW_FAILED){
 		return LOAD_FAILED;
 	}
+	SDL_RenderPresent(loadWin->simpleWindow->renderer);
 	return LOAD_SUCCESS;
 }
 

@@ -18,6 +18,7 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 	settingsWin->normalButtons = NULL;
 	settingsWin->gameModeButtons = NULL;
 	settingsWin->userColorButtons = NULL;
+	settingsWin->gridTexture = NULL;
 	settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->gameModeSelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->userColorSelect = NOT_CHOOSED_SETTINGS;
@@ -33,6 +34,23 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 		settingsWindowDestroy(settingsWin);
 		return NULL;
 	}
+
+	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/gameSettings.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		settingsWindowDestroy(settingsWin);
+		return NULL;
+	}
+
+	settingsWin->gridTexture = SDL_CreateTextureFromSurface(settingsWin->simpleWindow->renderer,loadingSurface);
+	if (settingsWin->gridTexture == NULL) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		settingsWindowDestroy(settingsWin);
+		return NULL;
+	}
+	SDL_FreeSurface(loadingSurface);
+
 	return settingsWin;
 }
 
@@ -97,7 +115,7 @@ SETTINGS_MESSAGE generateDifficutyButtons(SettingsWin* settingsWin) {
 			DIFFICULTY_5_BUTTON };
 	bool ActiveDifficultyButtons[SETTINGS_NUM_OF_DIFFICULTY_BUTTONS] = { true, false, false, false, false, false };
 	bool ClickableDifficultyButtons[SETTINGS_NUM_OF_DIFFICULTY_BUTTONS] = { false, true, true, true, true, true };
-	if (buttonArrayCreate(settingsWin->difficultyButtons, difficultyTypes, ActiveDifficultyButtons, ClickableDifficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == BUTTON_FAILED) {
+	if (buttonArrayCreate(settingsWin->simpleWindow->renderer,settingsWin->difficultyButtons, difficultyTypes, ActiveDifficultyButtons, ClickableDifficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->difficultyButtons);
 		settingsWin->difficultyButtons = NULL;
 		return SETTINGS_FAILED;
@@ -117,7 +135,7 @@ SETTINGS_MESSAGE generateGameModeButtons(SettingsWin* settingsWin) {
 			GAME_MODE_2_BUTTON };
 	bool ActiveGameModeButtons[SETTINGS_NUM_OF_GAMEMODE_BUTTONS] = {true, false, false};
 	bool ClickableGameModeButtons[SETTINGS_NUM_OF_GAMEMODE_BUTTONS] = {false, true, true};
-	if (buttonArrayCreate(settingsWin->gameModeButtons, GameModeTypes, ActiveGameModeButtons, ClickableGameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS) == BUTTON_FAILED) {
+	if (buttonArrayCreate(settingsWin->simpleWindow->renderer,settingsWin->gameModeButtons, GameModeTypes, ActiveGameModeButtons, ClickableGameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->gameModeButtons);
 		settingsWin->gameModeButtons = NULL;
 		return SETTINGS_FAILED;
@@ -137,7 +155,7 @@ SETTINGS_MESSAGE generateUserColorButtons(SettingsWin* settingsWin) {
 			COLOR_WHITE_PLAYER_BUTTON };
 	bool ActiveUserColorButtons[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {true, false, false};
 	bool ClickableUserColorButtons[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {false, true, true};
-	if (buttonArrayCreate(settingsWin->userColorButtons, userColorTypes, ActiveUserColorButtons, ClickableUserColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == BUTTON_FAILED) {
+	if (buttonArrayCreate(settingsWin->simpleWindow->renderer,settingsWin->userColorButtons, userColorTypes, ActiveUserColorButtons, ClickableUserColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->userColorButtons);
 		settingsWin->userColorButtons = NULL;
 		return SETTINGS_FAILED;
@@ -157,7 +175,7 @@ SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin) {
 			SETTINGS_BACK_BUTTON };
 	bool ActiveNormalButtons[SETTINGS_NUM_OF_NORMAL_BUTTONS] = {true, true, true};
 	bool ClickableNormalButtons[SETTINGS_NUM_OF_NORMAL_BUTTONS] = {false, false, true};
-	if (buttonArrayCreate(settingsWin->normalButtons, normalTypes, ActiveNormalButtons, ClickableNormalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS) == BUTTON_FAILED) {
+	if (buttonArrayCreate(settingsWin->simpleWindow->renderer,settingsWin->normalButtons, normalTypes, ActiveNormalButtons, ClickableNormalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->normalButtons);
 		settingsWin->normalButtons = NULL;
 		return SETTINGS_FAILED;
@@ -166,25 +184,30 @@ SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin) {
 }
 
 SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
+	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
+	SDL_SetRenderDrawColor(settingsWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
+	SDL_RenderClear(settingsWin->simpleWindow->renderer);
+	SDL_RenderCopy(settingsWin->simpleWindow->renderer, settingsWin->gridTexture, NULL, &rec);
+
 	int gameModeButton = (settingsWin->gameModeSelect == 2) ? START_INDEX : NEXT_INDEX;
 	switch(settingsWin->state){
 	case DIFFICULTY_STATE:
-		if (simpleWindowDraw(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				drawButton(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
+		if (simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == SIMPLE_WINDOW_FAILED ||
+				addButtonToRenderer(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
 			return SETTINGS_FAILED;
 		break;
 	case GAME_MODE_STATE:
-		if (simpleWindowDraw(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				drawButton(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
+		if (simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS) == SIMPLE_WINDOW_FAILED ||
+				addButtonToRenderer(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
 			return SETTINGS_FAILED;
 		break;
 	case USER_COLOR_STATE:
-		if (simpleWindowDraw(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				drawButton(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing start button
+		if (simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
+				addButtonToRenderer(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing start button
 			return SETTINGS_FAILED;
 		break;
 	}
-	if (drawButton(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) return SETTINGS_FAILED; // drawing back button
+	if (addButtonToRenderer(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) return SETTINGS_FAILED; // drawing back button
 	SDL_RenderPresent(settingsWin->simpleWindow->renderer);
 	return SETTINGS_SUCCESS;
 }
@@ -382,6 +405,7 @@ void promoteState(SettingsWin* settingsWin){
 		break;
 	}
 }
+
 void demoteState(SettingsWin* settingsWin){
 	if(!settingsWin) return;
 	SETTING_STATE state = settingsWin->state;

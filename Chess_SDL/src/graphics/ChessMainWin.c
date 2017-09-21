@@ -10,6 +10,7 @@ MainWin* mainWindowCreate() {
 	}
 	mainWin->simpleWindow = NULL;
 	mainWin->buttons = NULL;
+	mainWin->gridTexture = NULL;
 	mainWin->simpleWindow = simpleWindowCreate(NONE_WINDOW);
 	// Check that the window was successfully created
 	if (mainWin->simpleWindow == NULL) {
@@ -20,6 +21,22 @@ MainWin* mainWindowCreate() {
 		mainWindowDestroy(mainWin);
 		return NULL;
 	}
+
+	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/gameMain.bmp");
+	if (loadingSurface == NULL) {
+		printf("Could not create a surface: %s\n", SDL_GetError());
+		mainWindowDestroy(mainWin);
+		return NULL;
+	}
+
+	mainWin->gridTexture = SDL_CreateTextureFromSurface(mainWin->simpleWindow->renderer,loadingSurface);
+	if (mainWin->gridTexture == NULL) {
+		printf("Could not create a texture: %s\n", SDL_GetError());
+		SDL_FreeSurface(loadingSurface);
+		mainWindowDestroy(mainWin);
+		return NULL;
+	}
+	SDL_FreeSurface(loadingSurface);
 	return mainWin;
 }
 
@@ -30,13 +47,12 @@ MAIN_MESSAGE generateMainButtons(MainWin* mainWin){
 		return MAIN_FAILED;
 	}
 	BUTTON_TYPE mainRegularTypes[MAIN_NUM_OF_BUTTONS] = {
-			MAIN_TITLE_BUTTON,
 			MAIN_NEW_GAME_BUTTON,
 			MAIN_LOAD_BUTTON,
 			MAIN_EXIT_BUTTON };
-	bool mainActiveRegularButtons[MAIN_NUM_OF_BUTTONS] = {true,true,true,true};
-	bool mainClickableRegularButtons[MAIN_NUM_OF_BUTTONS] = {false,true, true,true};
-	if (buttonArrayCreate(mainWin->buttons, mainRegularTypes,mainActiveRegularButtons, mainClickableRegularButtons,MAIN_NUM_OF_BUTTONS) == BUTTON_FAILED) {
+	bool mainActiveRegularButtons[MAIN_NUM_OF_BUTTONS] = {true,true,true};
+	bool mainClickableRegularButtons[MAIN_NUM_OF_BUTTONS] = {true, true,true};
+	if (buttonArrayCreate(mainWin->simpleWindow->renderer,mainWin->buttons, mainRegularTypes,mainActiveRegularButtons, mainClickableRegularButtons,MAIN_NUM_OF_BUTTONS) == BUTTON_FAILED) {
 		free(mainWin->buttons);
 		mainWin->buttons = NULL;
 		return MAIN_FAILED;
@@ -45,7 +61,12 @@ MAIN_MESSAGE generateMainButtons(MainWin* mainWin){
 }
 
 MAIN_MESSAGE mainWindowDraw(MainWin* mainWin){
-	if(simpleWindowDraw(mainWin->simpleWindow,mainWin->buttons,MAIN_NUM_OF_BUTTONS) == SIMPLE_WINDOW_FAILED) return MAIN_FAILED;
+	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
+	SDL_SetRenderDrawColor(mainWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
+	SDL_RenderClear(mainWin->simpleWindow->renderer);
+	SDL_RenderCopy(mainWin->simpleWindow->renderer, mainWin->gridTexture, NULL, &rec);
+	if(simpleWindowAddingButtons(mainWin->simpleWindow,mainWin->buttons,MAIN_NUM_OF_BUTTONS) == SIMPLE_WINDOW_FAILED) return MAIN_FAILED;
+	SDL_RenderPresent(mainWin->simpleWindow->renderer);
 	return MAIN_SUCCESS;
 }
 

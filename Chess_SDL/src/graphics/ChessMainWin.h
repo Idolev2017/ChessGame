@@ -3,7 +3,7 @@
 #include "SimpleWindow.h"
 #include <stdio.h>
 
-#define MAIN_NUM_OF_BUTTONS 4
+#define MAIN_NUM_OF_BUTTONS 3
 
 typedef enum{
 	MAIN_SUCCESS,
@@ -21,6 +21,7 @@ typedef enum {
 typedef struct{
 	SimpleWindow* simpleWindow;
 	Button** buttons;
+	SDL_Texture* gridTexture;
 }MainWin;
 
 MainWin* mainWindowCreate();

@@ -11,7 +11,8 @@
 #include <stdio.h>
 #include "Button.h"
 #include "../MainAux.h"
-
+#define WIDTH_SIZE 800
+#define HEIGHT_SIZE 600
 typedef enum{
 	SIMPLE_WINDOW_SUCCESS,
 	SIMPLE_WINDOW_FAILED
@@ -33,7 +34,7 @@ typedef struct {
 } SimpleWindow;
 
 SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow);
-SIMPLE_WINDOW_MESSAGE simpleWindowDraw(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
+SIMPLE_WINDOW_MESSAGE simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
 void simpleWindowDestroy(SimpleWindow* simpleWin);
 void simpleWindowHide(SimpleWindow* simpleWin);
 void simpleWindowShow(SimpleWindow* simpleWin);

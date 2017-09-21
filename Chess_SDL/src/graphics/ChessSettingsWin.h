@@ -50,6 +50,7 @@ typedef struct{
 	int gameModeSelect;
 	int userColorSelect;
 	SETTING_STATE state;
+	SDL_Texture* gridTexture;
 }SettingsWin;
 
 SettingsWin* settingsWindowCreate(WINDOW_TYPE backType);

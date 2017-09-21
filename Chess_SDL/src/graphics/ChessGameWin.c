@@ -45,7 +45,7 @@ GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo) {
 			GAME_EXIT_BUTTON };
 	bool panelActiveButtons[GAME_NUM_OF_PANEL_BUTTONS] = { true, true, true,true, true, true };
 	bool panelClickableButtons[GAME_NUM_OF_PANEL_BUTTONS] = { true, true, true,canUndo, true, true };
-	if (buttonArrayCreate(gameWin->panelButtons, panelTypes, panelActiveButtons,
+	if (buttonArrayCreate(gameWin->simpleWindow->renderer,gameWin->panelButtons, panelTypes, panelActiveButtons,
 			panelClickableButtons, GAME_NUM_OF_PANEL_BUTTONS) == BUTTON_FAILED) {
 
 		free(gameWin->panelButtons);
@@ -76,9 +76,9 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 		return GAME_WINDOW_FAILED;
 	}
 	for(int i = 0; i < GAME_NUM_OF_PANEL_BUTTONS; ++i){
-		drawButton(gameWin->panelButtons[i],gameWin->simpleWindow->renderer);
+		addButtonToRenderer(gameWin->panelButtons[i],gameWin->simpleWindow->renderer);
 	}
-	SDL_Rect rec = { .x = PANEL_WIDTH, .y = 0, .w = GAME_BOARD_SIZE, .h = GAME_BOARD_SIZE };
+	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
 	SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
 	SDL_RenderClear(gameWin->simpleWindow->renderer);
 	SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->grid_texture, NULL, &rec);
@@ -474,6 +474,7 @@ GameTextures* gameTexturesCreate(GameWin* gameWin){
 	gameTextures->n_black_texture = NULL;
 	gameTextures->r_white_texture = NULL;
 	gameTextures->r_black_texture = NULL;
+	gameWin->gameTextures = gameTextures;
 	if (generateGameTexture(gameWin) == GAME_WINDOW_FAILED) return NULL;
 	return gameTextures;
 }
@@ -481,7 +482,7 @@ GameTextures* gameTexturesCreate(GameWin* gameWin){
 GAME_WINDOW_MESSAGE generateGameTexture(GameWin* gameWin){
 	//grid
 
-	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/grid.bmp");
+	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/gameGrid.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return GAME_WINDOW_FAILED;

@@ -19,8 +19,8 @@ SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	simpleWin->window = SDL_CreateWindow("CHESS", // window title
 			SDL_WINDOWPOS_CENTERED,           // initial x position
 			SDL_WINDOWPOS_CENTERED,           // initial y position
-			800,                               // width, in pixels
-			600,                               // height, in pixels
+			WIDTH_SIZE,                               // width, in pixels
+			HEIGHT_SIZE,                               // height, in pixels
 			SDL_WINDOW_OPENGL                  // flags - see below
 	);
 	// Check that the window was successfully created
@@ -38,13 +38,12 @@ SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	simpleWin->backWindow = backWindow;
 	return simpleWin;
 }
-SIMPLE_WINDOW_MESSAGE simpleWindowDraw(SimpleWindow* simpleWin,Button** buttons,int numOfButtons){
+SIMPLE_WINDOW_MESSAGE simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons){
 	SDL_SetRenderDrawColor(simpleWin->renderer, 255, 255, 255, 255);
 	SDL_RenderClear(simpleWin->renderer);
 	for(int i = 0; i < numOfButtons; ++i){
-		if(drawButton(buttons[i], simpleWin->renderer) == BUTTON_FAILED) return SIMPLE_WINDOW_FAILED;
+		if(addButtonToRenderer(buttons[i], simpleWin->renderer) == BUTTON_FAILED) return SIMPLE_WINDOW_FAILED;
 	}
-	SDL_RenderPresent(simpleWin->renderer);
 	return SIMPLE_WINDOW_SUCCESS;
 }
 void simpleWindowDestroy(SimpleWindow* simpleWin){

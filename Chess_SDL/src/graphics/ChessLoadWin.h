@@ -13,11 +13,11 @@
 #include <SDL_video.h>
 #include <stdio.h>
 
-#define LOAD_NUM_OF_REGULAR_BUTTONS 3
+#define LOAD_NUM_OF_REGULAR_BUTTONS 2
 #define LOAD_NUM_OF_SLOTS 5
 #define SLOT1_PATH ".//src//GameSlots//gameSlot1.xml"
 #define NOT_CHOOSED_SLOT 0
-#define LOAD_INDEX 2
+#define LOAD_INDEX 1
 
 typedef enum{
 	LOAD_SUCCESS,
@@ -44,6 +44,7 @@ typedef struct{
 	Button** slotsButtons;
 	int numOfSlots;
 	int chosenSlot;
+	SDL_Texture* gridTexture;
 }LoadWin;
 
 LoadWin* loadWindowCreate(WINDOW_TYPE backType);

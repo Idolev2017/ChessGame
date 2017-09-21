@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_video.h>
+#include "textureGenerator.h"
 
 typedef enum {
 	//main window
-	MAIN_TITLE_BUTTON,
 	MAIN_NEW_GAME_BUTTON,
 	MAIN_LOAD_BUTTON,
 	MAIN_EXIT_BUTTON,
@@ -37,7 +37,6 @@ typedef enum {
 	COLOR_WHITE_PLAYER_BUTTON,
 
 	//load window
-	LOAD_TITLE_BUTTON,
 	GAME_SLOT1_BUTTON,
 	GAME_SLOT2_BUTTON,
 	GAME_SLOT3_BUTTON,
@@ -57,7 +56,7 @@ typedef enum {
 } BUTTON_TYPE;
 
 typedef struct{
-	SDL_Rect* rect;
+	SDL_Rect rect;
 	SDL_Texture* activeTexture;
 	SDL_Texture* inactiveTexture;
 	SDL_Texture* nonClickableTexture;
@@ -72,16 +71,16 @@ typedef enum{
 }ButtonMessage;
 
 
-Button* buttonCreate(BUTTON_TYPE type,bool isActive,bool isClickable);
-ButtonMessage buttonArrayCreate(Button** buttons,BUTTON_TYPE* types,bool* isActiveArray,bool* isClickableArray, int size);
+Button* buttonCreate(SDL_Renderer* renderer,BUTTON_TYPE type,bool isActive, bool isClickable);
+ButtonMessage buttonArrayCreate(SDL_Renderer* renderer,Button** buttons,BUTTON_TYPE* types,bool* isActiveArray,bool* isClickableArray, int size);
 void buttonDestroy(Button* button);
 void buttonArrayDestroy(Button** buttons,int size);
 Button* copyButton(Button* button);
 ButtonMessage activateButton(Button* button);
 ButtonMessage inactivateButton(Button* button);
-ButtonMessage drawButton(Button* button,SDL_Renderer* renderer);
+ButtonMessage addButtonToRenderer(Button* button,SDL_Renderer* renderer);
 Button* whichButtonWasClicked(Button** button, int size, int x, int y);
 bool isClickOnButton(Button* button, int x, int y);
-ButtonMessage typeToTexture(Button* button, BUTTON_TYPE type);
-SDL_Rect* typeToRect(BUTTON_TYPE type);
+ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON_TYPE type);
+void updateRectSizes(SDL_Rect* rect,int x, int y,int w, int h);
 #endif /* GRAPHICS_H_ */
