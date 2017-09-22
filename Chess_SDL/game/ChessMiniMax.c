@@ -92,7 +92,7 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, PieceT
 
 int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, int alpha, int beta){
 	if(maxDepth == 0) {
-		if(checkingWinner(game) == CHECKMATE) return (game->currentPlayer == game->userColor) ? 1000 : -1000;
+		if(checkingWinner(game) == CHECKMATE) return (game->currentPlayer == game->userColor) ? -1000 : 1000;
 		return scoringFunction(game);
 	}
 	Piece* movingPiece = NULL;
@@ -159,7 +159,7 @@ int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, in
 	}
 	if(!theresLegalMove){
 		Piece* currentKing = game->currentPlayer == WHITE ? game->whiteKing : game->blackKing;
-		if(isPieceThreatened(game,currentKing) == PIECE_THREATENED) return (game->currentPlayer == game->userColor) ? 1000 : -1000; //CHECKMATE
+		if(isPieceThreatened(game,currentKing) == PIECE_THREATENED) return (game->currentPlayer == game->userColor) ? -1000 : 1000; //CHECKMATE
 		else return scoringFunction(game);
 	}
 	return maxFlag ? alpha : beta;

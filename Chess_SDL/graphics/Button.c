@@ -15,6 +15,7 @@ Button* buttonCreate(SDL_Renderer* renderer,BUTTON_TYPE type,bool isActive, bool
 	button->activeTexture = NULL;
 	button->inactiveTexture = NULL;
 	button->nonClickableTexture = NULL;
+	button->rect = NULL;
 	if(typeToTextureAndRect(button,renderer, type) == BUTTON_FAILED){
 		buttonDestroy(button);
 		return NULL;
@@ -46,11 +47,9 @@ void buttonDestroy(Button* button){
 	if(!button->activeTexture) SDL_DestroyTexture(button->activeTexture);
 	if(!button->inactiveTexture) SDL_DestroyTexture(button->inactiveTexture);
 	if(!button->nonClickableTexture) SDL_DestroyTexture(button->nonClickableTexture);
+	free(button->rect);
 	free(button);
 	return;
-}
-Button* copyButton(Button* button){
-	return NULL;
 }
 ButtonMessage activateButton(Button* button){
 	if(button == NULL) return BUTTON_FAILED;
@@ -65,17 +64,14 @@ ButtonMessage inactivateButton(Button* button){
 void addButtonToRenderer(Button* button,SDL_Renderer* renderer){
 	if(!button || !renderer) return;
 	if(!button->isClickable){
-		SDL_RenderCopy(renderer, button->nonClickableTexture, NULL, &(button->rect));
+		SDL_RenderCopy(renderer, button->nonClickableTexture, NULL, button->rect);
 	}
 	else if(button->isActive){
-		SDL_RenderCopy(renderer, button->activeTexture, NULL, &(button->rect));
+		SDL_RenderCopy(renderer, button->activeTexture, NULL, button->rect);
 	}
-	else{
-		SDL_RenderCopy(renderer, button->inactiveTexture, NULL, &(button->rect));
-	}
+	else SDL_RenderCopy(renderer, button->inactiveTexture, NULL, button->rect);
 	SDL_RenderPresent(renderer);
 }
-
 Button* whichButtonWasClicked(Button** button, int size, int x, int y){
 	for(int i = 0; i < size; ++i){
 		if(button[i] == NULL) printf("ERROR in whichButtonWasClicked\n");
@@ -84,10 +80,10 @@ Button* whichButtonWasClicked(Button** button, int size, int x, int y){
 	return NULL;
 }
 bool isClickOnButton(Button* button, int x, int y){
-	int leftLimit = button->rect.x;
-	int rightLimit = leftLimit + button->rect.w;
-	int topLimit = button->rect.y;
-	int bottomLimit = topLimit + button->rect.h;
+	int leftLimit = button->rect->x;
+	int rightLimit = leftLimit + button->rect->w;
+	int topLimit = button->rect->y;
+	int bottomLimit = topLimit + button->rect->h;
 	if ((leftLimit <= x && x <= rightLimit) && (topLimit <= y && y <= bottomLimit)) {
 		return true;
 	}
@@ -119,7 +115,7 @@ ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON
 		break;
 	case SETTINGS_BACK_BUTTON:
 		if(setSettingsBackTextures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 460,200, 120);
+		button->rect = createRect(150, 460,200, 120);
 		break;
 	case GAME_MODE_TITLE_BUTTON:
 		if(setGameModeTitleTextures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
@@ -228,17 +224,18 @@ ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON
 	default:
 		break;
 	}
+	if(button->rect == NULL) return BUTTON_FAILED;
 	button->activeTexture = buttonTextures->activeTexture;
 	button->inactiveTexture = buttonTextures->inactiveTexture;
 	button->nonClickableTexture = buttonTextures->nonClickableTexture;
-	destroyButtonTextures(buttonTextures);
 	return BUTTON_SUCCESS;
 }
-SDL_Rect createRect(int x, int y,int w, int h){
-	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
-	rect.w = w;
-	rect.h = h;
+SDL_Rect* createRect(int x, int y,int w, int h){
+	SDL_Rect* rect = (SDL_Rect*) malloc(sizeof(SDL_Rect));
+	if(rect == NULL) return NULL;
+	rect->x = x;
+	rect->y = y;
+	rect->w = w;
+	rect->h = h;
 	return rect;
 }

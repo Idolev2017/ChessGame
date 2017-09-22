@@ -257,7 +257,7 @@ MANAGER_EVENT ChessGUIManagerHandleEvent(GuiManager* guiManager, SDL_Event* even
 	case GAME_WINDOW_ACTIVE:
 		gameEvent = gameWindowHandleEvent(guiManager->gameWin,guiManager->game, event);
 		updateUndoButton(guiManager->gameWin,guiManager->game);
-		ChessGUIManagerDraw(guiManager,event);
+		if(!(event->type == SDL_MOUSEMOTION && guiManager->gameWin->chosenLoc.row == NOT_CHOOSED)) ChessGUIManagerDraw(guiManager,event);
 		return handleManagerDueToGameEvent(guiManager, gameEvent);
 	}
 	return MANAGER_NONE;

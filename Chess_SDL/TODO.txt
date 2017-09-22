@@ -4,8 +4,9 @@
 clear למיניהם
 get all moves define 28
 למחוק copyLocation
-actual size in mini max
+actual size in mini max,scoring function
 pawnPromoting GUI
+pawn promoting com dont working.
 
 הדפסת שגיאות בקונסול או בגוי
 הבדלים בין לינוקס לווינדוס ביצירת קבצים

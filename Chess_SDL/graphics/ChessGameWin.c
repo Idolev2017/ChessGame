@@ -79,11 +79,13 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 	if(!gameWin || !game || !event){
 		return GAME_WINDOW_FAILED;
 	}
-	simpleWindowAddingButtons(gameWin->simpleWindow,gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
 	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
 	SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
 	SDL_RenderClear(gameWin->simpleWindow->renderer);
 	SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->grid_texture, NULL, &rec);
+
+	simpleWindowAddingButtons(gameWin->simpleWindow,gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
+
 	drawGetAllMoves(gameWin); //if no needed, the function not drawing nothing.
 	Location loc;
 	for (int i = 0; i < BOARD_LINE_SIZE; i++) {
@@ -308,7 +310,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 
 		//move is legal
 		winnerEvent = gameCheckingWinnerGui(game);
-
+		gameWindowDraw(gameWin,game,event);
 		if(game->gameMode == 2) return winnerEvent;
 		//com play
 		else{

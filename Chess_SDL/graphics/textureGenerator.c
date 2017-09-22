@@ -52,7 +52,7 @@ TEXTURE_MESSAGE setSettingsBackTextures(ButtonTextures* buttonTextures,SDL_Rende
 	return setTextures(buttonTextures,renderer,"settingsBack", ACTIVE_TEXTURE);
 }
 TEXTURE_MESSAGE setGameModeTitleTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
-	return setTextures(buttonTextures,renderer,"gameModeTitle", ACTIVE_TEXTURE);
+	return setTextures(buttonTextures,renderer,"gameModeTitle", NON_CLICKABLE_TEXTURE);
 }
 TEXTURE_MESSAGE setGameMode1Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
 	if(setTextures(buttonTextures,renderer,"gameMode1Active", ACTIVE_TEXTURE) == TEXTURE_FAILED) return TEXTURE_FAILED;
@@ -63,8 +63,7 @@ TEXTURE_MESSAGE setGameMode2Textures(ButtonTextures* buttonTextures,SDL_Renderer
 	return setTextures(buttonTextures,renderer,"gameMode2Inactive", INACTIVE_TEXTURE);
 }
 TEXTURE_MESSAGE setDifficultyTitleTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
-	return setTextures(buttonTextures,renderer,"difficultyTitle", ACTIVE_TEXTURE);
-
+	return setTextures(buttonTextures,renderer,"difficultyTitle", NON_CLICKABLE_TEXTURE);
 }
 TEXTURE_MESSAGE setDifficulty1Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
 	if(setTextures(buttonTextures,renderer,"difficulty1Active", ACTIVE_TEXTURE) == TEXTURE_FAILED) return TEXTURE_FAILED;
@@ -87,7 +86,7 @@ TEXTURE_MESSAGE setDifficulty5Textures(ButtonTextures* buttonTextures,SDL_Render
 	return setTextures(buttonTextures,renderer,"difficulty5Inactive", INACTIVE_TEXTURE);
 }
 TEXTURE_MESSAGE setUserColorTitleTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
-	return setTextures(buttonTextures,renderer,"userColorTitle", ACTIVE_TEXTURE);
+	return setTextures(buttonTextures,renderer,"userColorTitle", NON_CLICKABLE_TEXTURE);
 }
 TEXTURE_MESSAGE setUserColor1Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
 	if(setTextures(buttonTextures,renderer,"userColor1Active", ACTIVE_TEXTURE) == TEXTURE_FAILED) return TEXTURE_FAILED;
@@ -145,10 +144,10 @@ TEXTURE_MESSAGE setGameUndoTextures(ButtonTextures* buttonTextures,SDL_Renderer*
 	return setTextures(buttonTextures,renderer,"GameUndoUnclickable", NON_CLICKABLE_TEXTURE);
 }
 TEXTURE_MESSAGE setMainMenuTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
-	return setTextures(buttonTextures,renderer,"mainMenu", NON_CLICKABLE_TEXTURE);
+	return setTextures(buttonTextures,renderer,"mainMenu", ACTIVE_TEXTURE);
 }
 TEXTURE_MESSAGE setGameExitTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
-	return setTextures(buttonTextures,renderer,"gameExit", NON_CLICKABLE_TEXTURE);
+	return setTextures(buttonTextures,renderer,"gameExit", ACTIVE_TEXTURE);
 }
 
 TEXTURE_MESSAGE setTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer,char* buttonTexturesName, TEXTURE_TYPE type){

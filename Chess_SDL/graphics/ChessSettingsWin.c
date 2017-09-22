@@ -149,11 +149,11 @@ SETTINGS_MESSAGE generateUserColorButtons(SettingsWin* settingsWin) {
 		return SETTINGS_FAILED;
 	}
 	BUTTON_TYPE userColorTypes[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {
-			USER_COLOR_TITLE_BUTTON,
 			COLOR_BLACK_PLAYER_BUTTON,
-			COLOR_WHITE_PLAYER_BUTTON };
-	bool ActiveUserColorButtons[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {true, false, false};
-	bool ClickableUserColorButtons[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {false, true, true};
+			COLOR_WHITE_PLAYER_BUTTON,
+			USER_COLOR_TITLE_BUTTON};
+	bool ActiveUserColorButtons[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {false, false,true};
+	bool ClickableUserColorButtons[SETTINGS_NUM_OF_USERCOLOR_BUTTONS] = {true, true,false};
 	if (buttonArrayCreate(settingsWin->simpleWindow->renderer,settingsWin->userColorButtons, userColorTypes, ActiveUserColorButtons, ClickableUserColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->userColorButtons);
 		settingsWin->userColorButtons = NULL;
@@ -184,7 +184,7 @@ SETTINGS_MESSAGE generateNormalButtons(SettingsWin* settingsWin) {
 
 SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
 	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
-	SDL_SetRenderDrawColor(settingsWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
+	SDL_SetRenderDrawColor(settingsWin->simpleWindow->renderer, 0, 0, 255, 1); //Background is white.
 	SDL_RenderClear(settingsWin->simpleWindow->renderer);
 	SDL_RenderCopy(settingsWin->simpleWindow->renderer, settingsWin->gridTexture, NULL, &rec);
 
@@ -193,17 +193,14 @@ SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
 	case DIFFICULTY_STATE:
 		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
 		addButtonToRenderer(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer); // drawing next button
-		return SETTINGS_FAILED;
 		break;
 	case GAME_MODE_STATE:
 		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
 		addButtonToRenderer(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer); // drawing next button
-		return SETTINGS_FAILED;
 		break;
 	case USER_COLOR_STATE:
 		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
 		addButtonToRenderer(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer); // drawing start button
-		return SETTINGS_FAILED;
 		break;
 	}
 	addButtonToRenderer(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer); // drawing back button
@@ -356,10 +353,10 @@ SETTINGS_EVENT userColorHandleEvent(SettingsWin* settingsWin, Button* button){
 	int prevUserColor = settingsWin->userColorSelect;
 	switch(button->type){
 	case COLOR_BLACK_PLAYER_BUTTON:
-		settingsWin->userColorSelect = 0;
+		settingsWin->userColorSelect = 0; //BLACK == 0
 		break;
 	case COLOR_WHITE_PLAYER_BUTTON:
-		settingsWin->userColorSelect = 1;
+		settingsWin->userColorSelect = 1; //WHITE == 0
 		break;
 	case SETTINGS_START_BUTTON:
 		return SETTINGS_START_EVENT;
