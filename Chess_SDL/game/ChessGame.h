@@ -31,11 +31,11 @@ Step createStep(Location dest, MoveClass class);
 
 GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd);
 
-GAME_MESSAGE playMove(ChessGame* game, Location src,Location dest, bool toPrint);
+GAME_MESSAGE playMove(ChessGame* game, Location src,Location dest, bool userTurn);
 //return invalid_move if all the moves are illegal
 //return GAME_SUCCESS if there is at least one legal move.
 //return PIECE_THREATENED if there is at least one move that exposes the king, and the other are illegal.
-GAME_MESSAGE getAllMoves(ChessGame* game, Location loc,Location* possibleMoves, int* actualSize,bool toPrint);
+GAME_MESSAGE getAllMoves(ChessGame* game, Location loc,Location* possibleMoves, int* actualSize,bool userTurn);
 
 GAME_MESSAGE getAllMovesPawn(ChessGame* game,Piece* piece, Location* possibleMoves, int* actualSize);
 
@@ -57,7 +57,7 @@ void printSteps(Step* steps,int size);
 
 GAME_MESSAGE saveGame(ChessGame* game,char* filePath);
 
-GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint);
+GAME_MESSAGE undoPrevMove(ChessGame* game,bool userTurn);
 
 bool IsValidMove(ChessGame* game, int col);
 
@@ -65,7 +65,7 @@ Piece* getPieceOnBoard(ChessGame* game,Location loc);
 
 void setPieceOnBoard(ChessGame* game,Location loc,Piece* p);
 
-GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool toPrint);
+GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool userTurn);
 
 GAME_MESSAGE moveRook (ChessGame* game, Piece* piece,Location dest);
 

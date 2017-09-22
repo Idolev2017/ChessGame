@@ -212,11 +212,12 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
 	Button* button;
 	int prevDifficulty = game->gameDifficulty,prevGameMode = game->gameMode,prevUserColor = game->userColor;
-	bool exit;
+	bool exit = false;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{
 		destroyStepsArray(gameWin);
 		button = whichButtonWasClicked(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS,event->button.x, event->button.y);
+		if(button == NULL) return GAME_NONE_EVENT;
 		switch(button->type){
 		case GAME_RESTART_BUTTON:
 			gameRestartGui(prevDifficulty, prevGameMode, prevUserColor, game);
@@ -312,9 +313,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		//com play
 		else{
 			showWinnerMessage(winnerEvent);
-			SDL_Delay(500);
 			if(chessPlayCom(game,false) == GAME_FAILED) return GAME_EXIT_EVENT;
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error","after all",NULL);
 			return gameCheckingWinnerGui(game);
 		}
 
@@ -397,19 +396,22 @@ void gameRestartGui(int prevDifficulty, int prevGameMode, int prevUserColor, Che
 
 GAME_EVENT gameUndoGui(ChessGame* game){
 	GAME_MESSAGE msg;
-	msg = undoPrevMove(game,false);
-	if(msg == GAME_FAILED) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error","undo move cannot be done",NULL);
-		return GAME_EXIT_EVENT;
+	for(int i = 0; i < 2; ++i){
+		msg = undoPrevMove(game,false);
+		if(msg == GAME_FAILED) {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error","undo move cannot be done",NULL);
+			return GAME_EXIT_EVENT;
+		}
+		if(msg == GAME_NO_HISTORY) {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Empty history","move cannot be undone",NULL);
+			return GAME_NONE_EVENT;
+		}
+		else if(msg == GAME_INVALID_ARGUMENT) {
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Invalid move","Undo command not available in 2 players mode",NULL);
+			return GAME_NONE_EVENT;
+		}
 	}
-	if(msg == GAME_SUCCESS) return GAME_NORMAL_EVENT;
-	if(msg == GAME_NO_HISTORY) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Empty history","move cannot be undone",NULL);
-	}
-	else if(msg == GAME_INVALID_ARGUMENT) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Invalid move","Undo command not available in 2 players mode",NULL);
-	}
-	return GAME_NONE_EVENT;
+	return GAME_NORMAL_EVENT;
 }
 
 void gameWindowHide(GameWin* gameWin) {
@@ -443,10 +445,10 @@ void showWinnerMessage(GAME_EVENT event){
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Check", "black king threatened",NULL);
 		break;
 	case GAME_WHITE_CHECKMATE_EVENT:
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "white player won",NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "black player won",NULL);
 		break;
 	case GAME_BLACK_CHECKMATE_EVENT:
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "black player won",NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "white player won",NULL);
 		break;
 	case GAME_TIE_EVENT:
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "it's a TIE",NULL);

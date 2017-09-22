@@ -5,7 +5,7 @@ clear למיניהם
 get all moves define 28
 למחוק copyLocation
 actual size in mini max
-
+pawnPromoting GUI
 
 הדפסת שגיאות בקונסול או בגוי
 הבדלים בין לינוקס לווינדוס ביצירת קבצים

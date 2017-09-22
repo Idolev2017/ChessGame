@@ -87,13 +87,13 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 	return GAME_SUCCESS;
 }
 
-GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool toPrint){
-	if(isLegalLoc(src) + isLegalLoc(dest) != 2){
-		if(toPrint) printf("Invalid position on the board\n");
+GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTurn){
+	if(!isLegalLoc(src) || !isLegalLoc(dest)){
+		if(userTurn) printf("Invalid position on the board\n");
 		return GAME_INVALID_POSITION;
 	}
 	if(equalLocations(src, dest)){
-		if(toPrint) printf("Illegal move\n");
+		if(userTurn) printf("Illegal move\n");
 		return GAME_INVALID_MOVE;
 	}
 	GAME_MESSAGE msg;
@@ -102,34 +102,40 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool toPrint
 	Piece* movingPiece = getPieceOnBoard(game, src);
 	Piece* destPiece = copyPiece(getPieceOnBoard(game, dest));
 	if(movingPiece == NULL || (movingPiece->color != game->currentPlayer)){
-		if(toPrint) printf("The specified position does not contain your piece\n");
+		if(userTurn) printf("The specified position does not contain your piece\n");
 		return GAME_INVALID_PIECE;
 	}
 
 	switch(movingPiece->type){
 	case PAWN:
-		msg = movePawn(game,movingPiece,dest,toPrint);
+		msg = movePawn(game,movingPiece,dest,userTurn);
 		if(movingPiece->type != PAWN) promotionSucceed = true;
+		if(userTurn) printf("Illegal 1\n");
 		break;
 	case BISHOP:
 		msg = moveBishop(game, movingPiece, dest);
+		if(userTurn) printf("Illegal 2\n");
 		break;
 	case ROOK:
 		msg = moveRook(game, movingPiece, dest);
+		if(userTurn) printf("Illegal 3\n");
 		break;
 	case KING:
 		msg = moveKing(game,movingPiece,dest);
+		if(userTurn) printf("Illegal 4\n");
 		break;
 	case QUEEN:
 		msg = moveQueen(game,movingPiece,dest);
+		if(userTurn) printf("Illegal 5\n");
 		break;
 	case KNIGHT:
 		msg = moveKnight(game, movingPiece, dest);
+		if(userTurn) printf("Illegal 6\n");
 		break;
 	}
-	if((msg == GAME_INVALID_MOVE || msg == PIECE_THREATENED) && toPrint)
+	if((msg == GAME_INVALID_MOVE || msg == PIECE_THREATENED) && userTurn){
 		printf("Illegal move\n");
-
+	}
 	//adding the move to history
 	else if(msg == GAME_SUCCESS){
 		if((move = createChessMove(movingPiece, src, dest, promotionSucceed, destPiece)) == NULL) return GAME_FAILED;
@@ -143,18 +149,18 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool toPrint
 	return msg;
 }
 
-GAME_MESSAGE getAllMoves(ChessGame* game, Location loc,Location* possibleMoves, int* actualSize,bool toPrint){
+GAME_MESSAGE getAllMoves(ChessGame* game, Location loc,Location* possibleMoves, int* actualSize,bool userTurn){
 	*actualSize = 0;
 	if(!isLegalLoc(loc)){
-		if(toPrint) printf("Invalid position on the board\n");
+		if(userTurn) printf("Invalid position on the board\n");
 		return GAME_INVALID_ARGUMENT;
 	}
 	Piece* piece = getPieceOnBoard(game,loc);
 	if(piece == NULL || (piece->color != game->currentPlayer)){
-		if(toPrint) printf("The specified position does not contain your piece\n");
+		if(userTurn) printf("The specified position does not contain your piece\n");
 		return GAME_INVALID_ARGUMENT;
 	}
-	if(toPrint && (game->gameMode != 1|| (game->gameDifficulty != 1 && game->gameDifficulty != 2))){
+	if(userTurn && (game->gameMode != 1|| (game->gameDifficulty != 1 && game->gameDifficulty != 2))){
 		printf("Invalid command\n");
 		return GAME_INVALID_ARGUMENT;
 	}
@@ -450,14 +456,14 @@ void setPieceOnBoard(ChessGame* game,Location loc,Piece* p){
 	}
 }
 
-GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool toPrint){
+GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool userTurn){
 	int diffRow = dest.row - piece->loc.row;
 	int diffCol = dest.col - piece->loc.col;
-	bool emptyDest = getPieceOnBoard(game,dest) == NULL;
+	bool emptyDest = (getPieceOnBoard(game,dest) == NULL);
 	bool whiteJumpForward = piece->color == WHITE && diffRow == 1;
 	bool blackJumpForward = piece->color == BLACK && diffRow == -1;
-	bool whiteDoubleJump = piece->color == WHITE && diffRow == 2 && piece->loc.row == 1;
-	bool blackDoubleJump = piece->color == BLACK && diffRow == -2 && piece->loc.row == 6;
+	bool whiteDoubleJump = piece->color == WHITE && diffRow == 2 && piece->loc.row == 1 && isLegalLoc(dest);
+	bool blackDoubleJump = piece->color == BLACK && diffRow == -2 && piece->loc.row == 6 && isLegalLoc(dest);
 	bool whiteCanSkip = whiteDoubleJump && getPieceOnBoard(game, createLocation(piece->loc.row+1,piece->loc.col)) == NULL;
 	bool blackCanSkip = blackDoubleJump && getPieceOnBoard(game, createLocation(piece->loc.row-1,piece->loc.col)) == NULL;
 	bool whiteCanEat = whiteJumpForward && abs(diffCol) == 1 && !emptyDest;
@@ -468,8 +474,10 @@ GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool toPrint){
 	//move with or without capturing
 	if(((diffCol == 0 && emptyDest) && (whiteCanSkip || whiteJumpForward|| blackCanSkip || blackJumpForward)) || (abs(diffCol) == 1 && (whiteCanEat || blackCanEat))){
 		msg = moveAndCapture(game, piece->loc, dest);
-		if (msg != GAME_SUCCESS) return msg;
-		if(((piece->color == WHITE && dest.row == 7) || (piece->color == BLACK && dest.row == 0)) && toPrint)
+		if (msg != GAME_SUCCESS) {
+			return msg;
+		}
+		if(((piece->color == WHITE && dest.row == 7) || (piece->color == BLACK && dest.row == 0)) && userTurn)
 			return pawnPromoting(piece, true,PAWN);
 		return GAME_SUCCESS;
 	}
@@ -615,6 +623,7 @@ GAME_MESSAGE isPieceThreatenedWithMove(ChessGame* game,Piece* piece,Location src
 	GAME_MESSAGE msg = isPieceThreatened(game,piece);
 	simpleMovePiece(game, dest, src);
 	setPieceOnBoard(game,dest,capturedPiece);
+	if(msg == PIECE_THREATENED) return GAME_INVALID_MOVE;
 	return msg;
 }
 
