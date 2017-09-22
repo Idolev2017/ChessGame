@@ -113,10 +113,8 @@ LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin){
 	SDL_SetRenderDrawColor(loadWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
 	SDL_RenderClear(loadWin->simpleWindow->renderer);
 	SDL_RenderCopy(loadWin->simpleWindow->renderer, loadWin->gridTexture, NULL, &rec);
-	if(simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-			simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->slotsButtons,loadWin->numOfSlots) == SIMPLE_WINDOW_FAILED){
-		return LOAD_FAILED;
-	}
+	simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS);
+	simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->slotsButtons,loadWin->numOfSlots);
 	SDL_RenderPresent(loadWin->simpleWindow->renderer);
 	return LOAD_SUCCESS;
 }
@@ -130,7 +128,7 @@ void loadWindowDestroy(LoadWin* loadWin) {
 }
 
 LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* event) {
-	if (!event) {
+	if (!event || !loadWin) {
 		return LOAD_INVALID_ARGUMENT_EVENT;
 	}
 	if(event->button.button != SDL_BUTTON_LEFT) return LOAD_NONE_EVENT;

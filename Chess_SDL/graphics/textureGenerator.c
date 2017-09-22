@@ -152,15 +152,10 @@ TEXTURE_MESSAGE setGameExitTextures(ButtonTextures* buttonTextures,SDL_Renderer*
 }
 
 TEXTURE_MESSAGE setTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer,char* buttonTexturesName, TEXTURE_TYPE type){
-	char* path = (char*) malloc(sizeof(MAX_PATH));
-	if(path == NULL){
-		printf("ERROR: malloc function has failed\n");
-		return TEXTURE_FAILED;
-	}
+	char path[MAX_PATH];
 	bool failed = false;
 	sprintf(path,"./graphics/images/buttons/%s.bmp",buttonTexturesName);
 	SDL_Surface* loadingSurface = SDL_LoadBMP(path);
-	free(path);
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
 		return TEXTURE_FAILED;
@@ -172,11 +167,11 @@ TEXTURE_MESSAGE setTextures(ButtonTextures* buttonTextures,SDL_Renderer* rendere
 		break;
 	case INACTIVE_TEXTURE:
 		buttonTextures->inactiveTexture = SDL_CreateTextureFromSurface(renderer,loadingSurface);
-		if (buttonTextures->activeTexture == NULL) failed = true;
+		if (buttonTextures->inactiveTexture == NULL) failed = true;
 		break;
 	case NON_CLICKABLE_TEXTURE:
 		buttonTextures->nonClickableTexture = SDL_CreateTextureFromSurface(renderer,loadingSurface);
-		if (buttonTextures->activeTexture == NULL) failed = true;
+		if (buttonTextures->nonClickableTexture == NULL) failed = true;
 		break;
 	}
 	if(failed){

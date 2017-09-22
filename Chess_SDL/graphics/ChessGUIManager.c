@@ -1,8 +1,5 @@
 #include "ChessGUIManager.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
 GuiManager* ChessGUIManagerCreate() {
 	GuiManager* guiManager = (GuiManager*) malloc(sizeof(GuiManager));
 	if (guiManager == NULL) {
@@ -14,7 +11,6 @@ GuiManager* ChessGUIManagerCreate() {
 	guiManager->gameWin = NULL;
 	guiManager->loadWin = NULL;
 	guiManager->settingsWin = NULL;
-
 	guiManager->mainWin = mainWindowCreate();
 	if (guiManager->mainWin == NULL) {
 		ChessGUIManagerDestroy(guiManager);
@@ -27,21 +23,21 @@ GuiManager* ChessGUIManagerCreate() {
 		ChessGUIManagerDestroy(guiManager);
 		return NULL;
 	}
-	SDL_HideWindow(guiManager->gameWin->simpleWindow->window);
+	gameWindowHide(guiManager->gameWin);
 
 	guiManager->loadWin = loadWindowCreate(MAIN_WINDOW);
 	if (guiManager->loadWin == NULL) {
 		ChessGUIManagerDestroy(guiManager);
 		return NULL;
 	}
-	SDL_HideWindow(guiManager->loadWin->simpleWindow->window);
+	loadWindowHide(guiManager->loadWin);
 
 	guiManager->settingsWin = settingsWindowCreate(MAIN_WINDOW);
 	if (guiManager->settingsWin == NULL) {
 		ChessGUIManagerDestroy(guiManager);
 		return NULL;
 	}
-	SDL_HideWindow(guiManager->gameWin->simpleWindow->window);
+	settingsWindowHide(guiManager->settingsWin);
 
 	guiManager->game = gameCreate(HISTORY_SIZE,false);
 	if(guiManager->game == NULL){
@@ -102,7 +98,7 @@ MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* guiManager,MAIN_EVENT even
 		mainWindowHide(guiManager->mainWin);
 		guiManager->activeWin = SETTINGS_WINDOW_ACTIVE;
 		guiManager->settingsWin->simpleWindow->backWindow = MAIN_WINDOW;
-		gameWindowShow(guiManager->gameWin);
+		settingsWindowShow(guiManager->settingsWin);
 		break;
 	case MAIN_LOAD_EVENT:
 		mainWindowHide(guiManager->mainWin);

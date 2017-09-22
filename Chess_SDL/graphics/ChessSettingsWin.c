@@ -191,22 +191,22 @@ SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
 	int gameModeButton = (settingsWin->gameModeSelect == 2) ? START_INDEX : NEXT_INDEX;
 	switch(settingsWin->state){
 	case DIFFICULTY_STATE:
-		if (simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				addButtonToRenderer(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
-			return SETTINGS_FAILED;
+		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
+		addButtonToRenderer(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer); // drawing next button
+		return SETTINGS_FAILED;
 		break;
 	case GAME_MODE_STATE:
-		if (simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				addButtonToRenderer(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing next button
-			return SETTINGS_FAILED;
+		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
+		addButtonToRenderer(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer); // drawing next button
+		return SETTINGS_FAILED;
 		break;
 	case USER_COLOR_STATE:
-		if (simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS) == SIMPLE_WINDOW_FAILED ||
-				addButtonToRenderer(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) // drawing start button
-			return SETTINGS_FAILED;
+		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
+		addButtonToRenderer(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer); // drawing start button
+		return SETTINGS_FAILED;
 		break;
 	}
-	if (addButtonToRenderer(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED) return SETTINGS_FAILED; // drawing back button
+	addButtonToRenderer(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer); // drawing back button
 	SDL_RenderPresent(settingsWin->simpleWindow->renderer);
 	return SETTINGS_SUCCESS;
 }
@@ -222,7 +222,7 @@ void settingsWindowDestroy(SettingsWin* settingsWin) {
 }
 
 SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, SDL_Event* event){
-	if (!event) return SETTINGS_EXIT_EVENT;
+	if (!event || !game || !settingsWin) return SETTINGS_EXIT_EVENT;
 	if(event->button.button != SDL_BUTTON_LEFT) return SETTINGS_NONE_EVENT;
 	SETTINGS_EVENT setEvent;
 	setEvent = settingsWindowHandleEvent(settingsWin,event);

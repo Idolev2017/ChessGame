@@ -1,8 +1,6 @@
 #ifndef SPTICTACTOEGAMEWIN_H_
 #define SPTICTACTOEGAMEWIN_H_
 #include "SimpleWindow.h"
-#include "../SPTicTacToe.h"
-#include "../MainAux.h"
 #include <math.h>
 
 #define PANEL_WIDTH 200

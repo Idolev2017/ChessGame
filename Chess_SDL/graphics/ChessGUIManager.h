@@ -1,9 +1,12 @@
-#ifndef SPTICTACTOEGUIMANAGER_H_
-#define SPTICTACTOEGUIMANAGER_H_
+#ifndef CHESSGUIMANAGER_H_
+#define CHESSGUIMANAGER_H_
 #include "ChessGameWin.h"
 #include "ChessMainWin.h"
 #include "ChessLoadWin.h"
 #include "ChessSettingsWin.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef enum{
 	MAIN_WINDOW_ACTIVE,

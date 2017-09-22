@@ -78,9 +78,9 @@ void buttonArrayDestroy(Button** buttons,int size);
 Button* copyButton(Button* button);
 ButtonMessage activateButton(Button* button);
 ButtonMessage inactivateButton(Button* button);
-ButtonMessage addButtonToRenderer(Button* button,SDL_Renderer* renderer);
+void addButtonToRenderer(Button* button,SDL_Renderer* renderer);
 Button* whichButtonWasClicked(Button** button, int size, int x, int y);
 bool isClickOnButton(Button* button, int x, int y);
 ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON_TYPE type);
-void updateRectSizes(SDL_Rect* rect,int x, int y,int w, int h);
+SDL_Rect createRect(int x, int y,int w, int h);
 #endif /* GRAPHICS_H_ */

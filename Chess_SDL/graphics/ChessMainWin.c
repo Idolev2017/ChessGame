@@ -20,7 +20,6 @@ MainWin* mainWindowCreate() {
 		mainWindowDestroy(mainWin);
 		return NULL;
 	}
-
 	SDL_Surface* loadingSurface = SDL_LoadBMP("./graphics/images/gameMain.bmp");
 	if (loadingSurface == NULL) {
 		printf("Could not create a surface: %s\n", SDL_GetError());
@@ -61,10 +60,10 @@ MAIN_MESSAGE generateMainButtons(MainWin* mainWin){
 
 MAIN_MESSAGE mainWindowDraw(MainWin* mainWin){
 	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
-	SDL_SetRenderDrawColor(mainWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
-	SDL_RenderClear(mainWin->simpleWindow->renderer);
+	SDL_SetRenderDrawColor(mainWin->simpleWindow->renderer, 255, 255, 255, 255);
+	if (SDL_RenderClear(mainWin->simpleWindow->renderer) == -1) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"ERROR","renderer cannot be cleared",NULL);
 	SDL_RenderCopy(mainWin->simpleWindow->renderer, mainWin->gridTexture, NULL, &rec);
-	if(simpleWindowAddingButtons(mainWin->simpleWindow,mainWin->buttons,MAIN_NUM_OF_BUTTONS) == SIMPLE_WINDOW_FAILED) return MAIN_FAILED;
+	simpleWindowAddingButtons(mainWin->simpleWindow,mainWin->buttons,MAIN_NUM_OF_BUTTONS);
 	SDL_RenderPresent(mainWin->simpleWindow->renderer);
 	return MAIN_SUCCESS;
 }
@@ -77,7 +76,7 @@ void mainWindowDestroy(MainWin* mainWin) {
 }
 
 MAIN_EVENT mainWindowHandleEvent(MainWin* mainWin, SDL_Event* event) {
-	if (!event) return MAIN_EXIT_EVENT;
+	if (!event || !mainWin) return MAIN_EXIT_EVENT;
 	if(event->button.button != SDL_BUTTON_LEFT) return MAIN_NONE_EVENT;
 	Button* button;
 	switch (event->type) {

@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "Button.h"
-#include "../MainAux.h"
+#include "../game/MainAux.h"
 #define WIDTH_SIZE 800
 #define HEIGHT_SIZE 600
 typedef enum{
@@ -34,7 +34,7 @@ typedef struct {
 } SimpleWindow;
 
 SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow);
-SIMPLE_WINDOW_MESSAGE simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
+void simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
 void simpleWindowDestroy(SimpleWindow* simpleWin);
 void simpleWindowHide(SimpleWindow* simpleWin);
 void simpleWindowShow(SimpleWindow* simpleWin);

@@ -36,7 +36,13 @@ GameWin* gameWindowCreate() {
 }
 
 GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo) {
-	BUTTON_TYPE panelTypes[GAME_NUM_OF_PANEL_BUTTONS] = { GAME_RESTART_BUTTON,
+	gameWin->panelButtons = (Button**) malloc(sizeof(Button*) * GAME_NUM_OF_PANEL_BUTTONS);
+	if (gameWin->panelButtons == NULL) {
+		printMallocError();
+		return GAME_WINDOW_FAILED;
+	}
+	BUTTON_TYPE panelTypes[GAME_NUM_OF_PANEL_BUTTONS] = {
+			GAME_RESTART_BUTTON,
 			GAME_SAVE_BUTTON,
 			GAME_LOAD_BUTTON,
 			GAME_UNDO_BUTTON,
@@ -46,7 +52,6 @@ GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo) {
 	bool panelClickableButtons[GAME_NUM_OF_PANEL_BUTTONS] = { true, true, true,canUndo, true, true };
 	if (buttonArrayCreate(gameWin->simpleWindow->renderer,gameWin->panelButtons, panelTypes, panelActiveButtons,
 			panelClickableButtons, GAME_NUM_OF_PANEL_BUTTONS) == BUTTON_FAILED) {
-
 		free(gameWin->panelButtons);
 		gameWin->panelButtons = NULL;
 		return GAME_WINDOW_FAILED;
@@ -71,12 +76,10 @@ void gameWindowDestroy(GameWin* gameWin) {
 }
 
 GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* event) {
-	if(gameWin == NULL){
+	if(!gameWin || !game || !event){
 		return GAME_WINDOW_FAILED;
 	}
-	for(int i = 0; i < GAME_NUM_OF_PANEL_BUTTONS; ++i){
-		addButtonToRenderer(gameWin->panelButtons[i],gameWin->simpleWindow->renderer);
-	}
+	simpleWindowAddingButtons(gameWin->simpleWindow,gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
 	SDL_Rect rec = { .x = 0, .y = 0, .w = WIDTH_SIZE, .h = HEIGHT_SIZE };
 	SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
 	SDL_RenderClear(gameWin->simpleWindow->renderer);
@@ -96,8 +99,8 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 	}
 	//drag
 	if(event->type == SDL_MOUSEMOTION && isClickedOnBoard(event->button.x,event->button.y)){
-		rec.x = event->button.x;
-		rec.y = event->button.y;
+		rec.x = event->button.x - REC_SIZE/2;
+		rec.y = event->button.y - REC_SIZE/2;
 		rec.h = REC_SIZE;
 		rec.w = REC_SIZE;
 		if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,gameWin->chosenLoc),false)[0]) == GAME_WINDOW_FAILED){
@@ -122,40 +125,40 @@ void drawGetAllMoves(GameWin* gameWin){
 GAME_WINDOW_MESSAGE drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece){
 	switch(piece){
 	case 'r':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_white_texture, NULL, rec);
 		break;
 	case 'k':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_white_texture, NULL, rec);
 		break;
 	case 'm':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_white_texture, NULL, rec);
 		break;
 	case 'q':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_white_texture, NULL, rec);
 		break;
 	case 'b':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_white_texture, NULL, rec);
 		break;
 	case 'n':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_white_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_white_texture, NULL, rec);
 		break;
 	case 'R':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_black_texture, NULL, rec);
 		break;
 	case 'K':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_black_texture, NULL, rec);
 		break;
 	case 'M':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_black_texture, NULL, rec);
 		break;
 	case 'Q':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec);
 		break;
 	case 'B':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_black_texture, NULL, rec);
 		break;
 	case 'N':
-		if(SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_black_texture, NULL, rec) == -1) return GAME_WINDOW_FAILED;
+		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_black_texture, NULL, rec);
 		break;
 	}
 	return GAME_WINDOW_SUCCESS;
@@ -180,7 +183,8 @@ void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass){
 }
 
 GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event) {
-	if (event == NULL || gameWin == NULL ) {
+	if (event == NULL || gameWin == NULL || game == NULL ) {
+
 		return GAME_EVENT_INVALID_ARGUMENT;
 	}
 	switch (event->type) {
@@ -261,6 +265,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	GAME_MESSAGE msg;
 	GAME_EVENT winnerEvent;
 	Location possibleMoves[28];
+	bool removeAllMoves = false;
 	switch (event->type) {
 
 	case SDL_MOUSEBUTTONDOWN:
@@ -268,12 +273,13 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
 
 			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 2){
+				removeAllMoves = equalLocations(tmpLoc,gameWin->getAllMovesLoc);
 				destroyStepsArray(gameWin); //remove,different or new getAllMoves
-
-				if(equalLocations(tmpLoc,gameWin->getAllMovesLoc))  return GAME_NONE_EVENT; //allready remove.
+				if(removeAllMoves)  return GAME_NONE_EVENT; //allready remove.
 
 				msg = getAllMoves(game, tmpLoc, possibleMoves, &(gameWin->numOfSteps),false);
 				if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
+				if(gameWin->numOfSteps == 0) return GAME_NONE_EVENT;;
 				gameWin->getAllMovesLoc = tmpLoc;
 				gameWin->steps = distinguishMovesByPiece(game, possibleMoves,gameWin->numOfSteps, tmpLoc);
 				if(gameWin->steps == NULL) return GAME_EXIT_EVENT;
@@ -286,16 +292,15 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		break;
 
 
-	case SDL_MOUSEBUTTONUP:{
+	case SDL_MOUSEBUTTONUP:
 		if(event->button.button == SDL_BUTTON_RIGHT) return GAME_NONE_EVENT;
 		if(gameWin->chosenLoc.row == NOT_CHOOSED) return GAME_NONE_EVENT;
 
 		//Play move
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
-		if((msg = playMove(game,gameWin->chosenLoc,tmpLoc,false)) == GAME_FAILED) return GAME_EXIT_EVENT;
-
-		//return the piece to his place.
-		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+		msg = playMove(game,gameWin->chosenLoc,tmpLoc,false);
+		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
+		if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
 		if(msg != GAME_SUCCESS) return GAME_NORMAL_EVENT;
 
 		destroyStepsArray(gameWin); //remove getAllMoves.
@@ -307,12 +312,13 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		//com play
 		else{
 			showWinnerMessage(winnerEvent);
-			SDL_Delay(1000);
-			if(chessPlayCom(game) == GAME_FAILED) return GAME_EXIT_EVENT;
+			SDL_Delay(500);
+			if(chessPlayCom(game,false) == GAME_FAILED) return GAME_EXIT_EVENT;
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error","after all",NULL);
 			return gameCheckingWinnerGui(game);
 		}
-	}
-	break;
+
+		break;
 	}
 	return GAME_NONE_EVENT;
 }
@@ -327,15 +333,14 @@ void destroyStepsArray(GameWin* gameWin){
 
 Location mouseLocToBoardLoc(int x, int y){
 	x = x - PANEL_WIDTH;
-	y = y - PANEL_WIDTH;
-	Location loc = createLocation(floor(x / REC_SIZE),floor(y / REC_SIZE)); //start from 0.
+	Location loc = createLocation(7-floor(y / REC_SIZE),floor(x / REC_SIZE)); //start from 0.
 	return loc;
 }
 
 SDL_Rect boardLocToRect(Location loc){
 	SDL_Rect rec = {
 			.x = PANEL_WIDTH + loc.col * REC_SIZE,
-			.y = PANEL_WIDTH + (GAME_N_ROWS-1-loc.row) * REC_SIZE,
+			.y = (7-loc.row) * REC_SIZE,
 			.h = REC_SIZE,
 			.w = REC_SIZE,
 	};
@@ -394,8 +399,7 @@ GAME_EVENT gameUndoGui(ChessGame* game){
 	GAME_MESSAGE msg;
 	msg = undoPrevMove(game,false);
 	if(msg == GAME_FAILED) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error",
-				"undo move cannot be done",NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error","undo move cannot be done",NULL);
 		return GAME_EXIT_EVENT;
 	}
 	if(msg == GAME_SUCCESS) return GAME_NORMAL_EVENT;
