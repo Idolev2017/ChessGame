@@ -149,6 +149,7 @@ GAME_MESSAGE gameInitialization(ChessGame* game,bool toClear,int historySize){
 	game->gameDifficulty = DEFAULT_DIFFICULTY;
 	game->gameMode = DEFAULT_GAME_MODE;
 	game->userColor = DEFAULT_USER_COLOR;
+	game->LastMoves = NULL;
 	if(toClear){
 		destroyInnerGame(game);
 	}

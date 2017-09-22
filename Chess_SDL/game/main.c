@@ -45,7 +45,7 @@ int guiMode(){
 	SDL_Event event;
 	while (1) {
 		SDL_WaitEvent(&event);
-		if (ChessGUIManagerHandleEvent(guiManager, &event) == MANAGER_QUIT) {
+		if (event.window.event == SDL_WINDOWEVENT_CLOSE || ChessGUIManagerHandleEvent(guiManager, &event) == MANAGER_QUIT) {
 			break;
 		}
 		if(!(event.type == SDL_MOUSEMOTION)) ChessGUIManagerDraw(guiManager,&event);

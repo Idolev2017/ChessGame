@@ -263,15 +263,8 @@ SETTINGS_EVENT settingsWindowHandleEvent(SettingsWin* settingsWin, SDL_Event* ev
 		default:
 			break;
 		}
-
-
-
-		break;
 	}
-	case SDL_WINDOWEVENT:
-		if (event->window.event == SDL_WINDOWEVENT_CLOSE)
-			return SETTINGS_EXIT_EVENT;
-		break;
+	break;
 	default:
 		break;
 	}

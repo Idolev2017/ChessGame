@@ -181,11 +181,6 @@ LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* ev
 		return LOAD_NORMAL_EVENT;
 		break;
 	}
-	case SDL_WINDOWEVENT:
-		if (event->window.event == SDL_WINDOWEVENT_CLOSE) {
-			return LOAD_EXIT_EVENT;
-		}
-		break;
 	default:
 		return LOAD_NONE_EVENT;
 	}

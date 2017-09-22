@@ -96,11 +96,7 @@ MAIN_EVENT mainWindowHandleEvent(MainWin* mainWin, SDL_Event* event) {
 		}
 	}
 	break;
-	case SDL_WINDOWEVENT:
-		if (event->window.event == SDL_WINDOWEVENT_CLOSE) {
-			return MAIN_EXIT_EVENT;
-		}
-		break;
+
 	default:
 		return MAIN_NONE_EVENT;
 	}

@@ -197,11 +197,6 @@ GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* ev
 			return gameWindowPanelHandleEvent(gameWin,game,event);
 		}
 		else return gameWindowBoardHandleEvent(gameWin,game,event);
-	case SDL_WINDOWEVENT:
-		if (event->window.event == SDL_WINDOWEVENT_CLOSE) {
-			return GAME_EXIT_EVENT;
-		}
-		break;
 	default:
 		return GAME_NONE_EVENT;
 	}
