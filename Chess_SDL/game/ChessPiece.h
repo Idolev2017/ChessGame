@@ -40,7 +40,7 @@ typedef struct {
 	Location loc;
 } Piece;
 
-Piece* pieceCreate(PieceType type, int color, int row, int col);
+Piece* pieceCreate(PieceType type, Color color, int row, int col);
 Piece* copyPiece(Piece* src);
 Location createLocation(int row, int col);
 Location copyLocation(Location loc);

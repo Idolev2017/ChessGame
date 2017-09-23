@@ -51,7 +51,12 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 		msg = GAME_SUCCESS;
 		break;
 
-	default: ;
+	default:
+		break;
+	}
+	if(msg == GAME_SUCCESS){
+		if(cmd.type == SAVE || cmd.type == GET_MOVES) return GAME_NORMAL;
+		else return GAME_SUCCESS;
 	}
 	return msg;
 }
@@ -110,27 +115,21 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 	case PAWN:
 		msg = movePawn(game,movingPiece,dest,userTurn);
 		if(movingPiece->type != PAWN) promotionSucceed = true;
-		if(userTurn) printf("Illegal 1\n");
 		break;
 	case BISHOP:
 		msg = moveBishop(game, movingPiece, dest);
-		if(userTurn) printf("Illegal 2\n");
 		break;
 	case ROOK:
 		msg = moveRook(game, movingPiece, dest);
-		if(userTurn) printf("Illegal 3\n");
 		break;
 	case KING:
 		msg = moveKing(game,movingPiece,dest);
-		if(userTurn) printf("Illegal 4\n");
 		break;
 	case QUEEN:
 		msg = moveQueen(game,movingPiece,dest);
-		if(userTurn) printf("Illegal 5\n");
 		break;
 	case KNIGHT:
 		msg = moveKnight(game, movingPiece, dest);
-		if(userTurn) printf("Illegal 6\n");
 		break;
 	}
 	if((msg == GAME_INVALID_MOVE || msg == PIECE_THREATENED) && userTurn){
@@ -410,15 +409,17 @@ GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	if(file == NULL)
 	{
 		printf("File cannot be created or modified\n");
-		return GAME_FAILED;
+		return GAME_SUCCESS;
 	}
 	//prints to the XML file
 	fprintf(file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	fprintf(file, "<game>\n");
 	fprintf(file, "\t<current_turn>%d</current_turn>\n", game->currentPlayer);
 	fprintf(file, "\t<game_mode>%d</game_ mode>\n", game->gameMode);
-	fprintf(file, "\t<difficulty>%d</difficulty>\n", game->gameDifficulty);
-	fprintf(file, "\t<user_color>%d</user_color>\n", game->userColor);
+	if(game->gameMode == 1){
+		fprintf(file, "\t<difficulty>%d</difficulty>\n", game->gameDifficulty);
+		fprintf(file, "\t<user_color>%d</user_color>\n", game->userColor);
+	}
 	fprintf(file, "\t<board>\n");
 	for(int i=7; i>=0; i--){
 		fprintf(file, "\t\t<row_%d>",(i+1));
@@ -454,6 +455,11 @@ void setPieceOnBoard(ChessGame* game,Location loc,Piece* p){
 			else game->blackKing = p;
 		}
 	}
+}
+
+bool needPromoting(Piece* piece){
+	if(piece == NULL) return false;
+	return ((piece->color == WHITE && piece->loc.row == 7) || (piece->color == BLACK && piece->loc.row == 0)) && piece->type == PAWN;
 }
 
 GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool userTurn){
@@ -513,7 +519,9 @@ GAME_MESSAGE pawnPromoting(Piece* piece,bool toUser,PieceType type){
 		}
 		free(line);
 	}
-	else piece->type = type;
+	else {
+		piece->type = type;
+	}
 	return GAME_SUCCESS;
 }
 
@@ -540,7 +548,7 @@ GAME_MESSAGE moveBishop(ChessGame* game, Piece* piece,Location dest){
 	Location pieceLoc = copyLocation(piece->loc);
 	if(pieceLoc.col == dest.col) return GAME_INVALID_MOVE;
 	int gradient = (pieceLoc.row - dest.row) / (pieceLoc.col - dest.col);
-	if(abs(gradient) != 1) return GAME_INVALID_MOVE;
+	if(abs(pieceLoc.row - dest.row) != abs(pieceLoc.col - dest.col)) return GAME_INVALID_MOVE;
 	int maxCol = max(pieceLoc.col, dest.col);
 	tmpLoc = (dest.col < pieceLoc.col) ? copyLocation(dest) : copyLocation(pieceLoc); //we are moving from left to right.
 	tmpLoc.col += 1;
@@ -764,7 +772,8 @@ GAME_STATUS printWinner(ChessGame* game){
 	char* opponent = (game->currentPlayer == WHITE) ? "black" : "white";
 	switch(status){
 	case CHECK:
-		printf("Check: %s King is threatend!\n",player);
+		if(game->gameMode == 1 && game->currentPlayer == game->userColor) printf("Check!\n");
+		else printf("Check: %s King is threatened!\n",player);
 		break;
 	case CHECKMATE:
 		printf("Checkmate! %s player wins the game\n",opponent);

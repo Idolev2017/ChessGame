@@ -15,7 +15,7 @@
 
 #define LOAD_NUM_OF_REGULAR_BUTTONS 2
 #define LOAD_NUM_OF_SLOTS 5
-#define SLOT1_PATH ".//src//GameSlots//gameSlot1.xml"
+#define SLOT1_PATH "./GameSlots/gameSlot1.xml"
 #define NOT_CHOOSED_SLOT 0
 #define LOAD_INDEX 1
 
@@ -48,6 +48,7 @@ typedef struct{
 }LoadWin;
 
 LoadWin* loadWindowCreate(WINDOW_TYPE backType);
+void InitializeLoadWindow(LoadWin* loadWin);
 LOAD_MESSAGE generateRegularButtons(LoadWin* loadWin);
 LOAD_MESSAGE generateSlotsButtons(LoadWin* loadWin);
 LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin);

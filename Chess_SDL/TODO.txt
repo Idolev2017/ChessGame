@@ -7,6 +7,8 @@ get all moves define 28
 actual size in mini max,scoring function
 pawnPromoting GUI
 pawn promoting com dont working.
+print check
+destroy buttonTextures
 
 הדפסת שגיאות בקונסול או בגוי
 הבדלים בין לינוקס לווינדוס ביצירת קבצים

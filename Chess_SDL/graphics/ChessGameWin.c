@@ -62,7 +62,7 @@ GAME_WINDOW_MESSAGE generatePanelButtons(GameWin* gameWin,bool canUndo) {
 void updateUndoButton(GameWin* gameWin, ChessGame* game){
 	if(gameWin == NULL || game == NULL) return;
 	Button* undoButton = gameWin->panelButtons[UNDO_IN_ARRAY];
-	undoButton->isClickable = game->gameMode == 1 && !ChessArrayListIsEmpty(game->LastMoves) && game->gameDifficulty <=2;
+	undoButton->isClickable = game->gameMode == 1 && !ChessArrayListIsEmpty(game->LastMoves);
 	return;
 }
 
@@ -217,11 +217,17 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		if(button == NULL) return GAME_NONE_EVENT;
 		switch(button->type){
 		case GAME_RESTART_BUTTON:
-			gameRestartGui(prevDifficulty, prevGameMode, prevUserColor, game);
-			gameWin->savedLastMove = true;
+			if(gameWin->savedLastMove) return GAME_MAIN_MENU_EVENT;
+			exit = confirmExitFromGame();
+			if(exit) {
+				gameRestartGui(prevDifficulty, prevGameMode, prevUserColor, game);
+				gameWin->savedLastMove = true;
+				return GAME_NORMAL_EVENT;
+			}
 			return GAME_NORMAL_EVENT;
 
 		case GAME_SAVE_BUTTON:
+			if(gameWin->savedLastMove) return GAME_NONE_EVENT;
 			gameWin->savedLastMove = true;
 			return GAME_SAVE_EVENT;
 
@@ -263,6 +269,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	GAME_MESSAGE msg;
 	GAME_EVENT winnerEvent;
 	Location possibleMoves[28];
+	PieceType type;
 	bool removeAllMoves = false;
 	switch (event->type) {
 
@@ -297,15 +304,30 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		//Play move
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		msg = playMove(game,gameWin->chosenLoc,tmpLoc,false);
-		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
 		if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
 		if(msg != GAME_SUCCESS) return GAME_NORMAL_EVENT;
 
+		if(needPromoting(getPieceOnBoard(game, tmpLoc))){
+			type = pawnPromotingGUI();
+			if(type == ERROR_GUI) return GAME_EXIT_EVENT;
+			pawnPromoting(getPieceOnBoard(game, tmpLoc), false, type);
+
+			ChessMove* move = ChessArrayListGetFirst(game->LastMoves);
+			ChessArrayListRemoveFirst(game->LastMoves);
+			move->wasPromoted = true;
+			move->piece->type = type;
+			ChessArrayListAddFirst(game->LastMoves, move);
+		}
+		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
+		gameWin->savedLastMove = false;
 		destroyStepsArray(gameWin); //remove getAllMoves.
 
 		//move is legal
 		winnerEvent = gameCheckingWinnerGui(game);
 		gameWindowDraw(gameWin,game,event);
+		if(winnerEvent == GAME_BLACK_CHECKMATE_EVENT || winnerEvent == GAME_WHITE_CHECKMATE_EVENT){
+			return winnerEvent;
+		}
 		if(game->gameMode == 2) return winnerEvent;
 		//com play
 		else{
@@ -383,6 +405,45 @@ bool confirmExitFromGame(){
 	return (buttonid == 1) ? true : false;
 }
 
+PieceType pawnPromotingGUI(){
+	SDL_MessageBoxButtonData buttons[] = {
+			{ 0, 0, "Pawn" },
+			{ 0, 1, "Bishop" },
+			{ 0, 2, "Rook" },
+			{ 0, 3, "Queen" },
+			{ 0, 4, "Knight" },
+	};
+	SDL_MessageBoxColorScheme colorScheme = {
+			{ /* .colors (.r, .g, .b) */
+					/* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+					{ 255,   0,   0 },
+					/* [SDL_MESSAGEBOX_COLOR_TEXT] */
+					{   0, 255,   0 },
+					/* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+					{ 255, 255,   0 },
+					/* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+					{   0,   0, 255 },
+					/* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+					{ 255,   0, 255 }
+			}
+	};
+	SDL_MessageBoxData messageboxdata = {
+			SDL_MESSAGEBOX_INFORMATION, /* .flags */
+			NULL, /* .window */
+			"Pawn Promoting", /* .title */
+			"Promote the pawn to...", /* .message */
+			SDL_arraysize(buttons), /* .numbuttons */
+			buttons, /* .buttons */
+			&colorScheme /* .colorScheme */
+	};
+	int buttonid;
+	if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+		SDL_Log("error displaying message box");
+		return ERROR_GUI;
+	}
+	return buttonid;
+}
+
 void gameRestartGui(int prevDifficulty, int prevGameMode, int prevUserColor, ChessGame* game) {
 	prevDifficulty = game->gameDifficulty;
 	prevGameMode = game->gameMode;
@@ -408,6 +469,7 @@ GAME_EVENT gameUndoGui(ChessGame* game){
 			return GAME_NONE_EVENT;
 		}
 	}
+	showWinnerMessage(gameCheckingWinnerGui(game));
 	return GAME_NORMAL_EVENT;
 }
 

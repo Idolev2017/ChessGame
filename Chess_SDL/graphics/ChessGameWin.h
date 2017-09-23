@@ -10,6 +10,7 @@
 #define BOARD_LINE_SIZE 8
 #define REC_SIZE (GAME_BOARD_SIZE / BOARD_LINE_SIZE)
 #define NOT_CHOOSED -10
+#define ERROR_GUI 42
 
 typedef enum{
 	GAME_WINDOW_SUCCESS,
@@ -76,6 +77,7 @@ Location mouseLocToBoardLoc(int x, int y);
 SDL_Rect boardLocToRect(Location loc);
 bool isClickedOnBoard(int x, int y);
 bool confirmExitFromGame();
+PieceType pawnPromotingGUI();
 GAME_EVENT gameUndoGui(ChessGame* game);
 void gameRestartGui(int prevDifficulty, int prevGameMode, int prevUserColor, ChessGame* game);
 void gameWindowHide(GameWin* gameWin);

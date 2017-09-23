@@ -87,7 +87,7 @@ void updateNormalButtons(SettingsWin* settingsWin){
 
 	switch(settingsWin->state){
 	case DIFFICULTY_STATE:
-		settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->difficultySelect != NOT_CHOOSED_SETTINGS)? true : false;
+		settingsWin->normalButtons[NEXT_INDEX]->isClickable = (settingsWin->difficultySelect != NOT_CHOOSED_SETTINGS) ? true : false;
 		break;
 	case GAME_MODE_STATE:
 		if(settingsWin->gameModeSelect == 2) settingsWin->normalButtons[START_INDEX]->isClickable = true;
@@ -110,10 +110,9 @@ SETTINGS_MESSAGE generateDifficutyButtons(SettingsWin* settingsWin) {
 			DIFFICULTY_1_BUTTON,
 			DIFFICULTY_2_BUTTON,
 			DIFFICULTY_3_BUTTON,
-			DIFFICULTY_4_BUTTON,
-			DIFFICULTY_5_BUTTON };
-	bool ActiveDifficultyButtons[SETTINGS_NUM_OF_DIFFICULTY_BUTTONS] = { true, false, false, false, false, false };
-	bool ClickableDifficultyButtons[SETTINGS_NUM_OF_DIFFICULTY_BUTTONS] = { false, true, true, true, true, true };
+			DIFFICULTY_4_BUTTON};
+	bool ActiveDifficultyButtons[SETTINGS_NUM_OF_DIFFICULTY_BUTTONS] = { true, false, false, false, false};
+	bool ClickableDifficultyButtons[SETTINGS_NUM_OF_DIFFICULTY_BUTTONS] = { false, true, true, true, true};
 	if (buttonArrayCreate(settingsWin->simpleWindow->renderer,settingsWin->difficultyButtons, difficultyTypes, ActiveDifficultyButtons, ClickableDifficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS) == BUTTON_FAILED) {
 		free(settingsWin->difficultyButtons);
 		settingsWin->difficultyButtons = NULL;
@@ -225,6 +224,7 @@ SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, S
 	setEvent = settingsWindowHandleEvent(settingsWin,event);
 	if(setEvent == SETTINGS_START_EVENT){
 		simpleSettingsSetter(game,settingsWin->difficultySelect,settingsWin->gameModeSelect,settingsWin->userColorSelect);
+		settingsWin->state = GAME_MODE_STATE;
 		return SETTINGS_START_EVENT;
 	}
 	else if(setEvent == SETTINGS_NEXT_EVENT) {
@@ -233,7 +233,9 @@ SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, S
 		return SETTINGS_NORMAL_EVENT;
 	}
 	else if(setEvent == SETTINGS_BACK_EVENT) {
-		if(settingsWin->state == GAME_MODE_STATE) return SETTINGS_BACK_EVENT;
+		if(settingsWin->state == GAME_MODE_STATE){
+			return SETTINGS_BACK_EVENT;
+		}
 		demoteState(settingsWin);
 		updateNormalButtons(settingsWin);
 		return SETTINGS_NORMAL_EVENT;
@@ -294,6 +296,14 @@ SETTINGS_EVENT difficultyHandleEvent(SettingsWin* settingsWin, Button* button){
 		return SETTINGS_NEXT_EVENT;
 		break;
 	case SETTINGS_BACK_BUTTON:
+		if(settingsWin->difficultySelect != NOT_CHOOSED_SETTINGS){
+			settingsWin->difficultyButtons[settingsWin->difficultySelect]->isActive = false;
+			settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
+		}
+		if(settingsWin->gameModeSelect != NOT_CHOOSED_SETTINGS){
+			settingsWin->gameModeButtons[settingsWin->gameModeSelect]->isActive = false;
+			settingsWin->gameModeSelect = NOT_CHOOSED_SETTINGS;
+		}
 		return SETTINGS_BACK_EVENT;
 		break;
 	default:
@@ -319,6 +329,10 @@ SETTINGS_EVENT gameModeHandleEvent(SettingsWin* settingsWin, Button* button){
 		return SETTINGS_NEXT_EVENT;
 		break;
 	case SETTINGS_BACK_BUTTON:
+		if(settingsWin->gameModeSelect != NOT_CHOOSED_SETTINGS){
+			settingsWin->gameModeButtons[settingsWin->gameModeSelect]->isActive = false;
+			settingsWin->gameModeSelect = NOT_CHOOSED_SETTINGS;
+		}
 		return SETTINGS_BACK_EVENT;
 		break;
 	case SETTINGS_START_BUTTON:
@@ -355,6 +369,14 @@ SETTINGS_EVENT userColorHandleEvent(SettingsWin* settingsWin, Button* button){
 		return SETTINGS_START_EVENT;
 		break;
 	case SETTINGS_BACK_BUTTON:
+		if(settingsWin->userColorSelect != NOT_CHOOSED_SETTINGS){
+			settingsWin->userColorButtons[settingsWin->userColorSelect]->isActive = false;
+			settingsWin->userColorSelect = NOT_CHOOSED_SETTINGS;
+		}
+		if(settingsWin->difficultySelect != NOT_CHOOSED_SETTINGS){
+			settingsWin->difficultyButtons[settingsWin->difficultySelect]->isActive = false;
+			settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
+		}
 		return SETTINGS_BACK_EVENT;
 		break;
 	default:
@@ -371,7 +393,7 @@ void settingsWindowHide(SettingsWin* settingsWin) {
 }
 
 void settingsWindowShow(SettingsWin* settingsWin) {
-	updateNormalButtons(settingsWin);
+	updateSettingsWindow(settingsWin);
 	simpleWindowShow(settingsWin->simpleWindow);
 }
 

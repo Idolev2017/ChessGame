@@ -65,6 +65,8 @@ Piece* getPieceOnBoard(ChessGame* game,Location loc);
 
 void setPieceOnBoard(ChessGame* game,Location loc,Piece* p);
 
+bool needPromoting(Piece* piece);
+
 GAME_MESSAGE movePawn(ChessGame* game,Piece* piece,Location dest, bool userTurn);
 
 GAME_MESSAGE moveRook (ChessGame* game, Piece* piece,Location dest);

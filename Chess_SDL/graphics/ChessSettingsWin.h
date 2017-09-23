@@ -10,7 +10,7 @@
 
 #include "SimpleWindow.h"
 
-#define SETTINGS_NUM_OF_DIFFICULTY_BUTTONS 6
+#define SETTINGS_NUM_OF_DIFFICULTY_BUTTONS 5
 #define SETTINGS_NUM_OF_USERCOLOR_BUTTONS 3
 #define SETTINGS_NUM_OF_GAMEMODE_BUTTONS 3
 #define SETTINGS_NUM_OF_NORMAL_BUTTONS 4
@@ -55,6 +55,7 @@ typedef struct{
 
 SettingsWin* settingsWindowCreate(WINDOW_TYPE backType);
 SETTINGS_MESSAGE updateSettingsWindow(SettingsWin* settingsWin);
+void loadInitializeSelect(SettingsWin* settingsWin);
 void updateNormalButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateDifficutyButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateGameModeButtons(SettingsWin* settingsWin);

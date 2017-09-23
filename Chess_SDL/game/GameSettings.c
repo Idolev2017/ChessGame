@@ -59,7 +59,7 @@ Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords)
 	char* command = words[0];
 	if(numOfWords == 1){
 		if(strcmp(command,"print_setting") == 0){
-			printf("SETTING:\n");
+			printf("SETTINGS:\n");
 			printf("GAME_MODE: %d\n",game->gameMode);
 			if(game->gameMode == 1){
 				printf("DIFFICULTY_LVL: %d\n",game->gameDifficulty);
@@ -86,20 +86,26 @@ Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords)
 	else if(numOfWords == 2){
 		if(strcmp(command,"difficulty") == 0){
 			if(strlen(words[1]) != 1) printf("Wrong difficulty level. The value should be between 1 to 5\n");
-			else if('1' <= words[1][0] && words[1][0] <= '5'){
+			else if('1' <= words[1][0] && words[1][0] <= '4'){
 				game->gameDifficulty = words[1][0] - '0';
 			}
+			else if(words[1][0] == '5') printf("Expert level not supported, please choose a value between 1 to 4:\n");
 			else printf("Wrong difficulty level. The value should be between 1 to 5\n");
 		}
 		else if(strcmp(command,"user_color") == 0){
 			if (strcmp(words[1],"0") == 0) game->userColor = 0;
 			else if (strcmp(words[1],"1") == 0) game->userColor = 1;
-			else printf("Wrong user color\n");
 		}
 
 		else if(strcmp(command,"game_mode") == 0){
-			if (strcmp(words[1],"1") == 0) game->gameMode = 1;
-			else if (strcmp(words[1],"2") == 0) game->gameMode = 2;
+			if (strcmp(words[1],"1") == 0) {
+				game->gameMode = 1;
+				printf("Game mode is set to 1 player\n");
+			}
+			else if (strcmp(words[1],"2") == 0) {
+				game->gameMode = 2;
+				printf("Game mode is set to 2 players\n");
+			}
 			else printf("Wrong game mode\n");
 		}
 		else if(strcmp(command,"load") == 0){
@@ -290,7 +296,7 @@ Color GetCurrentPlayer(ChessGame* game){
 Setting_Status loadGame(ChessGame* game, char* filePath,bool* loaded){
 	FILE* file = fopen(filePath, "r");
 	if(file == NULL){
-		printf("Error: File doesn’t exist or cannot be opened\n");
+		printf("Error: File doesn't exist or cannot be opened\n");
 		*loaded = false;
 		return NORMAL_SETTINGS;
 	}
@@ -299,8 +305,10 @@ Setting_Status loadGame(ChessGame* game, char* filePath,bool* loaded){
 	fscanf(file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	fscanf(file, "<game>\n\t<current_turn>%d</current_turn>\n", &currentPlayer);
 	fscanf(file, "\t<game_mode>%d</game_ mode>\n", &gameMode);
-	fscanf(file, "\t<difficulty>%d</difficulty>\n", &difficulty);
-	fscanf(file, "\t<user_color>%d</user_color>\n", &userColor);
+	if(gameMode == 1) {
+		fscanf(file, "\t<difficulty>%d</difficulty>\n", &difficulty);
+		fscanf(file, "\t<user_color>%d</user_color>\n", &userColor);
+	}
 	gameDestroy(game);
 	gameCreate(HISTORY_SIZE,false);
 	game->currentPlayer = currentPlayer;
@@ -310,9 +318,9 @@ Setting_Status loadGame(ChessGame* game, char* filePath,bool* loaded){
 	ChessArrayListDestroy(game->LastMoves);
 	game->LastMoves = ChessArrayListCreate(HISTORY_SIZE);
 	fscanf(file, "\t<board>\n");
-	for(int i=7; i>=0; i--){
+	for(int i = 7; 0 <= i; --i){
 		fscanf(file, "\t\t<row_%d>", &temp);
-		for(int j=0; j<8; j++){
+		for(int j = 0; j < 8; ++j){
 			pieceDestroy(game->gameBoard[i][j]);
 			game->gameBoard[i][j]=letterToPieceGenerator(fgetc(file),i,j);
 			Piece* p = game->gameBoard[i][j];
@@ -342,8 +350,8 @@ Piece* letterToPieceGenerator(char c, int row, int col){
 	if(c == '_')
 		return NULL;
 	char d = c;
-	int color = WHITE;
-	if(c<'a'){
+	Color color = WHITE;
+	if(c < 'a'){
 		d = c + 32;
 		color = BLACK;
 	}

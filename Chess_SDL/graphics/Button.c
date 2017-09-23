@@ -149,10 +149,6 @@ ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON
 		if(setDifficulty4Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
 		button->rect = createRect(350, 335,200, 50);
 		break;
-	case DIFFICULTY_5_BUTTON:
-		if(setDifficulty5Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 405,200, 50);
-		break;
 	case USER_COLOR_TITLE_BUTTON:
 		if(setUserColorTitleTextures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
 		button->rect = createRect(175, 50,500, 70);
@@ -193,7 +189,7 @@ ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON
 		break;
 	case LOAD_BACK_BUTTON:
 		if(setLoadbackTextures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 460,200, 120);
+		button->rect = createRect(150, 460,200, 120);
 		break;
 
 		//game window

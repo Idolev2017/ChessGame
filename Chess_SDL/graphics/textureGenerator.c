@@ -81,10 +81,6 @@ TEXTURE_MESSAGE setDifficulty4Textures(ButtonTextures* buttonTextures,SDL_Render
 	if(setTextures(buttonTextures,renderer,"difficulty4Active", ACTIVE_TEXTURE) == TEXTURE_FAILED) return TEXTURE_FAILED;
 	return setTextures(buttonTextures,renderer,"difficulty4Inactive", INACTIVE_TEXTURE);
 }
-TEXTURE_MESSAGE setDifficulty5Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
-	if(setTextures(buttonTextures,renderer,"difficulty5Active", ACTIVE_TEXTURE) == TEXTURE_FAILED) return TEXTURE_FAILED;
-	return setTextures(buttonTextures,renderer,"difficulty5Inactive", INACTIVE_TEXTURE);
-}
 TEXTURE_MESSAGE setUserColorTitleTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer){
 	return setTextures(buttonTextures,renderer,"userColorTitle", NON_CLICKABLE_TEXTURE);
 }

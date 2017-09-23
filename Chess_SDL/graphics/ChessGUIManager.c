@@ -165,7 +165,7 @@ MANAGER_EVENT handleManagerDueToLoadEvent(GuiManager* guiManager,LOAD_EVENT even
 	bool* loaded = &flag;
 	switch(event){
 	case LOAD_LOAD_EVENT:
-		mainWindowHide(guiManager->mainWin);
+		loadWindowHide(guiManager->loadWin);
 
 		path[strlen(path)-5] = guiManager->loadWin->chosenSlot + '0';
 		loadGame(guiManager->game,path,loaded);
@@ -225,10 +225,6 @@ MANAGER_EVENT handleManagerDueToSettingsEvent(GuiManager* guiManager,SETTINGS_EV
 	}
 	return MANAGER_NONE;
 
-	gameWindowDestroy(guiManager->gameWin);
-	guiManager->gameWin = NULL;
-	guiManager->activeWin = MAIN_WINDOW_ACTIVE;
-	mainWindowShow(guiManager->mainWin);
 	return MANAGER_NONE;
 }
 

@@ -1,7 +1,7 @@
 #include "ChessPiece.h"
 
 
-Piece* pieceCreate(PieceType type,int color,int row,int col){
+Piece* pieceCreate(PieceType type,Color color,int row,int col){
 	Piece* p = (Piece*) malloc(sizeof(Piece));
 	if(p == NULL) {
 		printMallocError();

@@ -49,21 +49,12 @@ LoadWin* loadWindowCreate(WINDOW_TYPE backType) {
 	return loadWin;
 }
 
-LOAD_MESSAGE InitializeLoadWindow(LoadWin* loadWin){
-	loadWin->chosenSlot = NOT_CHOOSED_SLOT;
-	buttonArrayDestroy(loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS);
-	free(loadWin->regularButtons);
-	loadWin->regularButtons = NULL;
-
-	buttonArrayDestroy(loadWin->slotsButtons,LOAD_NUM_OF_SLOTS);
-	free(loadWin->slotsButtons);
-	loadWin->slotsButtons = NULL;
-
-	if(generateRegularButtons(loadWin) == LOAD_FAILED || generateSlotsButtons(loadWin) == LOAD_FAILED){
-		loadWindowDestroy(loadWin);
-		return LOAD_FAILED;
+void InitializeLoadWindow(LoadWin* loadWin){
+	if(!loadWin) return;
+	if(loadWin->chosenSlot != NOT_CHOOSED_SLOT){
+		loadWin->slotsButtons[loadWin->chosenSlot-1]->isActive = false;
+		loadWin->regularButtons[LOAD_INDEX]->isClickable = false;
 	}
-	return LOAD_SUCCESS;
 }
 
 LOAD_MESSAGE generateRegularButtons(LoadWin* loadWin) {
@@ -75,7 +66,7 @@ LOAD_MESSAGE generateRegularButtons(LoadWin* loadWin) {
 	BUTTON_TYPE loadRegularTypes[LOAD_NUM_OF_REGULAR_BUTTONS] = {
 			LOAD_BACK_BUTTON,
 			LOAD_LOAD_BUTTON };
-	bool loadActiveRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {true,false};
+	bool loadActiveRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {true,true};
 	bool loadClickableRegularButtons[LOAD_NUM_OF_REGULAR_BUTTONS] = {true, false};
 	if (buttonArrayCreate(loadWin->simpleWindow->renderer,loadWin->regularButtons, loadRegularTypes,loadActiveRegularButtons, loadClickableRegularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == BUTTON_FAILED) {
 		free(loadWin->regularButtons);
@@ -178,6 +169,7 @@ LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* ev
 		}
 		switchActiveSlotButton(loadWin,prevSlot,loadWin->chosenSlot);
 		loadWin->regularButtons[LOAD_INDEX]->isClickable = true;
+		loadWin->regularButtons[LOAD_INDEX]->isActive = true;
 		return LOAD_NORMAL_EVENT;
 		break;
 	}
@@ -192,12 +184,13 @@ void loadWindowHide(LoadWin* loadWin) {
 }
 
 void loadWindowShow(LoadWin* loadWin) {
+	InitializeLoadWindow(loadWin);
 	simpleWindowShow(loadWin->simpleWindow);
 }
 
 int scanSlotsInDirectory(){
 	int numOfSlots = 0;
-	char filePath[] = ".//src//GameSlots//gameSlot1.xml";
+	char filePath[] = SLOT1_PATH;
 	FILE* file;
 	for(int i = 1; i <= LOAD_NUM_OF_SLOTS; ++i){
 		filePath[strlen(filePath) - 5] = i + '0';
@@ -216,7 +209,7 @@ int scanSlotsInDirectory(){
 LOAD_MESSAGE addGameSlot(LoadWin* loadWin,ChessGame* game){
 	char path[] = SLOT1_PATH;
 	char newPath[] = SLOT1_PATH;
-	for(int i = loadWin->numOfSlots; 1<=i;--i){
+	for(int i = loadWin->numOfSlots; 1 <= i;--i){
 		path[strlen(path) - 5] = i + '0';
 		if(i == LOAD_NUM_OF_SLOTS) {
 			remove(path);
@@ -227,12 +220,14 @@ LOAD_MESSAGE addGameSlot(LoadWin* loadWin,ChessGame* game){
 	}
 	path[strlen(path) - 5] = '1';
 	if(saveGame(game,path) == GAME_FAILED) return LOAD_FAILED;
-	loadWin->numOfSlots = max(5,loadWin->numOfSlots + 1);
+	loadWin->numOfSlots = min(5,loadWin->numOfSlots + 1);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Save game","The game was saved",NULL);
 	return LOAD_SUCCESS;
 }
 
 void switchActiveSlotButton(LoadWin* loadWin,int prevSlot,int newSlot){
 	loadWin->slotsButtons[newSlot-1]->isActive = true;
+	if(prevSlot == newSlot) return;
 	if(prevSlot != NOT_CHOOSED_SLOT){
 		loadWin->slotsButtons[prevSlot-1]->isActive = false;
 	}
