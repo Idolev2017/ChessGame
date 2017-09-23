@@ -35,6 +35,7 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 
 	case SAVE_COMMAND:
 		msg = saveGame(game,cmd.filePath);
+		free(cmd.filePath);
 		break;
 
 	case QUIT_COMMAND:
@@ -429,7 +430,7 @@ GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 		fprintf(file, "</row_%d>\n", (i+1));
 	}
 	fprintf(file, "\t</board>\n");
-	fprintf(file, "</game>");
+	fprintf(file, "</game>\n");
 	//closing the FILE
 	if(fclose(file) != 0){
 		printf("File cannot be created or modified\n");

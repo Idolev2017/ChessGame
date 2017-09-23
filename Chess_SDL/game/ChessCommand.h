@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
+#define MAX_LINE 1024
 
 typedef enum {
 	UNDO_MOVE_COMMAND,
@@ -36,8 +37,5 @@ typedef struct command_t {
 
 
 ChessCommand ChessCommandParser(const char* str);
-
-ChessCommand createChessCommand(COMMAND_TYPE type, Location src, Location dest, char* filePath);
-
 
 #endif /* CHESSCOMMAND_H_ */
