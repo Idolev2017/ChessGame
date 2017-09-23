@@ -7,7 +7,7 @@
 
 #include "ChessMiniMax.h"
 
-Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, PieceType* type){
+Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, int* type){
 	ChessGame* copy = gameCopy(game);
 	if(copy == NULL) return NULL;
 	ChessArrayListDestroy(copy->LastMoves);
@@ -16,32 +16,30 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, PieceT
 	int beta = INT_MAX;
 	Piece* movingPiece = NULL;
 	int tmpScoring;
-	Location possibleMoves[28];
+	Location possibleMoves[MAX_MOVES];
 	Location destLoc;
 	Location tmpLoc;
 	bool maxFlag = true;
-	int num = 0;
-	int* actualSize = &num;
+	int actualSize = 0;
 	Location* locs = NULL;
 	locs = (Location*) malloc(sizeof(Location)*2);
-	if(locs == NULL || actualSize == NULL){
+	if(locs == NULL){
 		free(locs);
 		gameDestroy(copy);
 		return NULL;
 	}
-
 	for(int i = 0; i < 8; ++i){
 		for(int j = 0; j < 8; ++j){
 			tmpLoc = createLocation(i,j);
 			movingPiece = getPieceOnBoard(copy,tmpLoc);
 			if (movingPiece == NULL || (movingPiece->color != copy->currentPlayer)) continue;
-			if(getAllMoves(copy,tmpLoc,possibleMoves,actualSize,false) == GAME_FAILED) {
+			if(getAllMoves(copy,tmpLoc,possibleMoves,&actualSize,false) == GAME_FAILED) {
 				free(locs);
 				gameDestroy(copy);
 				return NULL;
 			}
-			else if(*actualSize == 0) continue;
-			for(int moveIndex = 0; moveIndex < *actualSize; ++moveIndex){
+			else if(actualSize == 0) continue;
+			for(int moveIndex = 0; moveIndex < actualSize; ++moveIndex){
 				destLoc = copyLocation(possibleMoves[moveIndex]);
 				if(playMove(copy,tmpLoc,destLoc,false) != GAME_SUCCESS) {
 					printf("ERROR IN FIRST MINI MAX\n");
@@ -50,17 +48,10 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, PieceT
 					return NULL;
 				}
 				movingPiece = getPieceOnBoard(copy,destLoc); //the piece after the move
-				if(needPromoting(getPieceOnBoard(copy,destLoc))){
+				if(needPromoting(movingPiece)){
 					for(int i = 0; i <= 4; ++i){
 						movingPiece = getPieceOnBoard(copy,destLoc);
 						pawnPromoting(movingPiece, false, i);
-
-						ChessMove* move = ChessArrayListGetFirst(copy->LastMoves);
-						ChessArrayListRemoveFirst(copy->LastMoves);
-						move->wasPromoted = true;
-						move->piece->type = i;
-						ChessArrayListAddFirst(copy->LastMoves, move);
-
 						tmpScoring = chessRecursiveMiniMax(copy,maxDepth-1,!maxFlag,alpha,beta);
 						if(alpha < tmpScoring){
 							locs[0] = copyLocation(tmpLoc);
@@ -68,24 +59,18 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, PieceT
 							alpha = tmpScoring;
 							*type = i;
 						}
-						movingPiece = getPieceOnBoard(copy,destLoc);
-						if(tmpScoring == ERROR || undoPrevMove(copy,false) != GAME_SUCCESS){
-							printf("tmpScoring is ERROR : %d\n", tmpScoring == ERROR);
-							free(locs);
-							gameDestroy(copy);
-							return NULL;
-						}
 					}
+					getPieceOnBoard(copy,destLoc)->type = PAWN;
+
 				}
-				else {
-					tmpScoring = chessRecursiveMiniMax(copy,maxDepth-1,!maxFlag,alpha,beta);
-					if(alpha < tmpScoring){
-						locs[0] = copyLocation(tmpLoc);
-						locs[1] = copyLocation(destLoc);
-						alpha = tmpScoring;
-						*type = PAWN;
-					}
+				else tmpScoring = chessRecursiveMiniMax(copy,maxDepth-1,!maxFlag,alpha,beta);
+				if(alpha < tmpScoring){
+					locs[0] = copyLocation(tmpLoc);
+					locs[1] = copyLocation(destLoc);
+					alpha = tmpScoring;
+					*type = PAWN;
 				}
+
 				if(tmpScoring == ERROR || undoPrevMove(copy,false) != GAME_SUCCESS){
 					printf("tmpScoring is ERROR : %d\n", tmpScoring == ERROR);
 					free(locs);
@@ -106,11 +91,10 @@ int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, in
 	}
 	Piece* movingPiece = NULL;
 	bool theresLegalMove = false;
-	Location possibleMoves[28];
+	Location possibleMoves[MAX_MOVES];
 	Location destLoc;
 	int tmpScoring;
-	int num = 0;
-	int* actualSize = &num;
+	int actualSize = 0;
 	Location tmpLoc;
 	GAME_MESSAGE msg;
 	for(int i = 0; i < 8; ++i){
@@ -119,47 +103,31 @@ int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, in
 			tmpLoc = createLocation(i,j);
 			movingPiece = getPieceOnBoard(game,tmpLoc);
 			if (movingPiece == NULL || (movingPiece->color != game->currentPlayer)) continue;
-			else if(getAllMoves(game,tmpLoc,possibleMoves,actualSize,false) == GAME_FAILED) {
-				free(actualSize);
+			else if(getAllMoves(game,tmpLoc,possibleMoves,&actualSize,false) == GAME_FAILED) {
 				return ERROR;
 			}
-			else if(*actualSize == 0) continue; //no legal moves. continue to next piece.
+			else if(actualSize == 0) continue; //no legal moves. continue to next piece.
 			theresLegalMove = true;
-			for(int moveIndex = 0; moveIndex < *actualSize; ++moveIndex){
+			for(int moveIndex = 0; moveIndex < actualSize; ++moveIndex){
 				destLoc = copyLocation(possibleMoves[moveIndex]);
 				msg = playMove(game,tmpLoc,destLoc,false);
 				if(msg != GAME_SUCCESS) {
-					playMove(game,tmpLoc,destLoc,true);
-					if(msg == GAME_INVALID_MOVE) printf("GAME_INVALID_MOVE\n");
-					if(msg == GAME_FAILED) printf("GAME_FAILED\n");
-					if(msg == GAME_INVALID_POSITION) printf("GAME_INVALID_POSITION\n");
-					if(msg == GAME_INVALID_PIECE) printf("GAME_INVALID_PIECE\n");
-					printLoc(tmpLoc);
-					printLoc(destLoc);
 					printf("ERROR IN SECOND MINI MAX\n");
 					return ERROR;
 				}
 				if(needPromoting(getPieceOnBoard(game,destLoc))){
 					for(int i = 0; i <= 4; ++i){
+
 						movingPiece = getPieceOnBoard(game,destLoc);
 						pawnPromoting(movingPiece, false, i); //i represent the type.
-
-						ChessMove* move = ChessArrayListGetFirst(game->LastMoves);
-						ChessArrayListRemoveFirst(game->LastMoves);
-						move->wasPromoted = true;
-						move->piece->type = i;
-						ChessArrayListAddFirst(game->LastMoves, move);
 
 						tmpScoring = chessRecursiveMiniMax(game,maxDepth-1,!maxFlag,alpha,beta);
 						if(((alpha < tmpScoring) && maxFlag) || ((tmpScoring < beta) && !maxFlag)) {
 							alpha = maxFlag ? tmpScoring : alpha;
 							beta = maxFlag ? beta : tmpScoring;
 						}
-						if(tmpScoring == ERROR || undoPrevMove(game,false) != GAME_SUCCESS) {
-							printf("ERROR IN SECOND MINI MAX2\n");
-							return ERROR;
-						}
 					}
+					getPieceOnBoard(game,destLoc)->type = PAWN;
 				}
 				else tmpScoring = chessRecursiveMiniMax(game,maxDepth-1,!maxFlag,alpha,beta);
 				if(((alpha < tmpScoring) && maxFlag) || ((tmpScoring < beta) && !maxFlag)) {

@@ -42,11 +42,11 @@ typedef enum {
 	CHECK
 } GAME_STATUS;
 
-Setting_Status gameUpdateSetting(ChessGame* game);
+SETTINGS_STATUS gameUpdateSetting(ChessGame* game);
 
 GAME_MESSAGE gameSettingMode(ChessGame* game);
 
-Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords);
+SETTINGS_STATUS gameChangingSettings(ChessGame* game,char** words,int numOfWords);
 
 void simpleSettingsSetter(ChessGame* game, int difficulty,int gameMode,int userColor);
 
@@ -66,7 +66,7 @@ void gamePrintBoard(ChessGame* game);
 
 Color GetCurrentPlayer(ChessGame* game);
 
-Setting_Status loadGame(ChessGame* game, char* filepath,bool* loaded);
+SETTINGS_STATUS loadGame(ChessGame* game, char* filepath,bool* loaded);
 
 Piece* letterToPieceGenerator(char c, int row, int col);
 #endif /* GAMESETTING_H_ */

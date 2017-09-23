@@ -1,29 +1,12 @@
-לטפל בלחיצת כפתור ימני בעכבר לgetAllMoves
-לא לשכוח בכל תור לעדכן undo
 שינינו חתימה של יצירת משחק
-clear למיניהם
-get all moves define 28
 למחוק copyLocation
-actual size in mini max,scoring function
-pawnPromoting GUI
-pawn promoting com dont working.
+
 print check
 destroy buttonTextures
+למחוק error in minimax
 
-הדפסת שגיאות בקונסול או בגוי
-הבדלים בין לינוקס לווינדוס ביצירת קבצים
-לעדכן חלון חזור בלואוד
-לבדוק הדפסות
-לבדוק enums
+להסיר הדפסת שגיאות בקונסול או בגוי
+save in linux
+לשנות שמות enums
 
-ב-makefile:
-
-1. EXEC=CHESS    ???
-
-2. למה ב-MAINAUX לא מופיע גם MainAuxUnitTest?
-
-3. האם צריך בשורה 13 את MainAuxUnitTest?
-
-משתמרים:
-
-gameInitialization מקבל משחק ומחזיר את המשחק, ולפי הצורך משנה רק את הבפנים.. כלומר יכול להרוס את ה-INNERGAME אבל עדיין יש משמעות ל-game.
+EXEC=chessprog    ???

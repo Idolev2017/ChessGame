@@ -8,9 +8,10 @@
 
 GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode){
 	Location* move;
-	PieceType typeValue = PAWN;
-	PieceType* type = &typeValue;
-	move = chessMinimaxSuggestMove(game,game->gameDifficulty,type);
+	int typeValue = PAWN;
+	char path[20];
+	move = chessMinimaxSuggestMove(game,game->gameDifficulty,&typeValue);
+	sprintf(path,"%d",typeValue);
 	if(move == NULL) return GAME_FAILED;
 	GAME_MESSAGE msg = playMove(game, move[0], move[1], false);
 	if(msg == GAME_SUCCESS && consoleMode) printComMove(game,move);
@@ -18,8 +19,16 @@ GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode){
 
 	//execute pawn promotion
 	Piece* movingPiece = getPieceOnBoard(game, move[1]);
-	if(((movingPiece->color == WHITE && move[1].row == 7) || (movingPiece->color == BLACK && move[1].row == 0)) && movingPiece->type == PAWN)
-		movingPiece->type = *type;
+	if(needPromoting(movingPiece)){
+		movingPiece->type = typeValue; // promotion
+
+		//adding to history
+		ChessMove* move = ChessArrayListGetFirst(game->LastMoves);
+		if(ChessArrayListRemoveFirst(game->LastMoves) != Chess_ARRAY_LIST_SUCCESS) return GAME_FAILED;
+		move->wasPromoted = true;
+		move->piece->type = typeValue;
+		ChessArrayListAddFirst(game->LastMoves, move);
+	}
 	free(move);
 	return msg;
 }

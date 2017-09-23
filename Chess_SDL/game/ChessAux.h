@@ -24,11 +24,11 @@ typedef enum game_message_t {
 } GAME_MESSAGE;
 
 typedef enum {
-	START_setting,
-	QUIT_setting,
-	NORMAL_SETTINGS,
-	SETTING_FAILED
-}Setting_Status;
+	START_SETTINGS_MODE,
+	QUIT_SETTINGS_MODE,
+	NORMAL_SETTINGS_MODE,
+	SETTINGS_MODE_FAILED
+}SETTINGS_STATUS;
 
 
 GAME_MESSAGE readMaxWords(char** words,const char* str, int maxSize, int* numOfWords);

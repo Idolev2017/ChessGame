@@ -9,21 +9,21 @@ Step createStep(Location dest, MoveClass class){
 
 GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 	GAME_MESSAGE msg;
-	Location possibleMoves[28];
+	Location possibleMoves[MAX_MOVES];
 	int a = 0;
 	int* actualSize = &a;
 	switch(cmd.type){
-	case UNDO_MOVE:
+	case UNDO_MOVE_COMMAND:
 		msg = undoPrevMove(game,true);
 		if(msg != GAME_SUCCESS) break;
 		msg = undoPrevMove(game,true);
 		break;
 
-	case MOVE_PIECE:
+	case MOVE_PIECE_COMMAND:
 		msg = playMove(game,cmd.src,cmd.dest,true);
 		break;
 
-	case GET_MOVES:
+	case GET_MOVES_COMMAND:
 		msg = getAllMoves(game, cmd.src, possibleMoves, actualSize,true);
 		Step* steps = distinguishMovesByPiece(game, possibleMoves,*actualSize, cmd.src);
 		if(steps == NULL) msg = GAME_FAILED;
@@ -33,20 +33,20 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 		}
 		break;
 
-	case SAVE:
+	case SAVE_COMMAND:
 		msg = saveGame(game,cmd.filePath);
 		break;
 
-	case QUIT:
+	case QUIT_COMMAND:
 		printf("Exiting...\n");
 		msg = GAME_QUITED;
 		break;
 
-	case RESET:
+	case RESET_COMMAND:
 		printf("Restarting...\n");
 		return gameRestart(game);
 
-	case INVALID_LINE:
+	case INVALID_LINE_COMMAND:
 		printf("INVALID_LINE\n");
 		msg = GAME_SUCCESS;
 		break;
@@ -55,7 +55,7 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 		break;
 	}
 	if(msg == GAME_SUCCESS){
-		if(cmd.type == SAVE || cmd.type == GET_MOVES) return GAME_NORMAL;
+		if(cmd.type == SAVE_COMMAND || cmd.type == GET_MOVES_COMMAND) return GAME_NORMAL;
 		else return GAME_SUCCESS;
 	}
 	return msg;
@@ -76,7 +76,7 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 	ChessMove* lastMove = ChessArrayListGetFirst(game->LastMoves);
 	Chess_ARRAY_LIST_MESSAGE msg = ChessArrayListRemoveFirst(game->LastMoves);
 	if(lastMove == NULL || msg != Chess_ARRAY_LIST_SUCCESS) { //Unknown Error
-		destroyChessMove(lastMove);
+		chessMoveDestroy(lastMove);
 		return GAME_FAILED;
 	}
 	if(toPrint){
@@ -88,7 +88,7 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 	setPieceOnBoard(game,lastMove->newLoc,copyPiece(lastMove->capturedPiece));
 	if(lastMove->wasPromoted) getPieceOnBoard(game, lastMove->prevLoc)->type = PAWN;
 	game->currentPlayer = 1 - game->currentPlayer;
-	destroyChessMove(lastMove);
+	chessMoveDestroy(lastMove);
 	return GAME_SUCCESS;
 }
 
@@ -137,7 +137,7 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 	}
 	//adding the move to history
 	else if(msg == GAME_SUCCESS){
-		if((move = createChessMove(movingPiece, src, dest, promotionSucceed, destPiece)) == NULL) return GAME_FAILED;
+		if((move = chessMoveCreate(movingPiece, src, dest, promotionSucceed, destPiece)) == NULL) return GAME_FAILED;
 		if(ChessArrayListAddFirst(game->LastMoves,move) != Chess_ARRAY_LIST_SUCCESS) {
 			pieceDestroy(destPiece);
 			return GAME_FAILED; //Unknown Error
@@ -200,15 +200,15 @@ GAME_MESSAGE getAllMovesPawn(ChessGame* game,Piece* piece,Location* possibleMove
 	Location DoubleJump = createLocation(pieceLoc.row + addingDoubleJump,pieceLoc.col);
 
 	if(isLegalLoc(capturingLocLeft) && getPieceOnBoard(game, capturingLocLeft) != NULL && getPieceOnBoard(game, capturingLocLeft)->color != piece->color){
-		if(addingMove(game,pieceLoc,capturingLocLeft,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
+		if(addMoveToArray(game,pieceLoc,capturingLocLeft,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
 	}
 	if(isLegalLoc(capturingLocRight) && getPieceOnBoard(game, capturingLocRight) != NULL && getPieceOnBoard(game, capturingLocRight)->color != piece->color){
-		if(addingMove(game,pieceLoc,capturingLocRight,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
+		if(addMoveToArray(game,pieceLoc,capturingLocRight,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
 	}
 	if(isLegalLoc(regularJump) && getPieceOnBoard(game, regularJump) == NULL){
-		if(addingMove(game,pieceLoc,regularJump,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
+		if(addMoveToArray(game,pieceLoc,regularJump,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
 		if(isLegalLoc(DoubleJump) && getPieceOnBoard(game, DoubleJump) == NULL && ((piece->loc.row == 1 && piece->color == WHITE) || (piece->loc.row == 6 && piece->color == BLACK))){
-			if(addingMove(game,pieceLoc,DoubleJump,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
+			if(addMoveToArray(game,pieceLoc,DoubleJump,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
 		}
 	}
 	return GAME_SUCCESS;
@@ -235,25 +235,25 @@ GAME_MESSAGE getAllMovesBishop(ChessGame* game,Piece* piece,Location* possibleMo
 		leftDownLoc.row -= 1;
 		leftDownLoc.col -= 1;
 		if(isLegalLoc(rightUpLoc) && !rightUpEnd) {
-			if((msg = addingMove(game,pieceLoc,rightUpLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,rightUpLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			rightUpEnd = (getPieceOnBoard(game, rightUpLoc) == NULL) ? false : true;
 		}
 		else rightUpEnd = true;
 
 		if(isLegalLoc(leftUpLoc) && !leftUpEnd) {
-			if((msg = addingMove(game,pieceLoc,leftUpLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,leftUpLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			leftUpEnd = (getPieceOnBoard(game, leftUpLoc) == NULL) ? false : true;
 		}
 		else leftUpEnd = true;
 
 		if(isLegalLoc(rightDownLoc) && !rightDownEnd) {
-			if((msg = addingMove(game,pieceLoc,rightDownLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,rightDownLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			rightDownEnd = (getPieceOnBoard(game, rightDownLoc) == NULL) ? false : true;
 		}
 		else rightDownEnd = true;
 
 		if(isLegalLoc(leftDownLoc) && !leftDownEnd) {
-			if((msg = addingMove(game,pieceLoc,leftDownLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,leftDownLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			leftDownEnd = (getPieceOnBoard(game, leftDownLoc) == NULL) ? false : true;
 		}
 		else leftDownEnd = true;
@@ -284,26 +284,26 @@ GAME_MESSAGE getAllMovesRook(ChessGame* game,Piece* piece,Location* possibleMove
 		downLoc.row -= 1;
 		upLoc.row += 1;
 		if(isLegalLoc(rightLoc) && !rightEnd) {
-			if((msg = addingMove(game,pieceLoc,rightLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,rightLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			rightEnd = (getPieceOnBoard(game, rightLoc) == NULL) ? false : true;
 		}
 		else rightEnd = true;
 
 		if(isLegalLoc(leftLoc) && !leftEnd) {
-			if((msg = addingMove(game,pieceLoc,leftLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,leftLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			leftEnd = (getPieceOnBoard(game, leftLoc) == NULL) ? false : true;
 		}
 		else leftEnd = true;
 
 		if(isLegalLoc(downLoc) && !downEnd) {
-			if((msg = addingMove(game,pieceLoc,downLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,downLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			downEnd = (getPieceOnBoard(game, downLoc) == NULL) ? false : true;
 
 		}
 		else downEnd = true;
 
 		if(isLegalLoc(upLoc) && !upEnd) {
-			if((msg = addingMove(game,pieceLoc,upLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
+			if((msg = addMoveToArray(game,pieceLoc,upLoc,possibleMoves,actualSize)) == GAME_FAILED) return GAME_FAILED;
 			upEnd = (getPieceOnBoard(game, upLoc) == NULL) ? false : true;
 		}
 		else upEnd = true;
@@ -321,7 +321,7 @@ GAME_MESSAGE getAllMovesKing(ChessGame* game,Piece* piece,Location* possibleMove
 			tmpLoc = createLocation(pieceLoc.row + i, pieceLoc.col + j);
 			tmpPiece = getPieceOnBoard(game, tmpLoc);
 			if(isLegalLoc(tmpLoc) && (tmpPiece == NULL || tmpPiece->color != piece->color)) {
-				if(addingMove(game,pieceLoc,tmpLoc,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
+				if(addMoveToArray(game,pieceLoc,tmpLoc,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
 			}
 		}
 	}
@@ -339,7 +339,7 @@ GAME_MESSAGE getAllMovesKnight(ChessGame* game,Piece* piece,Location* possibleMo
 			tmpLoc = createLocation(pieceLoc.row + i, pieceLoc.col + j);
 			tmpPiece = getPieceOnBoard(game,tmpLoc);
 			if(isLegalLoc(tmpLoc) && (tmpPiece == NULL || tmpPiece->color != piece->color)) {
-				if(addingMove(game,pieceLoc,tmpLoc,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
+				if(addMoveToArray(game,pieceLoc,tmpLoc,possibleMoves,actualSize) == GAME_FAILED) return GAME_FAILED;
 			}
 			j = -j;
 		}
@@ -347,7 +347,7 @@ GAME_MESSAGE getAllMovesKnight(ChessGame* game,Piece* piece,Location* possibleMo
 	return GAME_SUCCESS;
 }
 
-GAME_MESSAGE addingMove(ChessGame* game,Location pieceLoc,Location destLoc,Location* possibleMoves,int* actualSize){
+GAME_MESSAGE addMoveToArray(ChessGame* game,Location pieceLoc,Location destLoc,Location* possibleMoves,int* actualSize){
 	Piece* currentKing = game->currentPlayer == WHITE ? game->whiteKing : game->blackKing;
 	GAME_MESSAGE msg = isPieceThreatenedWithMove(game,currentKing, pieceLoc, destLoc);
 	if(msg == GAME_SUCCESS){
@@ -405,7 +405,8 @@ void printSteps(Step* steps,int size){
 
 GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	//opening the FILE
-	FILE* file = fopen(filePath, "w");
+	FILE* file;
+	file = fopen(filePath, "w");
 	if(file == NULL)
 	{
 		printf("File cannot be created or modified\n");
@@ -415,7 +416,7 @@ GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	fprintf(file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	fprintf(file, "<game>\n");
 	fprintf(file, "\t<current_turn>%d</current_turn>\n", game->currentPlayer);
-	fprintf(file, "\t<game_mode>%d</game_ mode>\n", game->gameMode);
+	fprintf(file, "\t<game_mode>%d</game_mode>\n", game->gameMode);
 	if(game->gameMode == 1){
 		fprintf(file, "\t<difficulty>%d</difficulty>\n", game->gameDifficulty);
 		fprintf(file, "\t<user_color>%d</user_color>\n", game->userColor);
@@ -624,7 +625,7 @@ GAME_MESSAGE isPieceThreatenedWithMove(ChessGame* game,Piece* piece,Location src
 	Piece* capturedPiece = copyPiece(getPieceOnBoard(game, dest));
 	Piece* movingPiece = getPieceOnBoard(game, src);
 	if(capturedPiece != NULL && (movingPiece->color == capturedPiece->color)) return GAME_INVALID_MOVE;
-	move = createChessMove(movingPiece, src, dest, false, capturedPiece);
+	move = chessMoveCreate(movingPiece, src, dest, false, capturedPiece);
 	if(move == NULL) return GAME_FAILED; //mallocHandling
 	killPiece(game, dest);
 	simpleMovePiece(game,src,dest);

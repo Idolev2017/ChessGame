@@ -49,7 +49,7 @@ GAME_MESSAGE getAllMovesKing(ChessGame* game,Piece* piece, Location* possibleMov
 
 GAME_MESSAGE getAllMovesKnight(ChessGame* game,Piece* piece, Location* possibleMoves, int* actualSize);
 
-GAME_MESSAGE addingMove(ChessGame* game,Location pieceLoc,Location destLoc,Location* possibleMoves,int* actualSize);
+GAME_MESSAGE addMoveToArray(ChessGame* game,Location pieceLoc,Location destLoc,Location* possibleMoves,int* actualSize);
 //return malloced array
 Step* distinguishMovesByPiece(ChessGame* game, Location* locArray,int size, Location src);
 

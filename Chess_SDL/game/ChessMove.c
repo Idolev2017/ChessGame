@@ -1,6 +1,6 @@
 #include "ChessMove.h"
 
-ChessMove* createChessMove(Piece* p, Location prevLoc, Location newLoc, bool wasPromoted, Piece* capturedPiece){
+ChessMove* chessMoveCreate(Piece* p, Location prevLoc, Location newLoc, bool wasPromoted, Piece* capturedPiece){
 	ChessMove* move = (ChessMove*)malloc(sizeof(ChessMove));
 	if(move == NULL) {
 		printMallocError();
@@ -12,19 +12,19 @@ ChessMove* createChessMove(Piece* p, Location prevLoc, Location newLoc, bool was
 	move->newLoc = copyLocation(newLoc);
 	move->capturedPiece = copyPiece(capturedPiece);
 	if(move->piece == NULL || (move->capturedPiece == NULL && capturedPiece != NULL)) { //mallocHandling
-		destroyChessMove(move);
+		chessMoveDestroy(move);
 		return NULL;
 	}
 	return move;
 }
 
-ChessMove* copyChessMove(ChessMove* move){
+ChessMove* chessMoveCopy(ChessMove* move){
 	if (move == NULL) return NULL;
-	ChessMove* copy = createChessMove(move->piece, move->prevLoc, move->newLoc, move->wasPromoted, move->capturedPiece);
+	ChessMove* copy = chessMoveCreate(move->piece, move->prevLoc, move->newLoc, move->wasPromoted, move->capturedPiece);
 	return copy;
 }
 
-void destroyChessMove(ChessMove* move){
+void chessMoveDestroy(ChessMove* move){
 	if(move == NULL) return;
 	pieceDestroy(move->piece);
 	pieceDestroy(move->capturedPiece);

@@ -16,7 +16,7 @@
 #include <limits.h>
 #include "ChessGame.h"
 
-Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, PieceType* type);
+Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, int* type);
 
 int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, int alpha, int beta);
 

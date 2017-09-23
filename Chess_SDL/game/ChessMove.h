@@ -9,7 +9,7 @@
 #define CHESSMOVE_H_
 #include <stdbool.h>
 #include "ChessPiece.h"
-
+#define MAX_MOVES 28
 typedef struct{
 	Piece* piece;
 	Location prevLoc;
@@ -18,10 +18,10 @@ typedef struct{
 	Piece* capturedPiece;
 }ChessMove;
 
-ChessMove* createChessMove(Piece*, Location, Location, bool, Piece*);
+ChessMove* chessMoveCreate(Piece*, Location, Location, bool, Piece*);
 
-ChessMove* copyChessMove(ChessMove*);
+ChessMove* chessMoveCopy(ChessMove*);
 
-void destroyChessMove(ChessMove*);
+void chessMoveDestroy(ChessMove*);
 
 #endif /* CHESSMOVE_H_ */

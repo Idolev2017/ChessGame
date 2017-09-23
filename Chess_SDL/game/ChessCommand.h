@@ -16,14 +16,14 @@
 #include "string.h"
 
 typedef enum {
-	UNDO_MOVE,
-	MOVE_PIECE,
-	GET_MOVES,
-	SAVE,
-	QUIT,
-	RESET,
-	INVALID_LINE,
-	FAILED
+	UNDO_MOVE_COMMAND,
+	MOVE_PIECE_COMMAND,
+	GET_MOVES_COMMAND,
+	SAVE_COMMAND,
+	QUIT_COMMAND,
+	RESET_COMMAND,
+	INVALID_LINE_COMMAND,
+	FAILED_COMMAND
 } COMMAND_TYPE;
 
 //a new type that is used to encapsulate a parsed line

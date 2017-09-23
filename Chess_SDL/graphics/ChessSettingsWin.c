@@ -289,9 +289,6 @@ SETTINGS_EVENT difficultyHandleEvent(SettingsWin* settingsWin, Button* button){
 	case DIFFICULTY_4_BUTTON:
 		settingsWin->difficultySelect = 4;
 		break;
-	case DIFFICULTY_5_BUTTON:
-		settingsWin->difficultySelect = 5;
-		break;
 	case SETTINGS_NEXT_BUTTON:
 		return SETTINGS_NEXT_EVENT;
 		break;

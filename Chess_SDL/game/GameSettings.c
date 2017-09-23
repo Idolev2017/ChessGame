@@ -7,47 +7,47 @@
 #include "GameSettings.h"
 
 GAME_MESSAGE gameSettingMode(ChessGame* game){
-	Setting_Status status = gameUpdateSetting(game);
-	if(status == START_setting) return GAME_SUCCESS;
-	else if(status == QUIT_setting) {
+	SETTINGS_STATUS status = gameUpdateSetting(game);
+	if(status == START_SETTINGS_MODE) return GAME_SUCCESS;
+	else if(status == QUIT_SETTINGS_MODE) {
 		printf("Exiting...\n");
 		return GAME_QUITED;
 	}
-	else if(status == SETTING_FAILED)return GAME_FAILED;
+	else if(status == SETTINGS_MODE_FAILED)return GAME_FAILED;
 	return GAME_SUCCESS;
 }
 
-Setting_Status gameUpdateSetting(ChessGame* game){
+SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
 	int num = 1;
 	int* numOfWords = &num;
 	char* words[MAX_SETTING_COMMAND+1];
 	GAME_MESSAGE msg;
-	Setting_Status status;
+	SETTINGS_STATUS status;
 	printf("Specify game setting or type 'start' to begin a game with the current setting:\n");
 	char* line = (char*) malloc(sizeof(char)*(MAX_LEN+1)); //mallocHandling
 	if(line == NULL) {
 		printMallocError();
-		return SETTING_FAILED;
+		return SETTINGS_MODE_FAILED;
 	}
 	while(true){
 		if (fgets(line, MAX_LEN, stdin) == NULL) {
 			free(line);
 			freeArray(words, *numOfWords);
 			printMallocError();  //Error Handling
-			return SETTING_FAILED;
+			return SETTINGS_MODE_FAILED;
 		}
 		msg = readMaxWords(words,line, 2, numOfWords);
 		if(msg == GAME_FAILED){ //mallocHandling
 			freeArray(words, *numOfWords);
 			free(line);
-			return SETTING_FAILED;
+			return SETTINGS_MODE_FAILED;
 		}
 		else if(msg == GAME_INVALID_ARGUMENT){
 			printf("invalid command\n");
 			continue;
 		}
 		status = gameChangingSettings(game,words,*numOfWords);
-		if(status != NORMAL_SETTINGS) {
+		if(status != NORMAL_SETTINGS_MODE) {
 			free(line);
 			freeArray(words, *numOfWords);
 			return status;
@@ -55,7 +55,7 @@ Setting_Status gameUpdateSetting(ChessGame* game){
 	}
 }
 
-Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords){
+SETTINGS_STATUS gameChangingSettings(ChessGame* game,char** words,int numOfWords){
 	char* command = words[0];
 	if(numOfWords == 1){
 		if(strcmp(command,"print_setting") == 0){
@@ -73,14 +73,14 @@ Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords)
 			game->userColor = DEFAULT_USER_COLOR;
 		}
 		else if(strcmp(command,"start") == 0){
-			return START_setting;
+			return START_SETTINGS_MODE;
 		}
 		else if(strcmp(command,"quit") == 0){
-			return QUIT_setting;
+			return QUIT_SETTINGS_MODE;
 		}
 		else{
 			printf("Invalid command\n");
-			return NORMAL_SETTINGS;
+			return NORMAL_SETTINGS_MODE;
 		}
 	}
 	else if(numOfWords == 2){
@@ -115,11 +115,11 @@ Setting_Status gameChangingSettings(ChessGame* game,char** words,int numOfWords)
 		}
 		else{
 			printf("Invalid command\n");
-			return NORMAL_SETTINGS;
+			return NORMAL_SETTINGS_MODE;
 		}
 	}
 	else printf("Invalid command\n");
-	return NORMAL_SETTINGS;
+	return NORMAL_SETTINGS_MODE;
 }
 
 void simpleSettingsSetter(ChessGame* game, int difficulty,int gameMode,int userColor){
@@ -293,12 +293,12 @@ Color GetCurrentPlayer(ChessGame* game){
 	return game->currentPlayer;
 }
 
-Setting_Status loadGame(ChessGame* game, char* filePath,bool* loaded){
+SETTINGS_STATUS loadGame(ChessGame* game, char* filePath,bool* loaded){
 	FILE* file = fopen(filePath, "r");
 	if(file == NULL){
 		printf("Error: File doesn't exist or cannot be opened\n");
 		*loaded = false;
-		return NORMAL_SETTINGS;
+		return NORMAL_SETTINGS_MODE;
 	}
 	int currentPlayer, gameMode, difficulty, userColor;
 	int temp;
@@ -340,10 +340,10 @@ Setting_Status loadGame(ChessGame* game, char* filePath,bool* loaded){
 	{
 		printf("Error: File cannot be closed\n");
 		*loaded = false;
-		return NORMAL_SETTINGS;
+		return NORMAL_SETTINGS_MODE;
 	}
 	*loaded = true;
-	return NORMAL_SETTINGS;
+	return NORMAL_SETTINGS_MODE;
 }
 
 Piece* letterToPieceGenerator(char c, int row, int col){

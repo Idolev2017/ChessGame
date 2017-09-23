@@ -291,7 +291,8 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 			}
 
 			else if(event->button.button == SDL_BUTTON_LEFT){
-				gameWin->chosenLoc = tmpLoc;
+				if(gameWin->chosenLoc.row == NOT_CHOOSED) gameWin->chosenLoc = tmpLoc;
+				else gameWin->chosenLoc = createLocation(NOT_CHOOSED, NOT_CHOOSED);
 			}
 		}
 		break;
@@ -302,23 +303,23 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		if(gameWin->chosenLoc.row == NOT_CHOOSED) return GAME_NONE_EVENT;
 
 		//Play move
+
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		msg = playMove(game,gameWin->chosenLoc,tmpLoc,false);
+		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
 		if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
 		if(msg != GAME_SUCCESS) return GAME_NORMAL_EVENT;
-
 		if(needPromoting(getPieceOnBoard(game, tmpLoc))){
 			type = pawnPromotingGUI();
 			if(type == ERROR_GUI) return GAME_EXIT_EVENT;
 			pawnPromoting(getPieceOnBoard(game, tmpLoc), false, type);
 
 			ChessMove* move = ChessArrayListGetFirst(game->LastMoves);
-			ChessArrayListRemoveFirst(game->LastMoves);
+			if(ChessArrayListRemoveFirst(game->LastMoves) != Chess_ARRAY_LIST_SUCCESS) return GAME_EXIT_EVENT;
 			move->wasPromoted = true;
 			move->piece->type = type;
 			ChessArrayListAddFirst(game->LastMoves, move);
 		}
-		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
 		gameWin->savedLastMove = false;
 		destroyStepsArray(gameWin); //remove getAllMoves.
 
@@ -335,7 +336,6 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 			if(chessPlayCom(game,false) == GAME_FAILED) return GAME_EXIT_EVENT;
 			return gameCheckingWinnerGui(game);
 		}
-
 		break;
 	}
 	return GAME_NONE_EVENT;

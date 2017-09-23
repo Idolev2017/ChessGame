@@ -8,8 +8,9 @@
 #ifndef MAINAUX_H_
 #define MAINAUX_H_
 #include "ChessMiniMax.h"
-//#include <SDL.h>
-//#include <SDL_video.h>
+#include <SDL.h>
+#include <SDL_video.h>
+
 GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode);
 
 void printComMove(ChessGame* game,Location* move);

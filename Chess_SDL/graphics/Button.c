@@ -135,19 +135,19 @@ ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON
 		break;
 	case DIFFICULTY_1_BUTTON:
 		if(setDifficulty1Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 125,200, 50);
+		button->rect = createRect(300, 165,200, 50);
 		break;
 	case DIFFICULTY_2_BUTTON:
 		if(setDifficulty2Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 195,200, 50);
+		button->rect = createRect(300, 235,200, 50);
 		break;
 	case DIFFICULTY_3_BUTTON:
 		if(setDifficulty3Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 265,200, 50);
+		button->rect = createRect(300, 305,200, 50);
 		break;
 	case DIFFICULTY_4_BUTTON:
 		if(setDifficulty4Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 335,200, 50);
+		button->rect = createRect(300, 375,200, 50);
 		break;
 	case USER_COLOR_TITLE_BUTTON:
 		if(setUserColorTitleTextures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
@@ -165,23 +165,23 @@ ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON
 		//load window
 	case GAME_SLOT1_BUTTON:
 		if(setGameSlot1Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 125,200, 50);
+		button->rect = createRect(300, 125,200, 50);
 		break;
 	case GAME_SLOT2_BUTTON:
 		if(setGameSlot2Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 195,200, 50);
+		button->rect = createRect(300, 195,200, 50);
 		break;
 	case GAME_SLOT3_BUTTON:
 		if(setGameSlot3Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 265,200, 50);
+		button->rect = createRect(300, 265,200, 50);
 		break;
 	case GAME_SLOT4_BUTTON:
 		if(setGameSlot4Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 335,200, 50);
+		button->rect = createRect(300, 335,200, 50);
 		break;
 	case GAME_SLOT5_BUTTON:
 		if(setGameSlot5Textures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
-		button->rect = createRect(350, 405,200, 50);
+		button->rect = createRect(300, 405,200, 50);
 		break;
 	case LOAD_LOAD_BUTTON:
 		if(setLoadLoadTextures(buttonTextures,renderer) == TEXTURE_FAILED) return BUTTON_FAILED;
