@@ -6,15 +6,11 @@
  */
 #include "textureGenerator.h"
 
-ButtonTextures* createButtonTextures(){
-	ButtonTextures* buttonTexturesTextures = (ButtonTextures*) malloc(sizeof(buttonTexturesTextures));
-	if(buttonTexturesTextures == NULL){
-		printf("Couldn't create ButtonTextures struct\n");
-		return NULL;
-	}
-	buttonTexturesTextures->activeTexture = NULL;
-	buttonTexturesTextures->inactiveTexture = NULL;
-	buttonTexturesTextures->nonClickableTexture = NULL;
+ButtonTextures createButtonTextures(){
+	ButtonTextures buttonTexturesTextures;
+	buttonTexturesTextures.activeTexture = NULL;
+	buttonTexturesTextures.inactiveTexture = NULL;
+	buttonTexturesTextures.nonClickableTexture = NULL;
 	return buttonTexturesTextures;
 }
 
@@ -176,4 +172,10 @@ TEXTURE_MESSAGE setTextures(ButtonTextures* buttonTextures,SDL_Renderer* rendere
 	}
 	SDL_FreeSurface(loadingSurface);
 	return TEXTURE_SUCCESS;
+}
+
+void freeButtonTextures(ButtonTextures* buttonTextures){
+	free(buttonTextures->activeTexture);
+	free(buttonTextures->inactiveTexture);
+	free(buttonTextures->nonClickableTexture);
 }

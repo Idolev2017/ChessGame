@@ -49,8 +49,9 @@ int guiMode(){
 		if (event.window.event == SDL_WINDOWEVENT_CLOSE || ChessGUIManagerHandleEvent(guiManager, &event) == MANAGER_QUIT) {
 			break;
 		}
-		if(event.type != SDL_MOUSEMOTION || guiManager->gameWin->chosenLoc.row != NOT_CHOOSED)
-			ChessGUIManagerDraw(guiManager,&event);
+		if(event.type != SDL_MOUSEMOTION || guiManager->gameWin->chosenLoc.row != NOT_CHOOSED){
+			if(ChessGUIManagerDraw(guiManager,&event) == MANAGER_QUIT) break;
+		}
 	}
 	ChessGUIManagerDestroy(guiManager);
 	SDL_Quit();

@@ -31,7 +31,7 @@ typedef struct {
 
 GuiManager* ChessGUIManagerCreate();
 void ChessGUIManagerDestroy(GuiManager* guiManager);
-void ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event);
+MANAGER_EVENT ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event);
 
 MANAGER_EVENT ChessGUIManagerHandleEvent(GuiManager* guiManager, SDL_Event* event);
 MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* guiManager,MAIN_EVENT event);

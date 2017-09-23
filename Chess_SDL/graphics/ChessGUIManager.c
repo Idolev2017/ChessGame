@@ -69,24 +69,25 @@ void ChessGUIManagerDestroy(GuiManager* guiManager) {
 	free(guiManager);
 }
 
-void ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event) {
+MANAGER_EVENT ChessGUIManagerDraw(GuiManager* guiManager, SDL_Event* event) {
 	if (!guiManager) {
-		return;
+		return MANAGER_QUIT;
 	}
 	switch(guiManager->activeWin){
 	case MAIN_WINDOW_ACTIVE:
-		mainWindowDraw(guiManager->mainWin);
-		return;
+		if(mainWindowDraw(guiManager->mainWin) == MAIN_FAILED) return MANAGER_QUIT;
+		break;
 	case LOAD_WINDOW_ACTIVE:
-		loadWindowDraw(guiManager->loadWin);
-		return;
+		if(loadWindowDraw(guiManager->loadWin) == LOAD_FAILED) return MANAGER_QUIT;
+		break;
 	case SETTINGS_WINDOW_ACTIVE:
-		settingsWindowDraw(guiManager->settingsWin);
-		return;
+		if(settingsWindowDraw(guiManager->settingsWin) == SETTINGS_FAILED) return MANAGER_QUIT;
+		break;
 	case GAME_WINDOW_ACTIVE:
-		gameWindowDraw(guiManager->gameWin,guiManager->game,event);
-		return;
+		if(gameWindowDraw(guiManager->gameWin,guiManager->game,event) == GAME_WINDOW_FAILED) return MANAGER_QUIT;
+		break;
 	}
+	return MANAGER_NONE;
 }
 
 MANAGER_EVENT handleManagerDueToMainEvent(GuiManager* guiManager,MAIN_EVENT event) {

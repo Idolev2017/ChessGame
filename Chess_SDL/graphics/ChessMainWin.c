@@ -63,7 +63,8 @@ MAIN_MESSAGE mainWindowDraw(MainWin* mainWin){
 	SDL_SetRenderDrawColor(mainWin->simpleWindow->renderer, 255, 255, 255, 255);
 	if (SDL_RenderClear(mainWin->simpleWindow->renderer) == -1) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"ERROR","renderer cannot be cleared",NULL);
 	SDL_RenderCopy(mainWin->simpleWindow->renderer, mainWin->gridTexture, NULL, &rec);
-	simpleWindowAddingButtons(mainWin->simpleWindow,mainWin->buttons,MAIN_NUM_OF_BUTTONS);
+	if(simpleWindowAddingButtons(mainWin->simpleWindow,mainWin->buttons,MAIN_NUM_OF_BUTTONS) == SIMPLE_WINDOW_FAILED)
+		return MAIN_FAILED;
 	SDL_RenderPresent(mainWin->simpleWindow->renderer);
 	return MAIN_SUCCESS;
 }

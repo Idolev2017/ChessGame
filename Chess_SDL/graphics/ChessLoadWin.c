@@ -104,8 +104,8 @@ LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin){
 	SDL_SetRenderDrawColor(loadWin->simpleWindow->renderer, 255, 255, 255, 255); //Background is white.
 	SDL_RenderClear(loadWin->simpleWindow->renderer);
 	SDL_RenderCopy(loadWin->simpleWindow->renderer, loadWin->gridTexture, NULL, &rec);
-	simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS);
-	simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->slotsButtons,loadWin->numOfSlots);
+	if(simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS) == SIMPLE_WINDOW_FAILED) return LOAD_FAILED;
+	if(simpleWindowAddingButtons(loadWin->simpleWindow,loadWin->slotsButtons,loadWin->numOfSlots) == SIMPLE_WINDOW_FAILED) return LOAD_FAILED;
 	SDL_RenderPresent(loadWin->simpleWindow->renderer);
 	return LOAD_SUCCESS;
 }

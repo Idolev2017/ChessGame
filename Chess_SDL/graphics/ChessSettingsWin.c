@@ -186,23 +186,26 @@ SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
 	SDL_SetRenderDrawColor(settingsWin->simpleWindow->renderer, 0, 0, 255, 1); //Background is white.
 	SDL_RenderClear(settingsWin->simpleWindow->renderer);
 	SDL_RenderCopy(settingsWin->simpleWindow->renderer, settingsWin->gridTexture, NULL, &rec);
-
+	SIMPLE_WINDOW_MESSAGE winMsg;
+	BUTTON_MESSAGE buttonMsg;
 	int gameModeButton = (settingsWin->gameModeSelect == 2) ? START_INDEX : NEXT_INDEX;
 	switch(settingsWin->state){
 	case DIFFICULTY_STATE:
-		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
-		addButtonToRenderer(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer); // drawing next button
+		winMsg = simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
+		buttonMsg = addButtonToRenderer(settingsWin->normalButtons[NEXT_INDEX], settingsWin->simpleWindow->renderer); // drawing next button
 		break;
 	case GAME_MODE_STATE:
-		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
-		addButtonToRenderer(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer); // drawing next button
+		winMsg = simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
+		buttonMsg = addButtonToRenderer(settingsWin->normalButtons[gameModeButton], settingsWin->simpleWindow->renderer); // drawing next button
 		break;
 	case USER_COLOR_STATE:
-		simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
-		addButtonToRenderer(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer); // drawing start button
+		winMsg = simpleWindowAddingButtons(settingsWin->simpleWindow,settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
+		buttonMsg = addButtonToRenderer(settingsWin->normalButtons[START_INDEX], settingsWin->simpleWindow->renderer); // drawing start button
 		break;
 	}
-	addButtonToRenderer(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer); // drawing back button
+	if(winMsg == SIMPLE_WINDOW_FAILED || buttonMsg == BUTTON_FAILED) return SETTINGS_FAILED;
+	if(addButtonToRenderer(settingsWin->normalButtons[BACK_INDEX], settingsWin->simpleWindow->renderer) == BUTTON_FAILED)
+		return SETTINGS_FAILED; // drawing back button
 	SDL_RenderPresent(settingsWin->simpleWindow->renderer);
 	return SETTINGS_SUCCESS;
 }

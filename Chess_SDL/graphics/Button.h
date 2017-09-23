@@ -55,7 +55,7 @@ typedef enum {
 } BUTTON_TYPE;
 
 typedef struct{
-	SDL_Rect* rect;
+	SDL_Rect rect;
 	SDL_Texture* activeTexture;
 	SDL_Texture* inactiveTexture;
 	SDL_Texture* nonClickableTexture;
@@ -67,18 +67,16 @@ typedef struct{
 typedef enum{
 	BUTTON_SUCCESS,
 	BUTTON_FAILED
-}ButtonMessage;
+}BUTTON_MESSAGE;
 
 
 Button* buttonCreate(SDL_Renderer* renderer,BUTTON_TYPE type,bool isActive, bool isClickable);
-ButtonMessage buttonArrayCreate(SDL_Renderer* renderer,Button** buttons,BUTTON_TYPE* types,bool* isActiveArray,bool* isClickableArray, int size);
+BUTTON_MESSAGE buttonArrayCreate(SDL_Renderer* renderer,Button** buttons,BUTTON_TYPE* types,bool* isActiveArray,bool* isClickableArray, int size);
 void buttonDestroy(Button* button);
 void buttonArrayDestroy(Button** buttons,int size);
-ButtonMessage activateButton(Button* button);
-ButtonMessage inactivateButton(Button* button);
-void addButtonToRenderer(Button* button,SDL_Renderer* renderer);
+BUTTON_MESSAGE addButtonToRenderer(Button* button,SDL_Renderer* renderer);
 Button* whichButtonWasClicked(Button** button, int size, int x, int y);
 bool isClickOnButton(Button* button, int x, int y);
-ButtonMessage typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON_TYPE type);
-SDL_Rect* createRect(int x, int y,int w, int h);
+BUTTON_MESSAGE typeToTextureAndRect(Button* button,SDL_Renderer* renderer, BUTTON_TYPE type);
+SDL_Rect createRect(int x, int y,int w, int h);
 #endif /* GRAPHICS_H_ */

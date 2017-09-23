@@ -38,11 +38,12 @@ SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow) {
 	simpleWin->backWindow = backWindow;
 	return simpleWin;
 }
-void simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons){
-	if(!simpleWin || !buttons) return;
+SIMPLE_WINDOW_MESSAGE simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons){
+	if(!simpleWin || !buttons) return SIMPLE_WINDOW_FAILED;
 	for(int i = 0; i < numOfButtons; ++i){
-		addButtonToRenderer(buttons[i], simpleWin->renderer);
+		if(addButtonToRenderer(buttons[i], simpleWin->renderer) == BUTTON_FAILED)  return SIMPLE_WINDOW_FAILED;
 	}
+	return SIMPLE_WINDOW_SUCCESS;
 }
 void simpleWindowDestroy(SimpleWindow* simpleWin){
 	if(simpleWin == NULL) return;

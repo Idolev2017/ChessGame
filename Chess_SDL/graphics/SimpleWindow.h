@@ -34,7 +34,7 @@ typedef struct {
 } SimpleWindow;
 
 SimpleWindow* simpleWindowCreate(WINDOW_TYPE backWindow);
-void simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
+SIMPLE_WINDOW_MESSAGE simpleWindowAddingButtons(SimpleWindow* simpleWin,Button** buttons,int numOfButtons);
 void simpleWindowDestroy(SimpleWindow* simpleWin);
 void simpleWindowHide(SimpleWindow* simpleWin);
 void simpleWindowShow(SimpleWindow* simpleWin);

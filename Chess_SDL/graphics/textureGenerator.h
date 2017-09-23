@@ -29,7 +29,7 @@ typedef struct{
 	SDL_Texture* nonClickableTexture;
 }ButtonTextures;
 
-ButtonTextures* createButtonTextures();
+ButtonTextures createButtonTextures();
 
 void destroyButtonTextures(ButtonTextures* buttonTextures);
 

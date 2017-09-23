@@ -84,7 +84,8 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 	SDL_RenderClear(gameWin->simpleWindow->renderer);
 	SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->grid_texture, NULL, &rec);
 
-	simpleWindowAddingButtons(gameWin->simpleWindow,gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
+	if(simpleWindowAddingButtons(gameWin->simpleWindow,gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS) == SIMPLE_WINDOW_FAILED)
+		return GAME_FAILED;
 
 	drawGetAllMoves(gameWin); //if no needed, the function not drawing nothing.
 	Location loc;
@@ -125,43 +126,48 @@ void drawGetAllMoves(GameWin* gameWin){
 }
 
 GAME_WINDOW_MESSAGE drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece){
+	int copySuccess;
 	switch(piece){
 	case 'r':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_white_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_white_texture, NULL, rec);
 		break;
 	case 'k':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_white_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_white_texture, NULL, rec);
 		break;
 	case 'm':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_white_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_white_texture, NULL, rec);
 		break;
 	case 'q':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_white_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_white_texture, NULL, rec);
 		break;
 	case 'b':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_white_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_white_texture, NULL, rec);
 		break;
 	case 'n':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_white_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_white_texture, NULL, rec);
 		break;
 	case 'R':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_black_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_black_texture, NULL, rec);
 		break;
 	case 'K':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_black_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->k_black_texture, NULL, rec);
 		break;
 	case 'M':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_black_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->p_black_texture, NULL, rec);
 		break;
 	case 'Q':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->q_black_texture, NULL, rec);
 		break;
 	case 'B':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_black_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->b_black_texture, NULL, rec);
 		break;
 	case 'N':
-		SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_black_texture, NULL, rec);
+		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->n_black_texture, NULL, rec);
 		break;
+	}
+	if(copySuccess == -1) {
+		printf("ERROR: cannot drawing piece\n");
+		return BUTTON_FAILED;
 	}
 	return GAME_WINDOW_SUCCESS;
 }
