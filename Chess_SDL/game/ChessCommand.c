@@ -43,7 +43,7 @@ ChessCommand ChessCommandParser(const char* str){
 	}
 	else if(strcmp(words[0],"save") == 0  && numOfwords == 2){
 
-		command.filePath = (char*) malloc(MAX_LINE + 1);
+		command.filePath = (char*) malloc((MAX_LINE + 1)*sizeof(char));
 
 		if(command.filePath == NULL) {
 			command.type = FAILED_COMMAND;

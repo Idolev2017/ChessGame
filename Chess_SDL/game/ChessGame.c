@@ -141,6 +141,7 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 		if((move = chessMoveCreate(movingPiece, src, dest, promotionSucceed, destPiece)) == NULL) return GAME_FAILED;
 		if(ChessArrayListAddFirst(game->LastMoves,move) != Chess_ARRAY_LIST_SUCCESS) {
 			pieceDestroy(destPiece);
+			printf("ERROR: cannot add to array list\n");
 			return GAME_FAILED; //Unknown Error
 		}
 		game->currentPlayer = 1 - game->currentPlayer; //changing the current player.
@@ -590,7 +591,7 @@ GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest){
 void killPiece (ChessGame* game,Location dest){
 	Piece* piece = getPieceOnBoard(game, dest);
 	if(piece == NULL) return;
-	pieceDestroy(getPieceOnBoard(game,dest));
+	pieceDestroy(piece);
 	setPieceOnBoard(game,dest,NULL);
 }
 
@@ -618,13 +619,13 @@ GAME_MESSAGE isPieceThreatened(ChessGame* game,Piece* piece){
 	return GAME_SUCCESS;
 
 }
-//invariant - move direction is legal.
+//invariant - move direction is legal, there is a piece in src.
 GAME_MESSAGE isPieceThreatenedWithMove(ChessGame* game,Piece* piece,Location src, Location dest){
-	ChessMove* move = NULL;
-	Piece* capturedPiece = copyPiece(getPieceOnBoard(game, dest));
+	Piece* capturedPiece = getPieceOnBoard(game, dest);
 	Piece* movingPiece = getPieceOnBoard(game, src);
 	if(capturedPiece != NULL && (movingPiece->color == capturedPiece->color)) return GAME_INVALID_MOVE;
-	if(move == NULL) return GAME_FAILED; //mallocHandling
+
+	capturedPiece = copyPiece(getPieceOnBoard(game, dest));
 	killPiece(game, dest);
 	simpleMovePiece(game,src,dest);
 

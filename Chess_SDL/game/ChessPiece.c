@@ -2,57 +2,57 @@
 
 
 Piece* pieceCreate(PieceType type,Color color,int row,int col){
-	Piece* p = (Piece*) malloc(sizeof(Piece));
-	if(p == NULL) {
+	Piece* piece = (Piece*) malloc(sizeof(Piece));
+	if(piece == NULL) {
 		printMallocError();
 		return NULL; //mallocHandling
 	}
-	p->type = type;
-	p->color = color;
-	p->loc = createLocation(row, col);
-	return p;
+	piece->type = type;
+	piece->color = color;
+	piece->loc = createLocation(row, col);
+	return piece;
 }
 
-Piece* copyPiece(Piece* src){
-	if(src == NULL) return NULL;
-	Piece* p = pieceCreate(src->type,src->color,src->loc.row,src->loc.col);
-	return p;
+Piece* copyPiece(Piece* piece){
+	if(piece == NULL) return NULL;
+	Piece* copy = pieceCreate(piece->type,piece->color,piece->loc.row,piece->loc.col);
+	return copy;
 }
 
-void pieceDestroy(Piece* src){
-	if(src == NULL) return;
-	free(src);
+void pieceDestroy(Piece* piece){
+	if(piece == NULL) return;
+	free(piece);
 }
 
-char* getPieceString(Piece* p, bool fullName){
-	if (p == NULL){
+char* getPieceString(Piece* piece, bool fullName){
+	if (piece == NULL){
 		return "_";
 	}
 	char* name;
-	switch(p->type){
+	switch(piece->type){
 	case PAWN:
 		if(fullName) name ="pawn";
-		else name = p->color == WHITE ? "m" : "M";
+		else name = piece->color == WHITE ? "m" : "M";
 		break;
 	case BISHOP:
 		if(fullName) name ="bishop";
-		else name = p->color == WHITE ? "b" : "B";
+		else name = piece->color == WHITE ? "b" : "B";
 		break;
 	case ROOK:
 		if(fullName) name ="rook";
-		else name = p->color == WHITE ? "r" : "R";
+		else name = piece->color == WHITE ? "r" : "R";
 		break;
 	case KING:
 		if(fullName) name ="king";
-		else name = p->color == WHITE ? "k" : "K";
+		else name = piece->color == WHITE ? "k" : "K";
 		break;
 	case QUEEN:
 		if(fullName) name ="queen";
-		else name = p->color == WHITE ? "q" : "Q";
+		else name = piece->color == WHITE ? "q" : "Q";
 		break;
 	case KNIGHT:
 		if(fullName) name ="knight";
-		else name = p->color == WHITE ? "n" : "N";
+		else name = piece->color == WHITE ? "n" : "N";
 		break;
 	}
 	return name;
