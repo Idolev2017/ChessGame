@@ -7,15 +7,15 @@
  Description : Hello World in C, Ansi-style
  ============================================================================
  */
-#include<SDL.h>
-#include <SDL_video.h>
+//#include<SDL.h>
+//#include <SDL_video.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "MainAux.h"
-#include "../graphics/ChessGUIManager.h"
+//#include "../graphics/ChessGUIManager.h"
 int consoleMode();
-int guiMode();
+//int guiMode();
 #define HistorySize 6
 #define MAX_LEN 1024
 #define DESTROY_GAME_AND_LINE(game, line) {\
@@ -30,33 +30,33 @@ int guiMode();
 }
 
 
-int main(int argc, char** argv) {
-	return guiMode();
+int main() {
+	return consoleMode();
 }
 
-int guiMode(){
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) { //SDL2 INIT
-		printf("ERROR: unable to init SDL: %s\n", SDL_GetError());
-		return 1;
-	}
-	GuiManager* guiManager = ChessGUIManagerCreate();
-	if (guiManager == NULL ) {
-		SDL_Quit();
-		return 0;
-	}
-	SDL_Event event;
-	while (1) {
-		SDL_WaitEvent(&event);
-		if (event.window.event == SDL_WINDOWEVENT_CLOSE || ChessGUIManagerHandleEvent(guiManager, &event) == MANAGER_QUIT) {
-			break;
-		}
-		if(event.type != SDL_MOUSEMOTION || guiManager->gameWin->chosenLoc.row != NOT_CHOOSED)
-			ChessGUIManagerDraw(guiManager,&event);
-	}
-	ChessGUIManagerDestroy(guiManager);
-	SDL_Quit();
-	return 0;
-}
+//int guiMode(){
+//	if (SDL_Init(SDL_INIT_VIDEO) < 0) { //SDL2 INIT
+//		printf("ERROR: unable to init SDL: %s\n", SDL_GetError());
+//		return 1;
+//	}
+//	GuiManager* guiManager = ChessGUIManagerCreate();
+//	if (guiManager == NULL ) {
+//		SDL_Quit();
+//		return 0;
+//	}
+//	SDL_Event event;
+//	while (1) {
+//		SDL_WaitEvent(&event);
+//		if (event.window.event == SDL_WINDOWEVENT_CLOSE || ChessGUIManagerHandleEvent(guiManager, &event) == MANAGER_QUIT) {
+//			break;
+//		}
+//		if(event.type != SDL_MOUSEMOTION || guiManager->gameWin->chosenLoc.row != NOT_CHOOSED)
+//			ChessGUIManagerDraw(guiManager,&event);
+//	}
+//	ChessGUIManagerDestroy(guiManager);
+//	SDL_Quit();
+//	return 0;
+//}
 int consoleMode(){
 	SP_BUFF_SET();
 	ChessGame* game = gameCreate(HistorySize,true);

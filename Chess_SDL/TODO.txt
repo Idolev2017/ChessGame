@@ -7,6 +7,5 @@ destroy buttonTextures
 
 להסיר הדפסת שגיאות בקונסול או בגוי
 save in linux
-לשנות שמות enums
 
 EXEC=chessprog    ???

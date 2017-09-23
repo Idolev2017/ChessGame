@@ -407,8 +407,7 @@ GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	//opening the FILE
 	FILE* file;
 	file = fopen(filePath, "w");
-	if(file == NULL)
-	{
+	if(file == NULL || filePath == NULL){
 		printf("File cannot be created or modified\n");
 		return GAME_SUCCESS;
 	}
@@ -432,10 +431,9 @@ GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	fprintf(file, "\t</board>\n");
 	fprintf(file, "</game>");
 	//closing the FILE
-	if(fclose(file) != 0)
-	{
+	if(fclose(file) != 0){
 		printf("File cannot be created or modified\n");
-		return GAME_FAILED;
+		return GAME_SUCCESS;
 	}
 	return GAME_SUCCESS;
 }
