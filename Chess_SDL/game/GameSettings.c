@@ -18,8 +18,7 @@ GAME_MESSAGE gameSettingMode(ChessGame* game){
 }
 
 SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
-	int num = 1;
-	int* numOfWords = &num;
+	int numOfWords = 1;
 	char* words[MAX_SETTING_COMMAND+1];
 	GAME_MESSAGE msg;
 	SETTINGS_STATUS status;
@@ -32,13 +31,13 @@ SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
 	while(true){
 		if (fgets(line, MAX_LEN, stdin) == NULL) {
 			free(line);
-			freeArray(words, *numOfWords);
+			freeArray(words, numOfWords);
 			printMallocError();  //Error Handling
 			return SETTINGS_MODE_FAILED;
 		}
-		msg = readMaxWords(words,line, 2, numOfWords);
+		msg = readMaxWords(words,line, 2, &numOfWords);
 		if(msg == GAME_FAILED){ //mallocHandling
-			freeArray(words, *numOfWords);
+			freeArray(words, numOfWords);
 			free(line);
 			return SETTINGS_MODE_FAILED;
 		}
@@ -46,10 +45,10 @@ SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
 			printf("invalid command\n");
 			continue;
 		}
-		status = gameChangingSettings(game,words,*numOfWords);
+		status = gameChangingSettings(game,words,numOfWords);
 		if(status != NORMAL_SETTINGS_MODE) {
 			free(line);
-			freeArray(words, *numOfWords);
+			freeArray(words, numOfWords);
 			return status;
 		}
 	}

@@ -624,11 +624,12 @@ GAME_MESSAGE isPieceThreatenedWithMove(ChessGame* game,Piece* piece,Location src
 	Piece* capturedPiece = copyPiece(getPieceOnBoard(game, dest));
 	Piece* movingPiece = getPieceOnBoard(game, src);
 	if(capturedPiece != NULL && (movingPiece->color == capturedPiece->color)) return GAME_INVALID_MOVE;
-	move = chessMoveCreate(movingPiece, src, dest, false, capturedPiece);
 	if(move == NULL) return GAME_FAILED; //mallocHandling
 	killPiece(game, dest);
 	simpleMovePiece(game,src,dest);
+
 	GAME_MESSAGE msg = isPieceThreatened(game,piece);
+
 	simpleMovePiece(game, dest, src);
 	setPieceOnBoard(game,dest,capturedPiece);
 	if(msg == PIECE_THREATENED) return GAME_INVALID_MOVE;

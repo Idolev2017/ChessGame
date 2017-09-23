@@ -39,6 +39,7 @@ GAME_MESSAGE readMaxWords(char** words,const char* str, int maxSize, int* numOfW
 		words[index] = (char*) malloc(strlen(tmp)*sizeof(char)+1); //mallocHandling
 		if(words[index] == NULL) {
 			printMallocError();
+			free(line);
 			return GAME_FAILED;
 		}
 		strcpy(words[index],tmp);
@@ -46,7 +47,9 @@ GAME_MESSAGE readMaxWords(char** words,const char* str, int maxSize, int* numOfW
 	}
 	tmp = strtok(NULL,delim);
 	free(line);
-	if(tmp != NULL) return GAME_INVALID_ARGUMENT;
+	if(tmp != NULL) {
+		return GAME_INVALID_ARGUMENT;
+	}
 	return GAME_SUCCESS;
 }
 
