@@ -30,7 +30,10 @@ int guiMode();
 
 
 int main(int argc,char** argv) {
-	return guiMode();
+	if(argc == 1 || (argc == 2 && strcmp(argv[1],"-c") == 0)) return consoleMode();
+	else if(argc == 2 && strcmp(argv[1],"-g") == 0) return guiMode();
+	else printf("Unknown command\n");
+	return 0;
 }
 
 int guiMode(){
