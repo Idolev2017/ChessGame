@@ -8,4 +8,3 @@ destroy buttonTextures
 להסיר הדפסת שגיאות בקונסול או בגוי
 save in linux
 
-EXEC=chessprog    ???

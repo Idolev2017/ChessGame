@@ -4,7 +4,7 @@
  *  Created on: 21 בספט׳ 2017
  *      Author: ido abulafya
  */
-#include "textureGenerator.h"
+#include "TextureGenerator.h"
 
 ButtonTextures createButtonTextures(){
 	ButtonTextures buttonTexturesTextures;

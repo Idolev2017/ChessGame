@@ -7,7 +7,7 @@
  Description : Hello World in C, Ansi-style
  ============================================================================
  */
-#include<SDL.h>
+#include <SDL.h>
 #include <SDL_video.h>
 #include <stdio.h>
 #include <stdlib.h>

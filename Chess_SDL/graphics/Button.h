@@ -11,7 +11,8 @@
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_video.h>
-#include "textureGenerator.h"
+
+#include "TextureGenerator.h"
 
 typedef enum {
 	//main window
