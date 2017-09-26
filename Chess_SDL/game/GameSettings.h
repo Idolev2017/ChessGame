@@ -66,7 +66,7 @@ void gamePrintBoard(ChessGame* game);
 
 Color GetCurrentPlayer(ChessGame* game);
 
-SETTINGS_STATUS loadGame(ChessGame* game, char* filepath,bool* loaded);
+bool loadGame(ChessGame* game, char* filepath);
 
 Piece* letterToPieceGenerator(char c, int row, int col);
 #endif /* GAMESETTING_H_ */

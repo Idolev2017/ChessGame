@@ -75,7 +75,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 void destroyStepsArray(GameWin* gameWin);
 Location mouseLocToBoardLoc(int x, int y);
 SDL_Rect boardLocToRect(Location loc);
-bool isClickedOnBoard(int x, int y);
+bool isClickedOnBoard(int x);
 bool confirmExitFromGame();
 PieceType pawnPromotingGUI();
 GAME_EVENT gameUndoGui(ChessGame* game);

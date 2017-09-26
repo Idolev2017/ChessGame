@@ -118,16 +118,13 @@ void loadWindowDestroy(LoadWin* loadWin) {
 	free(loadWin);
 }
 
-LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* event) {
+LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin, SDL_Event* event) {
 	if (!event || !loadWin) {
 		return LOAD_INVALID_ARGUMENT_EVENT;
 	}
 	if(event->button.button != SDL_BUTTON_LEFT) return LOAD_NONE_EVENT;
 	int prevSlot = loadWin->chosenSlot;
 	Button* button;
-	char path[] = SLOT1_PATH;
-	bool flag = false;
-	bool* loaded = &flag;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{
 		button = whichButtonWasClicked(loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS,event->button.x, event->button.y);
@@ -137,16 +134,6 @@ LOAD_EVENT loadWindowHandleEvent(LoadWin* loadWin,ChessGame* game, SDL_Event* ev
 		case LOAD_BACK_BUTTON:
 			return LOAD_BACK_EVENT;
 		case LOAD_LOAD_BUTTON:
-			if(loadWin->chosenSlot == NOT_CHOOSED_SLOT) {
-				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"ERROR","load button is clickable", NULL);
-				return LOAD_EXIT_EVENT;
-			}
-			path[strlen(path) - 5] = loadWin->chosenSlot + '0';
-			loadGame(game,path,loaded);
-			if(loaded == false) {
-				printf("Game cannot be loaded from %s\n",path);
-				return LOAD_EXIT_EVENT;
-			}
 			return LOAD_LOAD_EVENT;
 			break;
 		case GAME_SLOT1_BUTTON:
@@ -209,7 +196,13 @@ int scanSlotsInDirectory(){
 LOAD_MESSAGE addGameSlot(LoadWin* loadWin,ChessGame* game){
 	char path[] = SLOT1_PATH;
 	char newPath[] = SLOT1_PATH;
-	for(int i = loadWin->numOfSlots; 1 <= i;--i){
+	path[strlen(path) - 5] = '0';
+	bool wasSaved = saveGame(game,path);
+	if(!wasSaved){
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"SAVE ERROR","The game couldn't be saved",NULL);
+		return LOAD_FAILED;
+	}
+	for(int i = loadWin->numOfSlots; 0 <= i;--i){
 		path[strlen(path) - 5] = i + '0';
 		if(i == LOAD_NUM_OF_SLOTS) {
 			remove(path);
@@ -218,8 +211,6 @@ LOAD_MESSAGE addGameSlot(LoadWin* loadWin,ChessGame* game){
 		newPath[strlen(path) - 5] = i + '0' + 1;
 		rename(path,newPath);
 	}
-	path[strlen(path) - 5] = '1';
-	if(saveGame(game,path) == GAME_FAILED) return LOAD_FAILED;
 	loadWin->numOfSlots = min(5,loadWin->numOfSlots + 1);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Save game","The game was saved",NULL);
 	return LOAD_SUCCESS;

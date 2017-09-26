@@ -94,14 +94,14 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 			loc = createLocation(i,j);
 			rec = boardLocToRect(loc);
 			if(equalLocations(loc,gameWin->chosenLoc) && event->type == SDL_MOUSEMOTION &&
-					isClickedOnBoard(event->button.x,event->button.y)) continue;
+					isClickedOnBoard(event->button.x)) continue;
 			if(drawPiece(gameWin,&rec,getPieceString(getPieceOnBoard(game,loc),false)[0]) == GAME_WINDOW_FAILED){
 				return GAME_WINDOW_FAILED;
 			}
 		}
 	}
 	//drag
-	if(event->type == SDL_MOUSEMOTION && isClickedOnBoard(event->button.x,event->button.y)){
+	if(event->type == SDL_MOUSEMOTION && isClickedOnBoard(event->button.x)){
 		rec.x = event->button.x - REC_SIZE/2;
 		rec.y = event->button.y - REC_SIZE/2;
 		rec.h = REC_SIZE;
@@ -198,7 +198,7 @@ GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* ev
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
-		if(!isClickedOnBoard(event->button.x,event->button.y) && event->button.button == SDL_BUTTON_LEFT) {
+		if(!isClickedOnBoard(event->button.x) && event->button.button == SDL_BUTTON_LEFT) {
 			gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
 			return gameWindowPanelHandleEvent(gameWin,game,event);
 		}
@@ -357,7 +357,7 @@ void destroyStepsArray(GameWin* gameWin){
 
 Location mouseLocToBoardLoc(int x, int y){
 	x = x - PANEL_WIDTH;
-	Location loc = createLocation(7-floor(y / REC_SIZE),floor(x / REC_SIZE)); //start from 0.
+	Location loc = createLocation(7-(y / REC_SIZE),(x / REC_SIZE)); //start from 0.
 	return loc;
 }
 
@@ -371,7 +371,7 @@ SDL_Rect boardLocToRect(Location loc){
 	return rec;
 }
 
-bool isClickedOnBoard(int x, int y){
+bool isClickedOnBoard(int x){
 	return PANEL_WIDTH <= x;
 }
 

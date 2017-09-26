@@ -129,7 +129,7 @@ MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT even
 		return MANAGER_QUIT;
 
 	case GAME_SAVE_EVENT:
-		if(addGameSlot(guiManager->loadWin,guiManager->game) == LOAD_FAILED) return MANAGER_QUIT;
+		if(addGameSlot(guiManager->loadWin,guiManager->game) == LOAD_FAILED) return MANAGER_NONE;
 		break;
 
 	case GAME_LOAD_EVENT:
@@ -159,19 +159,18 @@ MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT even
 
 MANAGER_EVENT handleManagerDueToLoadEvent(GuiManager* guiManager,LOAD_EVENT event) {
 	if (guiManager == NULL) {
-		return MANAGER_NONE;
+		return MANAGER_QUIT;
 	}
 	char path[] = SLOT1_PATH;
-	bool flag = false;
-	bool* loaded = &flag;
 	switch(event){
 	case LOAD_LOAD_EVENT:
 		loadWindowHide(guiManager->loadWin);
-
 		path[strlen(path)-5] = guiManager->loadWin->chosenSlot + '0';
-		loadGame(guiManager->game,path,loaded);
-		if(!loaded) return MANAGER_QUIT;
-
+		if(!loadGame(guiManager->game,path)){
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"LOAD","load didn't succeed", NULL);
+			return MANAGER_QUIT;
+		}
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"LOAD","load succeeded", NULL);
 		guiManager->activeWin = GAME_WINDOW_ACTIVE;
 		gameWindowShow(guiManager->gameWin);
 		break;
@@ -244,7 +243,7 @@ MANAGER_EVENT ChessGUIManagerHandleEvent(GuiManager* guiManager, SDL_Event* even
 		return handleManagerDueToMainEvent(guiManager, mainEvent);
 
 	case LOAD_WINDOW_ACTIVE:
-		loadEvent = loadWindowHandleEvent(guiManager->loadWin,guiManager->game,event);
+		loadEvent = loadWindowHandleEvent(guiManager->loadWin,event);
 		return handleManagerDueToLoadEvent(guiManager, loadEvent);
 
 	case SETTINGS_WINDOW_ACTIVE:

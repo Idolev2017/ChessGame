@@ -34,7 +34,8 @@ GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
 		break;
 
 	case SAVE_COMMAND:
-		msg = saveGame(game,cmd.filePath);
+		saveGame(game,cmd.filePath);
+		msg = GAME_SUCCESS;
 		free(cmd.filePath);
 		break;
 
@@ -405,13 +406,13 @@ void printSteps(Step* steps,int size){
 	}
 }
 
-GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
+bool saveGame(ChessGame* game,char* filePath){
 	//opening the FILE
 	FILE* file;
 	file = fopen(filePath, "w");
 	if(file == NULL || filePath == NULL){
 		printf("File cannot be created or modified\n");
-		return GAME_SUCCESS;
+		return false;
 	}
 	//prints to the XML file
 	fprintf(file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -435,9 +436,9 @@ GAME_MESSAGE saveGame(ChessGame* game,char* filePath){
 	//closing the FILE
 	if(fclose(file) != 0){
 		printf("File cannot be created or modified\n");
-		return GAME_SUCCESS;
+		return false;
 	}
-	return GAME_SUCCESS;
+	return true;
 }
 
 Piece* getPieceOnBoard(ChessGame* game,Location loc){

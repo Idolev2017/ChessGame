@@ -108,9 +108,8 @@ SETTINGS_STATUS gameChangingSettings(ChessGame* game,char** words,int numOfWords
 			else printf("Wrong game mode\n");
 		}
 		else if(strcmp(command,"load") == 0){
-			bool flag = false;
-			bool* loaded = &flag;
-			return loadGame(game, words[1],loaded);
+			loadGame(game, words[1]);
+			return NORMAL_SETTINGS_MODE;
 		}
 		else{
 			printf("Invalid command\n");
@@ -292,12 +291,11 @@ Color GetCurrentPlayer(ChessGame* game){
 	return game->currentPlayer;
 }
 
-SETTINGS_STATUS loadGame(ChessGame* game, char* filePath,bool* loaded){
+bool loadGame(ChessGame* game, char* filePath){
 	FILE* file = fopen(filePath, "r");
 	if(file == NULL){
 		printf("Error: File doesn't exist or cannot be opened\n");
-		*loaded = false;
-		return NORMAL_SETTINGS_MODE;
+		return false;
 	}
 	int currentPlayer, gameMode, difficulty, userColor;
 	int temp;
@@ -338,11 +336,9 @@ SETTINGS_STATUS loadGame(ChessGame* game, char* filePath,bool* loaded){
 	if(fclose(file) != 0)
 	{
 		printf("Error: File cannot be closed\n");
-		*loaded = false;
-		return NORMAL_SETTINGS_MODE;
+		return false;
 	}
-	*loaded = true;
-	return NORMAL_SETTINGS_MODE;
+	return true;
 }
 
 Piece* letterToPieceGenerator(char c, int row, int col){
