@@ -211,7 +211,7 @@ void settingsWindowDestroy(SettingsWin* settingsWin) {
 	buttonArrayDestroy(settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
 	buttonArrayDestroy(settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
 	buttonArrayDestroy(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS);
-
+	free(settingsWin);
 }
 
 SETTINGS_EVENT settingsWindowManager(SettingsWin* settingsWin,ChessGame* game, SDL_Event* event){
