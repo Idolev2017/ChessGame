@@ -48,22 +48,22 @@ GuiManager* ChessGUIManagerCreate() {
 }
 
 void ChessGUIManagerDestroy(GuiManager* guiManager) {
-	if (!guiManager) {
+	if (guiManager == NULL) {
 		return;
 	}
-	if (!guiManager->gameWin) {
+	if (guiManager->gameWin != NULL) {
 		gameWindowDestroy(guiManager->gameWin);
 	}
-	if (!guiManager->loadWin) {
+	if (guiManager->loadWin != NULL) {
 		loadWindowDestroy(guiManager->loadWin);
 	}
-	if (!guiManager->mainWin) {
+	if (guiManager->mainWin != NULL) {
 		mainWindowDestroy(guiManager->mainWin);
 	}
-	if (!guiManager->settingsWin) {
+	if (guiManager->settingsWin != NULL) {
 		settingsWindowDestroy(guiManager->settingsWin);
 	}
-	if (!guiManager->game) {
+	if (guiManager->game != NULL) {
 		gameDestroy(guiManager->game);
 	}
 	free(guiManager);

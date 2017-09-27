@@ -3,6 +3,7 @@ OBJS = ChessAux.o ChessArrayList.o ChessCommand.o ChessGame.o\
 ChessMiniMax.o ChessMove.o ChessPiece.o GameSettings.o MainAux.o main.o\
 Button.o ChessGameWin.o ChessGUIManager.o TextureGenerator.o\
 ChessLoadWin.o ChessMainWin.o ChessSettingsWin.o SimpleWindow.o
+all: chessprog
 EXEC = chessprog
 COMP_FLAG = -std=c99 -Wall -Wextra \
 -Werror -pedantic-errors
@@ -51,5 +52,5 @@ SimpleWindow.o: graphics/SimpleWindow.c graphics/SimpleWindow.h graphics/Button.
 TextureGenerator.o: graphics/TextureGenerator.c graphics/TextureGenerator.h
 	$(CC) $(COMP_FLAG) $(SDL_COMP_FLAG) -c graphics/$*.c
 clean:
-	rm -f *.o $(EXEC) $(UNIT_TESTS)
+	rm -f *.o $(OBJS) $(EXEC)
 	

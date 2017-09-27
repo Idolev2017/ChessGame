@@ -54,7 +54,7 @@ typedef struct{
 }SettingsWin;
 
 SettingsWin* settingsWindowCreate(WINDOW_TYPE backType);
-SETTINGS_MESSAGE updateSettingsWindow(SettingsWin* settingsWin);
+SETTINGS_MESSAGE initializeSettingsWindow(SettingsWin* settingsWin);
 void loadInitializeSelect(SettingsWin* settingsWin);
 void updateNormalButtons(SettingsWin* settingsWin);
 SETTINGS_MESSAGE generateDifficutyButtons(SettingsWin* settingsWin);

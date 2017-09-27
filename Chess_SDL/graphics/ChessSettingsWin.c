@@ -53,24 +53,18 @@ SettingsWin* settingsWindowCreate(WINDOW_TYPE backType) {
 	return settingsWin;
 }
 
-SETTINGS_MESSAGE updateSettingsWindow(SettingsWin* settingsWin){
+SETTINGS_MESSAGE initializeSettingsWindow(SettingsWin* settingsWin){
 	settingsWin->difficultySelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->gameModeSelect = NOT_CHOOSED_SETTINGS;
 	settingsWin->userColorSelect = NOT_CHOOSED_SETTINGS;
+
 	buttonArrayDestroy(settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
-	free(settingsWin->difficultyButtons);
 	settingsWin->difficultyButtons = NULL;
-
 	buttonArrayDestroy(settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
-	free(settingsWin->gameModeButtons);
 	settingsWin->gameModeButtons = NULL;
-
 	buttonArrayDestroy(settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
-	free(settingsWin->userColorButtons);
 	settingsWin->userColorButtons = NULL;
-
 	buttonArrayDestroy(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS);
-	free(settingsWin->normalButtons);
 	settingsWin->normalButtons = NULL;
 
 	if(generateDifficutyButtons(settingsWin) == SETTINGS_FAILED || generateGameModeButtons(settingsWin) == SETTINGS_FAILED ||
@@ -393,7 +387,7 @@ void settingsWindowHide(SettingsWin* settingsWin) {
 }
 
 void settingsWindowShow(SettingsWin* settingsWin) {
-	updateSettingsWindow(settingsWin);
+	initializeSettingsWindow(settingsWin);
 	simpleWindowShow(settingsWin->simpleWindow);
 }
 

@@ -126,7 +126,7 @@ void drawGetAllMoves(GameWin* gameWin){
 }
 
 GAME_WINDOW_MESSAGE drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece){
-	int copySuccess;
+	int copySuccess = 0;
 	switch(piece){
 	case 'r':
 		copySuccess = SDL_RenderCopy(gameWin->simpleWindow->renderer, gameWin->gameTextures->r_white_texture, NULL, rec);

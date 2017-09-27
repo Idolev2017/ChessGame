@@ -5,13 +5,13 @@
 	<difficulty>4</difficulty>
 	<user_color>1</user_color>
 	<board>
-		<row_8>_NBQKBNR</row_8>
+		<row_8>_NB_KBNR</row_8>
 		<row_7>___MMMMM</row_7>
-		<row_6>R_______</row_6>
-		<row_5>_MM_____</row_5>
+		<row_6>________</row_6>
+		<row_5>__M_____</row_5>
 		<row_4>________</row_4>
-		<row_3>__m_____</row_3>
-		<row_2>_M_mmmmm</row_2>
-		<row_1>_n_qkbnr</row_1>
+		<row_3>___R____</row_3>
+		<row_2>_M___mmm</row_2>
+		<row_1>___k__nr</row_1>
 	</board>
 </game>
