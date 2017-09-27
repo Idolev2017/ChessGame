@@ -7,7 +7,7 @@ Step createStep(Location dest, MoveClass class){
 	return step;
 }
 
-GAME_MESSAGE SetCommand(ChessGame* game, ChessCommand cmd){
+GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 	GAME_MESSAGE msg;
 	Location possibleMoves[MAX_MOVES];
 	int a = 0;

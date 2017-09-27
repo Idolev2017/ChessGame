@@ -35,7 +35,13 @@ typedef struct command_t {
 	char* filePath;
 } ChessCommand;
 
-
-ChessCommand ChessCommandParser(const char* str);
+/**
+ * Name: chessCommandParser
+ * Description:
+ * analayzes the user input, decide if it's a legal command and if so parses
+ * the input into an appropriate command template.
+ * constructs a proper ChessCommand object due to the template and returns it.
+ */
+ChessCommand chessCommandParser(const char* str);
 
 #endif /* CHESSCOMMAND_H_ */

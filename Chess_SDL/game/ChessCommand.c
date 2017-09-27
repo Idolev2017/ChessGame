@@ -6,8 +6,7 @@
  */
 #include "ChessCommand.h"
 
-
-ChessCommand ChessCommandParser(const char* str){
+ChessCommand chessCommandParser(const char* str){
 	ChessCommand command;
 	command.type = INVALID_LINE_COMMAND;
 	int numOfwords = 0;
