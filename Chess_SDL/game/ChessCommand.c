@@ -11,11 +11,14 @@ ChessCommand chessCommandParser(const char* str){
 	command.type = INVALID_LINE_COMMAND;
 	int numOfwords = 0;
 	char* words[MAX_PLAY_COMMAND+1];
+	for(int i = 0; i < MAX_PLAY_COMMAND+1; ++i){ //initialize
+		words[i] = NULL;
+	}
 	command.filePath = NULL;
 	if(strcmp(str,"\n") == 0) return command;
 	GAME_MESSAGE msg = readMaxWords(words, str, 4, &numOfwords);
 	if(msg == GAME_FAILED){  //mallocHandling
-		freeArray(words, numOfwords);
+		freeArray(words, MAX_PLAY_COMMAND+1);
 		command.type = FAILED_COMMAND;
 		return command;
 	}

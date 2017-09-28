@@ -87,7 +87,7 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 	if(simpleWindowAddingButtons(gameWin->simpleWindow,gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS) == SIMPLE_WINDOW_FAILED)
 		return GAME_FAILED;
 
-	drawGetAllMoves(gameWin); //if no needed, the function not drawing nothing.
+	drawGetAllMoves(gameWin,game); //if no needed, the function not drawing nothing.
 	Location loc;
 	for (int i = 0; i < BOARD_LINE_SIZE; i++) {
 		for (int j = 0; j < BOARD_LINE_SIZE; j++) {
@@ -114,12 +114,39 @@ GAME_WINDOW_MESSAGE gameWindowDraw(GameWin* gameWin,ChessGame* game,SDL_Event* e
 	return GAME_WINDOW_SUCCESS;
 }
 
-void drawGetAllMoves(GameWin* gameWin){
+void drawGetAllMoves(GameWin* gameWin,ChessGame* game){
 	if(gameWin == NULL || gameWin->steps == NULL || gameWin->numOfSteps == 0) return;
 	SDL_Rect rec;
 	Step step;
 	for(int i = 0; i < gameWin->numOfSteps; ++i){
 		step = gameWin->steps[i];
+
+		//castling
+		Piece* piece = getPieceOnBoard(game,gameWin->getAllMovesLoc);
+		if(piece->type == KING && piece->numOfMoves == 0 && abs(step.dest.col - piece->loc.col) == 2){
+			bool rightCastling = step.dest.col == piece->loc.col + 2;
+			Location rookTmp = rightCastling ? createLocation(piece->loc.row, piece->loc.col + 3) :
+					createLocation(piece->loc.row, piece->loc.col - 4);
+			rec = boardLocToRect(rookTmp);
+			SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,10,240,255,1);
+			SDL_RenderFillRect(gameWin->simpleWindow->renderer,&rec);
+			continue;
+		}
+
+		else if(piece->type == ROOK && piece->numOfMoves == 0){
+			Piece* king = piece->color == WHITE ? game->whiteKing : game->blackKing;
+			if(king->numOfMoves == 0){
+				bool rightCastling = (king->loc.col < piece->loc.col);
+				if(canCastling(game, king, rightCastling)){
+
+					rec = boardLocToRect(king->loc);
+					SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,10,240,255,1);
+					SDL_RenderFillRect(gameWin->simpleWindow->renderer,&rec);
+				}
+			}
+			continue;
+		}
+
 		rec = boardLocToRect(step.dest);
 		fillRecColor(gameWin,&rec,step.class);
 	}

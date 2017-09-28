@@ -20,6 +20,10 @@ GAME_MESSAGE gameSettingMode(ChessGame* game){
 SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
 	int numOfWords = 1;
 	char* words[MAX_SETTING_COMMAND+1];
+	for(int i = 0; i < MAX_SETTING_COMMAND+1; ++i){ //initialize
+		words[i] = NULL;
+	}
+
 	GAME_MESSAGE msg;
 	SETTINGS_STATUS status;
 	printf("Specify game setting or type 'start' to begin a game with the current setting:\n");
@@ -29,18 +33,12 @@ SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
 		return SETTINGS_MODE_FAILED;
 	}
 	while(true){
-		if (fgets(line, MAX_LEN, stdin) == NULL) {
-			free(line);
-			freeArray(words, numOfWords);
-			printMallocError();  //Error Handling
-			return SETTINGS_MODE_FAILED;
-		}
+		freeArray(words, MAX_SETTING_COMMAND+1);
+		if (fgets(line, MAX_LEN, stdin) == NULL) break;
+
 		msg = readMaxWords(words,line, 2, &numOfWords);
-		if(msg == GAME_FAILED){ //mallocHandling
-			freeArray(words, numOfWords);
-			free(line);
-			return SETTINGS_MODE_FAILED;
-		}
+		if(msg == GAME_FAILED) break;
+
 		else if(msg == GAME_INVALID_ARGUMENT){
 			printf("invalid command\n");
 			continue;
@@ -52,6 +50,9 @@ SETTINGS_STATUS gameUpdateSetting(ChessGame* game){
 			return status;
 		}
 	}
+	free(line);
+	freeArray(words, MAX_SETTING_COMMAND+1);
+	return SETTINGS_MODE_FAILED;
 }
 
 SETTINGS_STATUS gameChangingSettings(ChessGame* game,char** words,int numOfWords){

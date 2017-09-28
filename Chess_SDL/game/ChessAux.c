@@ -56,6 +56,7 @@ GAME_MESSAGE readMaxWords(char** words,const char* str, int maxSize, int* numOfW
 void freeArray(char** words,int size){
 	for(int i = 0; i < size; ++i){
 		free(words[i]);
+		words[i] = NULL;
 	}
 }
 

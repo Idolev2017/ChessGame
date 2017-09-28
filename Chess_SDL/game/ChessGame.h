@@ -258,6 +258,8 @@ GAME_MESSAGE moveKing(ChessGame* game, Piece* piece, Location dest);
  */
 GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest);
 
+GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd);
+
 GAME_MESSAGE canCastling(ChessGame* game, Piece* king,bool rightCastling);
 /**
  * Name: pawnPromoting

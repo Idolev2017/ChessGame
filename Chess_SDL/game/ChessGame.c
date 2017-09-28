@@ -7,12 +7,11 @@ Step createStep(Location dest, MoveClass class){
 	return step;
 }
 
+
 GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 	GAME_MESSAGE msg;
 	Location possibleMoves[MAX_MOVES];
 	int actualSize = 0;
-	Location twoSteps;
-	Piece* king;
 
 	switch(cmd.type){
 
@@ -38,11 +37,7 @@ GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 		break;
 
 	case CASTLE_COMMAND:
-		twoSteps = game->whiteKing->loc.col < cmd.src.col ? createLocation(game->whiteKing->loc.row, game->whiteKing->loc.col + 2) :
-				createLocation(game->whiteKing->loc.row, game->whiteKing->loc.col - 2);
-		king = game->currentPlayer == WHITE ? game->whiteKing : game->blackKing;
-		printf("enter to playMove\n");
-		msg = playMove(game, king->loc, twoSteps, true);
+		msg = GameCastling(game,cmd);
 		break;
 
 	case SAVE_COMMAND:
@@ -159,6 +154,7 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 	}
 	if((msg == GAME_INVALID_MOVE || msg == PIECE_THREATENED) && userTurn){
 		printf("Illegal move\n");
+		msg = GAME_INVALID_MOVE;
 	}
 	//adding the move to history
 	else if(msg == GAME_SUCCESS){
@@ -642,10 +638,47 @@ GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest){
 	return GAME_INVALID_MOVE;
 }
 
+GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd) {
+	GAME_MESSAGE msg;
+	Location twoSteps;
+	Location kingLoc;
+	Piece* king;
+	if (!isLegalLoc(cmd.src)) {
+		printf("Invalid position on the board\n");
+		msg = GAME_INVALID_POSITION;
+	}
+
+	twoSteps = game->whiteKing->loc.col < cmd.src.col ?createLocation(game->whiteKing->loc.row,game->whiteKing->loc.col + 2) :
+			createLocation(game->whiteKing->loc.row,game->whiteKing->loc.col - 2);
+	king = game->currentPlayer == WHITE ? game->whiteKing : game->blackKing;
+	kingLoc = king->loc;
+
+	if (getPieceOnBoard(game, cmd.src) == NULL|| getPieceOnBoard(game, cmd.src)->type != ROOK) {
+		printf("Wrong position for a rook\n");
+		msg = GAME_INVALID_MOVE;
+	}
+
+	else if (getPieceOnBoard(game, cmd.src)->numOfMoves + king->numOfMoves != 0) {
+		printf("Illegal castling move\n");
+		msg = GAME_INVALID_MOVE;
+	}
+	else{
+		msg = playMove(game, king->loc, twoSteps, false);
+		if (msg == GAME_SUCCESS) {
+			printf("Computer: castle King at <%d,%c> and Rook at <%d,%c>\n",
+					kingLoc.row + 1, kingLoc.col + 'A', cmd.src.row + 1,cmd.src.col + 'A');
+		}
+		else if(msg != GAME_FAILED) printf("Illegal castling move\n");
+
+	}
+	return msg;
+}
+
 GAME_MESSAGE canCastling(ChessGame* game, Piece* king,bool rightCastling){
 	if(game == NULL || king == NULL) return false;
 	Location kingLoc = king->loc;
 	Location kingOriginalLocation = king->color == WHITE ? createLocation(0, 4) : createLocation(7, 4);
+
 	if(king->numOfMoves == 0 && equalLocations(kingLoc,kingOriginalLocation)){
 		if(isPieceThreatened(game, king) == PIECE_THREATENED) return GAME_INVALID_MOVE;
 		Piece* rook = NULL;
