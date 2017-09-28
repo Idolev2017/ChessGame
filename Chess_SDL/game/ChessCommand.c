@@ -33,8 +33,14 @@ ChessCommand chessCommandParser(const char* str){
 	}
 	else if (strcmp(words[0],"get_moves") == 0 && numOfwords == 2){
 		if(isRepresentLocation(words[1])){
-		command.src =  parseLocation(words[1]);
-		command.type = GET_MOVES_COMMAND;
+			command.src =  parseLocation(words[1]);
+			command.type = GET_MOVES_COMMAND;
+		}
+	}
+	else if (strcmp(words[0],"castle") == 0 && numOfwords == 2){
+		if(isRepresentLocation(words[1])){
+			command.src =  parseLocation(words[1]);
+			command.type = CASTLE_COMMAND;
 		}
 	}
 	else if(strcmp(words[0],"undo") == 0 && numOfwords == 1){

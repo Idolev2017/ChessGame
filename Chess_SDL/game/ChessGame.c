@@ -11,7 +11,11 @@ GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 	GAME_MESSAGE msg;
 	Location possibleMoves[MAX_MOVES];
 	int actualSize = 0;
+	Location twoSteps;
+	Piece* king;
+
 	switch(cmd.type){
+
 	case UNDO_MOVE_COMMAND:
 		msg = undoPrevMove(game,true);
 		if(msg != GAME_SUCCESS || game->LastMoves->actualSize == 0) break;
@@ -31,6 +35,14 @@ GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 			printSteps(steps, actualSize);
 			free(steps);
 		}
+		break;
+
+	case CASTLE_COMMAND:
+		twoSteps = game->whiteKing->loc.col < cmd.src.col ? createLocation(game->whiteKing->loc.row, game->whiteKing->loc.col + 2) :
+				createLocation(game->whiteKing->loc.row, game->whiteKing->loc.col - 2);
+		king = game->currentPlayer == WHITE ? game->whiteKing : game->blackKing;
+		printf("enter to playMove\n");
+		msg = playMove(game, king->loc, twoSteps, true);
 		break;
 
 	case SAVE_COMMAND:
@@ -85,11 +97,22 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 		char* player = (game->currentPlayer == BLACK) ?  "white" : "black";
 		printf("Undo move for player %s : <%d,%c> -> <%d,%c>\n",player,lastMove->newLoc.row+1,lastMove->newLoc.col + 'A',lastMove->prevLoc.row+1,lastMove->prevLoc.col + 'A');
 	}
+	//castling
+	if(lastMove->capturedPiece != NULL && lastMove->capturedPiece->color == lastMove->piece->color &&
+			lastMove->capturedPiece->type == ROOK && lastMove->piece->type == KING){
+		simpleMovePiece(game, lastMove->newLoc, copyLocation(lastMove->capturedPiece->loc));
+		getPieceOnBoard(game, lastMove->capturedPiece->loc)->numOfMoves -= 1;
+		simpleMovePiece(game, lastMove->piece->loc, lastMove->prevLoc);
+	}
 
-	simpleMovePiece(game, lastMove->newLoc, lastMove->prevLoc);
-	setPieceOnBoard(game,lastMove->newLoc,copyPiece(lastMove->capturedPiece));
-	if(lastMove->wasPromoted) getPieceOnBoard(game, lastMove->prevLoc)->type = PAWN;
+	else{
+		simpleMovePiece(game, lastMove->newLoc, lastMove->prevLoc);
+		setPieceOnBoard(game,lastMove->newLoc,copyPiece(lastMove->capturedPiece));
+		if(lastMove->wasPromoted) getPieceOnBoard(game, lastMove->prevLoc)->type = PAWN;
+	}
 	game->currentPlayer = 1 - game->currentPlayer;
+	getPieceOnBoard(game, lastMove->prevLoc)->numOfMoves -= 1;
+
 	chessMoveDestroy(lastMove);
 	return GAME_SUCCESS;
 }
@@ -146,7 +169,9 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 			return GAME_FAILED; //Unknown Error
 		}
 		game->currentPlayer = 1 - game->currentPlayer; //changing the current player.
+		movingPiece->numOfMoves += 1;
 	}
+	if(msg == GAME_CASTLING) msg = GAME_SUCCESS;
 	pieceDestroy(destPiece);
 	return msg;
 }
@@ -328,6 +353,14 @@ GAME_MESSAGE getAllMovesKing(ChessGame* game,Piece* piece,Location* possibleMove
 			}
 		}
 	}
+	if(canCastling(game, piece, true)){
+		if(addMoveToArray(game,pieceLoc,createLocation(pieceLoc.row, pieceLoc.col + 2),possibleMoves,actualSize) == GAME_FAILED)
+			return GAME_FAILED;
+	}
+	if(canCastling(game, piece, false)){
+		if(addMoveToArray(game,pieceLoc,createLocation(pieceLoc.row, pieceLoc.col - 2),possibleMoves,actualSize) == GAME_FAILED)
+			return GAME_FAILED;
+	}
 	return GAME_SUCCESS;
 }
 
@@ -449,14 +482,7 @@ Piece* getPieceOnBoard(ChessGame* game,Location loc){
 void setPieceOnBoard(ChessGame* game,Location loc,Piece* p){
 	if(!isLegalLoc(loc) || game == NULL) return;
 	game->gameBoard[loc.row][loc.col] = p;
-	if(p != NULL){
-		p->loc = copyLocation(loc);
-		//update kings;
-		if(p->type == KING){
-			if(p->color == WHITE) game->whiteKing  = p;
-			else game->blackKing = p;
-		}
-	}
+	if(p != NULL) p->loc = copyLocation(loc);
 }
 
 bool needPromoting(Piece* piece){
@@ -574,16 +600,78 @@ GAME_MESSAGE moveQueen(ChessGame* game, Piece* piece,Location dest){
 }
 
 GAME_MESSAGE moveKing(ChessGame* game, Piece* piece, Location dest){
-	if (abs(piece->loc.row - dest.row) <= 1 &&  abs(piece->loc.col - dest.col) <= 1){
-		return moveAndCapture(game, piece->loc, dest);
+	Location kingLoc = piece->loc;
+	if (abs(kingLoc.row - dest.row) <= 1 &&  abs(kingLoc.col - dest.col) <= 1){
+		return moveAndCapture(game, kingLoc, dest);
 	}
-	return GAME_INVALID_MOVE;
+
+	if(abs(kingLoc.col - dest.col) != 2) return GAME_INVALID_MOVE;
+	bool rightCastling = kingLoc.col + 2 == dest.col;
+
+	Location rookLoc = rightCastling ? createLocation(kingLoc.row, kingLoc.col + 3) : createLocation(kingLoc.row, kingLoc.col - 4);
+	Location movingOneStep = rightCastling ? createLocation(kingLoc.row, kingLoc.col + 1) : createLocation(kingLoc.row, kingLoc.col - 1);
+	Location movingTwoSteps = rightCastling ? createLocation(kingLoc.row, kingLoc.col + 2) : createLocation(kingLoc.row, kingLoc.col - 2);
+	ChessMove* move = NULL;
+	if(!canCastling(game, piece, rightCastling)) return GAME_INVALID_MOVE;
+	Piece* Rook = copyPiece(getPieceOnBoard(game, rookLoc));
+
+	simpleMovePiece(game,kingLoc,movingTwoSteps);
+	simpleMovePiece(game,rookLoc,movingOneStep);
+	getPieceOnBoard(game, movingOneStep)->numOfMoves += 1;
+	piece->numOfMoves += 1;
+
+	if((move = chessMoveCreate(piece, kingLoc, movingOneStep, false, Rook)) == NULL) {
+		pieceDestroy(Rook);
+		return GAME_FAILED;
+	}
+	pieceDestroy(Rook);
+	if(ChessArrayListAddFirst(game->LastMoves,move) != Chess_ARRAY_LIST_SUCCESS) {
+		printf("ERROR: cannot add to array list\n");
+		return GAME_FAILED; //Unknown Error
+	}
+
+	game->currentPlayer = 1 - game->currentPlayer; //changing the current player.
+	return GAME_CASTLING;
 }
 
 GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest){
 	Location pieceLoc = copyLocation(piece->loc);
 	if((abs(dest.col - pieceLoc.col) == 2 && abs(dest.row - pieceLoc.row) == 1) || (abs(dest.row - pieceLoc.row) == 2 && abs(dest.col - pieceLoc.col) == 1)){
 		return moveAndCapture(game, pieceLoc, dest);
+	}
+	return GAME_INVALID_MOVE;
+}
+
+GAME_MESSAGE canCastling(ChessGame* game, Piece* king,bool rightCastling){
+	if(game == NULL || king == NULL) return false;
+	Location kingLoc = king->loc;
+	Location kingOriginalLocation = king->color == WHITE ? createLocation(0, 4) : createLocation(7, 4);
+	if(king->numOfMoves == 0 && equalLocations(kingLoc,kingOriginalLocation)){
+		if(isPieceThreatened(game, king) == PIECE_THREATENED) return GAME_INVALID_MOVE;
+		Piece* rook = NULL;
+
+		Location rookLoc = rightCastling ? createLocation(kingLoc.row, kingLoc.col + 3) : createLocation(kingLoc.row, kingLoc.col - 4);
+		Location movingOneStep = rightCastling ? createLocation(kingLoc.row, kingLoc.col + 1) : createLocation(kingLoc.row, kingLoc.col - 1);
+		Location movingTwoSteps = rightCastling ? createLocation(kingLoc.row, kingLoc.col + 2) : createLocation(kingLoc.row, kingLoc.col - 2);
+
+		if(!rightCastling && getPieceOnBoard(game, createLocation(kingLoc.row, kingLoc.col - 3)) != NULL) return GAME_INVALID_MOVE;
+		rook = getPieceOnBoard(game, rookLoc);
+		if(rook != NULL && rook->type == ROOK && rook->color == king->color && rook->numOfMoves == 0
+				&& getPieceOnBoard(game, movingOneStep) == NULL && getPieceOnBoard(game, movingTwoSteps) == NULL) {
+			simpleMovePiece(game,kingLoc,movingOneStep);
+			if(isPieceThreatened(game, king) == PIECE_THREATENED) {
+				simpleMovePiece(game, movingOneStep, kingLoc);
+				return GAME_INVALID_MOVE;
+			}
+			simpleMovePiece(game,movingOneStep,movingTwoSteps);
+			if(isPieceThreatened(game, king) == PIECE_THREATENED) {
+				simpleMovePiece(game, movingTwoSteps, kingLoc);
+				return GAME_INVALID_MOVE;
+			}
+			simpleMovePiece(game, movingTwoSteps, kingLoc);
+		}
+		else return GAME_INVALID_MOVE;
+		return GAME_CASTLING;
 	}
 	return GAME_INVALID_MOVE;
 }

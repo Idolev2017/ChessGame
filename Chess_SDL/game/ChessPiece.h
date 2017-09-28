@@ -45,11 +45,13 @@ typedef struct {
  * type can be Pawn, Knight, Bishop, Rook, King, Queen.
  * color is 0/1 = BLACK/WHITE
  * loc is leagl location on the gameboard.
+ * numOfMoves is integer >= 0;
  */
 typedef struct {
 	PieceType type;
 	Color color;
 	Location loc;
+	int numOfMoves;
 } Piece;
 /**
  * Name: pieceCreate
@@ -58,7 +60,7 @@ typedef struct {
  * initialize its fields to the arguments who were given.
  * returns the new Piece.
  */
-Piece* pieceCreate(PieceType type, Color color, int row, int col);
+Piece* pieceCreate(PieceType type,Color color,int row,int col,int numOfMoves);
 /**
  * Name: copyPiece
  * Description:

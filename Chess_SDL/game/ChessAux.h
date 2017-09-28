@@ -20,7 +20,8 @@ typedef enum game_message_t {
 	GAME_NORMAL,
 	GAME_QUITED,
 	GAME_FAILED,
-	PIECE_THREATENED
+	PIECE_THREATENED,
+	GAME_CASTLING
 } GAME_MESSAGE;
 
 typedef enum {

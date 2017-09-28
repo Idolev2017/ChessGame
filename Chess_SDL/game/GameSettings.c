@@ -163,29 +163,29 @@ GAME_MESSAGE gameInitialization(ChessGame* game,bool toClear,int historySize){
 	}
 	for(int i=0; i<8;i++)
 	{
-		game->gameBoard[1][i] = pieceCreate(PAWN,1,1,i);
-		game->gameBoard[6][i] = pieceCreate(PAWN,0,6,i);
+		game->gameBoard[1][i] = pieceCreate(PAWN,1,1,i,0);
+		game->gameBoard[6][i] = pieceCreate(PAWN,0,6,i,0);
 	}
 	//creating the ROOKS
-	game->gameBoard[0][0] = pieceCreate(ROOK,1,0,0);
-	game->gameBoard[0][7] = pieceCreate(ROOK,1,0,7);
-	game->gameBoard[7][0] = pieceCreate(ROOK,0,7,0);
-	game->gameBoard[7][7] = pieceCreate(ROOK,0,7,7);
+	game->gameBoard[0][0] = pieceCreate(ROOK,1,0,0,0);
+	game->gameBoard[0][7] = pieceCreate(ROOK,1,0,7,0);
+	game->gameBoard[7][0] = pieceCreate(ROOK,0,7,0,0);
+	game->gameBoard[7][7] = pieceCreate(ROOK,0,7,7,0);
 	//creating the KNIGHTS
-	game->gameBoard[0][1] = pieceCreate(KNIGHT,1,0,1);
-	game->gameBoard[0][6] = pieceCreate(KNIGHT,1,0,6);
-	game->gameBoard[7][1] = pieceCreate(KNIGHT,0,7,1);
-	game->gameBoard[7][6] = pieceCreate(KNIGHT,0,7,6);
+	game->gameBoard[0][1] = pieceCreate(KNIGHT,1,0,1,0);
+	game->gameBoard[0][6] = pieceCreate(KNIGHT,1,0,6,0);
+	game->gameBoard[7][1] = pieceCreate(KNIGHT,0,7,1,0);
+	game->gameBoard[7][6] = pieceCreate(KNIGHT,0,7,6,0);
 	//creating the BISHOPS
-	game->gameBoard[0][2] = pieceCreate(BISHOP,1,0,2);
-	game->gameBoard[0][5] = pieceCreate(BISHOP,1,0,5);
-	game->gameBoard[7][2] = pieceCreate(BISHOP,0,7,2);
-	game->gameBoard[7][5] = pieceCreate(BISHOP,0,7,5);
+	game->gameBoard[0][2] = pieceCreate(BISHOP,1,0,2,0);
+	game->gameBoard[0][5] = pieceCreate(BISHOP,1,0,5,0);
+	game->gameBoard[7][2] = pieceCreate(BISHOP,0,7,2,0);
+	game->gameBoard[7][5] = pieceCreate(BISHOP,0,7,5,0);
 	//creating the Royalists
-	game->gameBoard[0][4] = pieceCreate(KING,1,0,4);
-	game->gameBoard[0][3] = pieceCreate(QUEEN,1,0,3);
-	game->gameBoard[7][4] = pieceCreate(KING,0,7,4);
-	game->gameBoard[7][3] = pieceCreate(QUEEN,0,7,3);
+	game->gameBoard[0][4] = pieceCreate(KING,1,0,4,0);
+	game->gameBoard[0][3] = pieceCreate(QUEEN,1,0,3,0);
+	game->gameBoard[7][4] = pieceCreate(KING,0,7,4,0);
+	game->gameBoard[7][3] = pieceCreate(QUEEN,0,7,3,0);
 
 	game->whiteKing = game->gameBoard[0][4];
 	game->blackKing = game->gameBoard[7][4];
@@ -361,17 +361,17 @@ Piece* letterToPieceGenerator(char c, int row, int col){
 	}
 	switch(d){
 	case 'r':
-		return pieceCreate(ROOK,color,row,col);
+		return pieceCreate(ROOK,color,row,col,0);
 	case 'k':
-		return pieceCreate(KING,color,row,col);
+		return pieceCreate(KING,color,row,col,0);
 	case 'm':
-		return pieceCreate(PAWN,color,row,col);
+		return pieceCreate(PAWN,color,row,col,0);
 	case 'q':
-		return pieceCreate(QUEEN,color,row,col);
+		return pieceCreate(QUEEN,color,row,col,0);
 	case 'b':
-		return pieceCreate(BISHOP,color,row,col);
+		return pieceCreate(BISHOP,color,row,col,0);
 	case 'n':
-		return pieceCreate(KNIGHT,color,row,col);
+		return pieceCreate(KNIGHT,color,row,col,0);
 	default:
 		return NULL;
 	}

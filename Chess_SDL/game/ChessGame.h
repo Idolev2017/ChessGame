@@ -257,6 +257,8 @@ GAME_MESSAGE moveKing(ChessGame* game, Piece* piece, Location dest);
  * otherwise it returns GAME_INVALID_MOVE.
  */
 GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest);
+
+GAME_MESSAGE canCastling(ChessGame* game, Piece* king,bool rightCastling);
 /**
  * Name: pawnPromoting
  * Description:

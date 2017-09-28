@@ -24,7 +24,8 @@ typedef enum {
 	QUIT_COMMAND,
 	RESET_COMMAND,
 	INVALID_LINE_COMMAND,
-	FAILED_COMMAND
+	FAILED_COMMAND,
+	CASTLE_COMMAND
 } COMMAND_TYPE;
 
 //a new type that is used to encapsulate a parsed line
