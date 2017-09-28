@@ -12,7 +12,7 @@ ChessCommand chessCommandParser(const char* str){
 	int numOfwords = 0;
 	char* words[MAX_PLAY_COMMAND+1];
 	command.filePath = NULL;
-
+	if(strcmp(str,"\n") == 0) return command;
 	GAME_MESSAGE msg = readMaxWords(words, str, 4, &numOfwords);
 	if(msg == GAME_FAILED){  //mallocHandling
 		freeArray(words, numOfwords);
@@ -32,7 +32,7 @@ ChessCommand chessCommandParser(const char* str){
 		}
 	}
 	else if (strcmp(words[0],"get_moves") == 0 && numOfwords == 2){
-		if(isRepresentLocation(words[1])){ ;
+		if(isRepresentLocation(words[1])){
 		command.src =  parseLocation(words[1]);
 		command.type = GET_MOVES_COMMAND;
 		}
