@@ -71,8 +71,8 @@ MAIN_MESSAGE mainWindowDraw(MainWin* mainWin){
 
 void mainWindowDestroy(MainWin* mainWin) {
 	if(mainWin == NULL) return;
-	simpleWindowDestroy(mainWin->simpleWindow);
 	buttonArrayDestroy(mainWin->buttons,MAIN_NUM_OF_BUTTONS);
+	simpleWindowDestroy(mainWin->simpleWindow);
 	free(mainWin);
 }
 

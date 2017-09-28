@@ -126,7 +126,10 @@ MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT even
 	case GAME_BLACK_CHECKMATE_EVENT:
 	case GAME_TIE_EVENT:
 		showWinnerMessage(event);
-		return MANAGER_QUIT;
+		gameWindowHide(guiManager->gameWin);
+		guiManager->activeWin = MAIN_WINDOW_ACTIVE;
+		mainWindowShow(guiManager->mainWin);
+		break;
 
 	case GAME_SAVE_EVENT:
 		if(addGameSlot(guiManager->loadWin,guiManager->game) == LOAD_FAILED) return MANAGER_NONE;
@@ -144,8 +147,9 @@ MANAGER_EVENT handleManagerDueToGameEvent(GuiManager* guiManager,GAME_EVENT even
 		guiManager->activeWin = MAIN_WINDOW_ACTIVE;
 		mainWindowShow(guiManager->mainWin);
 		break;
-
-	case GAME_NORMAL_EVENT:
+	case GAME_UNDO_EVENT:
+		showWinnerMessage(gameCheckingWinnerGui(guiManager->game));
+		break;
 	case GAME_NONE_EVENT:
 		break;
 
@@ -170,9 +174,9 @@ MANAGER_EVENT handleManagerDueToLoadEvent(GuiManager* guiManager,LOAD_EVENT even
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"LOAD","load didn't succeed", NULL);
 			return MANAGER_QUIT;
 		}
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"LOAD","load succeeded", NULL);
 		guiManager->activeWin = GAME_WINDOW_ACTIVE;
 		gameWindowShow(guiManager->gameWin);
+		//		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"LOAD","load succeeded", NULL);
 		break;
 
 	case LOAD_BACK_EVENT:

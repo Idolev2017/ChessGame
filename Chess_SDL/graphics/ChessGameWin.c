@@ -68,9 +68,9 @@ void updateUndoButton(GameWin* gameWin, ChessGame* game){
 
 void gameWindowDestroy(GameWin* gameWin) {
 	if (gameWin == NULL) return;
-	if(gameWin->simpleWindow != NULL) simpleWindowDestroy(gameWin->simpleWindow);
-	if(gameWin->panelButtons != NULL) buttonArrayDestroy(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
 	gameTexturesDestroy(gameWin->gameTextures);
+	if(gameWin->panelButtons != NULL) buttonArrayDestroy(gameWin->panelButtons,GAME_NUM_OF_PANEL_BUTTONS);
+	if(gameWin->simpleWindow != NULL) simpleWindowDestroy(gameWin->simpleWindow);
 	destroyStepsArray(gameWin);
 	free(gameWin);
 }
@@ -195,14 +195,21 @@ GAME_EVENT gameWindowHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* ev
 
 		return GAME_EVENT_INVALID_ARGUMENT;
 	}
+	if(game->gameMode == 1 && game->userColor != game->currentPlayer) {
+		if(chessPlayCom(game,false) == GAME_FAILED) return GAME_EXIT_EVENT;
+		return gameCheckingWinnerGui(game);
+	}
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
-		if(!isClickedOnBoard(event->button.x) && event->button.button == SDL_BUTTON_LEFT) {
-			gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
-			return gameWindowPanelHandleEvent(gameWin,game,event);
+		if(!isClickedOnBoard(event->button.x)) {
+			if(event->button.button == SDL_BUTTON_LEFT){
+				gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
+				return gameWindowPanelHandleEvent(gameWin,game,event);
+			}
 		}
 		else return gameWindowBoardHandleEvent(gameWin,game,event);
+		break;
 	default:
 		return GAME_NONE_EVENT;
 	}
@@ -215,7 +222,6 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED);
 	Button* button;
 	int prevDifficulty = game->gameDifficulty,prevGameMode = game->gameMode,prevUserColor = game->userColor;
-	bool exit = false;
 	switch (event->type) {
 	case SDL_MOUSEBUTTONDOWN:{
 		destroyStepsArray(gameWin);
@@ -223,14 +229,12 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		if(button == NULL) return GAME_NONE_EVENT;
 		switch(button->type){
 		case GAME_RESTART_BUTTON:
-			if(gameWin->savedLastMove) return GAME_MAIN_MENU_EVENT;
-			exit = confirmExitFromGame();
-			if(exit) {
+			if(gameWin->savedLastMove || confirmExitFromGame()) {
 				gameRestartGui(prevDifficulty, prevGameMode, prevUserColor, game);
 				gameWin->savedLastMove = true;
-				return GAME_NORMAL_EVENT;
+				return GAME_NONE_EVENT;
 			}
-			return GAME_NORMAL_EVENT;
+			return GAME_NONE_EVENT;
 
 		case GAME_SAVE_BUTTON:
 			if(gameWin->savedLastMove) return GAME_NONE_EVENT;
@@ -247,14 +251,12 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 
 		case GAME_MAIN_MENU_BUTTON:
 			if(gameWin->savedLastMove) return GAME_MAIN_MENU_EVENT;
-			exit = confirmExitFromGame();
-			if(exit) return GAME_MAIN_MENU_EVENT;
+			if(confirmExitFromGame()) return GAME_MAIN_MENU_EVENT;
 			return GAME_NONE_EVENT;
 
 		case GAME_EXIT_BUTTON:
 			if(gameWin->savedLastMove) return GAME_EXIT_EVENT;
-			exit = confirmExitFromGame();
-			if(exit) return GAME_EXIT_EVENT;
+			if(confirmExitFromGame()) return GAME_EXIT_EVENT;
 			return GAME_NONE_EVENT;
 		default:
 			break;
@@ -271,18 +273,18 @@ GAME_EVENT gameWindowPanelHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 }
 
 GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Event* event){
+	if(game == NULL || gameWin == NULL || event == NULL) return GAME_EXIT_EVENT;
 	Location tmpLoc;
 	GAME_MESSAGE msg;
-	GAME_EVENT winnerEvent;
 	Location possibleMoves[28];
 	PieceType type;
+	GAME_EVENT winnerEvent;
 	bool removeAllMoves = false;
 	switch (event->type) {
 
 	case SDL_MOUSEBUTTONDOWN:
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
-
 			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 2){
 				removeAllMoves = equalLocations(tmpLoc,gameWin->getAllMovesLoc);
 				destroyStepsArray(gameWin); //remove,different or new getAllMoves
@@ -313,8 +315,9 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		msg = playMove(game,gameWin->chosenLoc,tmpLoc,false);
 		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
+
 		if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
-		if(msg != GAME_SUCCESS) return GAME_NORMAL_EVENT;
+		if(msg != GAME_SUCCESS) return GAME_NONE_EVENT;
 		if(needPromoting(getPieceOnBoard(game, tmpLoc))){
 			type = pawnPromotingGUI();
 			if(type == ERROR_GUI) return GAME_EXIT_EVENT;
@@ -330,8 +333,8 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		destroyStepsArray(gameWin); //remove getAllMoves.
 
 		//move is legal
+		//gameWindowDraw(gameWin,game,event);
 		winnerEvent = gameCheckingWinnerGui(game);
-		gameWindowDraw(gameWin,game,event);
 		if(winnerEvent == GAME_BLACK_CHECKMATE_EVENT || winnerEvent == GAME_WHITE_CHECKMATE_EVENT){
 			return winnerEvent;
 		}
@@ -467,6 +470,10 @@ GAME_EVENT gameUndoGui(ChessGame* game){
 			return GAME_EXIT_EVENT;
 		}
 		if(msg == GAME_NO_HISTORY) {
+			if(i == 1) {
+				if(chessPlayCom(game,false) == GAME_FAILED) return GAME_EXIT_EVENT;
+				return gameCheckingWinnerGui(game);
+			}
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Empty history","move cannot be undone",NULL);
 			return GAME_NONE_EVENT;
 		}
@@ -475,8 +482,7 @@ GAME_EVENT gameUndoGui(ChessGame* game){
 			return GAME_NONE_EVENT;
 		}
 	}
-	showWinnerMessage(gameCheckingWinnerGui(game));
-	return GAME_NORMAL_EVENT;
+	return GAME_UNDO_EVENT;
 }
 
 void gameWindowHide(GameWin* gameWin) {
@@ -497,7 +503,7 @@ GAME_EVENT gameCheckingWinnerGui(ChessGame* game){
 	case TIE:
 		return GAME_TIE_EVENT;
 	default:
-		return GAME_NORMAL_EVENT;
+		return GAME_NONE_EVENT;
 	}
 }
 

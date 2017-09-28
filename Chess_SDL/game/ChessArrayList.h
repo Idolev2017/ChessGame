@@ -81,17 +81,6 @@ ChessArrayList* ChessArrayListCopy(ChessArrayList* src);
 void ChessArrayListDestroy(ChessArrayList* src);
 
 /**
- * Clears all elements from the source array list. After invoking this function,
- * the size of the source list will be reduced to zero and maximum capacity is
- * not affected.
- * @param src - the source array list
- * @return
- * Chess_ARRAY_LIST_INVALID_ARGUMENT if src == NULL
- * Chess_ARRAY_LIST_SUCCESS otherwise
- */
-Chess_ARRAY_LIST_MESSAGE ChessArrayListClear(ChessArrayList* src);
-
-/**
  * Inserts element at a Chessecified index. The elements residing at and after the
  * Chessecified index will be shifted to make place for the new element. If the
  * array list reached its maximum capacity and error message is returned and

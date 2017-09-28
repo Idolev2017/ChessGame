@@ -206,11 +206,11 @@ SETTINGS_MESSAGE settingsWindowDraw(SettingsWin* settingsWin){
 
 void settingsWindowDestroy(SettingsWin* settingsWin) {
 	if (settingsWin == NULL) return;
-	simpleWindowDestroy(settingsWin->simpleWindow);
 	buttonArrayDestroy(settingsWin->difficultyButtons,SETTINGS_NUM_OF_DIFFICULTY_BUTTONS);
 	buttonArrayDestroy(settingsWin->gameModeButtons,SETTINGS_NUM_OF_GAMEMODE_BUTTONS);
 	buttonArrayDestroy(settingsWin->userColorButtons,SETTINGS_NUM_OF_USERCOLOR_BUTTONS);
 	buttonArrayDestroy(settingsWin->normalButtons,SETTINGS_NUM_OF_NORMAL_BUTTONS);
+	simpleWindowDestroy(settingsWin->simpleWindow);
 	free(settingsWin);
 }
 

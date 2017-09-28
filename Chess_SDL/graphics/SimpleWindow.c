@@ -47,10 +47,10 @@ SIMPLE_WINDOW_MESSAGE simpleWindowAddingButtons(SimpleWindow* simpleWin,Button**
 }
 void simpleWindowDestroy(SimpleWindow* simpleWin){
 	if(simpleWin == NULL) return;
-	if (simpleWin->renderer != NULL ) {
+	if (simpleWin->renderer != NULL) {
 		SDL_DestroyRenderer(simpleWin->renderer);
 	}
-	if (simpleWin->window != NULL ) {
+	if (simpleWin->window != NULL) {
 		SDL_DestroyWindow(simpleWin->window);
 	}
 	free(simpleWin);

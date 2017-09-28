@@ -153,7 +153,6 @@ GAME_MESSAGE gameInitialization(ChessGame* game,bool toClear,int historySize){
 	game->gameDifficulty = DEFAULT_DIFFICULTY;
 	game->gameMode = DEFAULT_GAME_MODE;
 	game->userColor = DEFAULT_USER_COLOR;
-	game->LastMoves = NULL;
 	if(toClear){
 		destroyInnerGame(game);
 	}
@@ -261,6 +260,8 @@ void destroyInnerGame(ChessGame* game) {
 			game->gameBoard[i][j] = NULL;
 		}
 	}
+	game->whiteKing = NULL;
+	game->blackKing = NULL;
 	ChessArrayListDestroy(game->LastMoves);
 	game->LastMoves = NULL;
 }
@@ -306,14 +307,12 @@ bool loadGame(ChessGame* game, char* filePath){
 		fscanf(file, "\t<difficulty>%d</difficulty>\n", &difficulty);
 		fscanf(file, "\t<user_color>%d</user_color>\n", &userColor);
 	}
-	gameDestroy(game);
-	gameCreate(HISTORY_SIZE,false);
+	simpleSettingsSetter(game, difficulty, gameMode, userColor);
 	game->currentPlayer = currentPlayer;
-	game->gameMode = gameMode;
-	game->gameDifficulty = difficulty;
-	game->userColor = userColor;
+
 	ChessArrayListDestroy(game->LastMoves);
 	game->LastMoves = ChessArrayListCreate(HISTORY_SIZE);
+
 	fscanf(file, "\t<board>\n");
 	for(int i = 7; 0 <= i; --i){
 		fscanf(file, "\t\t<row_%d>", &temp);

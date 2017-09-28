@@ -87,9 +87,8 @@ int consoleMode(){
 		gameMSG = setCommand(game, cmd);
 		if(gameMSG == GAME_FAILED || gameMSG == GAME_QUITED) DESTROY_GAME_AND_LINE(game, line)
 		if(gameMSG == GAME_SUCCESS){
-			status = printWinner(game);
-			if(status == CHECKMATE || status == TIE) DESTROY_GAME_AND_LINE(game, line)
-
+		status = printWinner(game);
+		if(status == CHECKMATE || status == TIE) DESTROY_GAME_AND_LINE(game, line)
 		}
 
 	}

@@ -50,7 +50,7 @@ LoadWin* loadWindowCreate(WINDOW_TYPE backType) {
 }
 
 void InitializeLoadWindow(LoadWin* loadWin){
-	if(!loadWin) return;
+	if(loadWin == NULL) return;
 	if(loadWin->chosenSlot != NOT_CHOOSED_SLOT){
 		loadWin->slotsButtons[loadWin->chosenSlot-1]->isActive = false;
 		loadWin->regularButtons[LOAD_INDEX]->isClickable = false;
@@ -112,9 +112,9 @@ LOAD_MESSAGE loadWindowDraw(LoadWin* loadWin){
 
 void loadWindowDestroy(LoadWin* loadWin) {
 	if (loadWin == NULL) return;
-	simpleWindowDestroy(loadWin->simpleWindow);
 	buttonArrayDestroy(loadWin->regularButtons,LOAD_NUM_OF_REGULAR_BUTTONS);
 	buttonArrayDestroy(loadWin->slotsButtons,LOAD_NUM_OF_SLOTS);
+	simpleWindowDestroy(loadWin->simpleWindow);
 	free(loadWin);
 }
 

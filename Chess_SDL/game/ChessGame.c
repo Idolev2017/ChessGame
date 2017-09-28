@@ -10,12 +10,11 @@ Step createStep(Location dest, MoveClass class){
 GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 	GAME_MESSAGE msg;
 	Location possibleMoves[MAX_MOVES];
-	int a = 0;
-	int* actualSize = &a;
+	int actualSize = 0;
 	switch(cmd.type){
 	case UNDO_MOVE_COMMAND:
 		msg = undoPrevMove(game,true);
-		if(msg != GAME_SUCCESS) break;
+		if(msg != GAME_SUCCESS || game->LastMoves->actualSize == 0) break;
 		msg = undoPrevMove(game,true);
 		break;
 
@@ -24,11 +23,12 @@ GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 		break;
 
 	case GET_MOVES_COMMAND:
-		msg = getAllMoves(game, cmd.src, possibleMoves, actualSize,true);
-		Step* steps = distinguishMovesByPiece(game, possibleMoves,*actualSize, cmd.src);
+		msg = getAllMoves(game, cmd.src, possibleMoves, &actualSize,true);
+		if(actualSize == 0) break;
+		Step* steps = distinguishMovesByPiece(game, possibleMoves,actualSize, cmd.src);
 		if(steps == NULL) msg = GAME_FAILED;
 		else{
-			printSteps(steps, *actualSize);
+			printSteps(steps, actualSize);
 			free(steps);
 		}
 		break;

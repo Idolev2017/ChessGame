@@ -1,10 +1,2 @@
-שינינו חתימה של יצירת משחק
-למחוק copyLocation
-
-print check
-destroy buttonTextures
-למחוק error in minimax
-
 להסיר הדפסת שגיאות בקונסול או בגוי
-save in linux
 

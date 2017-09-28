@@ -50,16 +50,6 @@ void ChessArrayListDestroy(ChessArrayList* src){
 	free(src);
 }
 
-//check only actual size = 0 and not free the elements.
-Chess_ARRAY_LIST_MESSAGE ChessArrayListClear(ChessArrayList* src){
-	if (src == NULL) return Chess_ARRAY_LIST_INVALID_ARGUMENT;
-	for(int i = 0; i < src->actualSize; ++i){
-		chessMoveDestroy(src->elements[i]);
-	}
-	src->actualSize = 0;
-	return Chess_ARRAY_LIST_SUCCESS;
-}
-
 Chess_ARRAY_LIST_MESSAGE ChessArrayListAddFirst(ChessArrayList* src, ChessMove* elem){
 	if (src == NULL) return Chess_ARRAY_LIST_INVALID_ARGUMENT;
 	if (src->actualSize == src->maxSize){
