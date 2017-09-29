@@ -70,7 +70,6 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, int* t
 					alpha = tmpScoring;
 					*type = PAWN;
 				}
-
 				if(tmpScoring == ERROR || undoPrevMove(copy,false) != GAME_SUCCESS){
 					printf("tmpScoring is ERROR : %d\n", tmpScoring == ERROR);
 					free(locs);
