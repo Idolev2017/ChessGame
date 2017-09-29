@@ -295,9 +295,6 @@ Color GetCurrentPlayer(ChessGame* game){
 
 bool loadGame(ChessGame* game, char* filePath){
 	FILE* file = fopen(filePath, "r");
-	int returnedValue = 0;
-	Piece* tempP = NULL;
-	Piece* p = NULL;
 	if(file == NULL){
 		printf("Error: File doesn't exist or cannot be opened\n");
 		return false;
@@ -322,17 +319,8 @@ bool loadGame(ChessGame* game, char* filePath){
 		fscanf(file, "\t\t<row_%d>", &temp);
 		for(int j = 0; j < 8; ++j){
 			pieceDestroy(game->gameBoard[i][j]);
-			returnedValue = fgetc(file);
-			if(returnedValue == '_'){
-				game->gameBoard[i][j] = NULL;
-			}
-			else{
-				tempP = letterToPieceGenerator(returnedValue,i,j);
-				if(tempP == NULL)
-					return false;
-				game->gameBoard[i][j] = tempP;
-			}
-			p = game->gameBoard[i][j];
+			game->gameBoard[i][j]=letterToPieceGenerator(fgetc(file),i,j);
+			Piece* p = game->gameBoard[i][j];
 			//pointers to the Kings
 			if(p != NULL && p->type == KING){
 				if(p->color == BLACK)
@@ -343,7 +331,18 @@ bool loadGame(ChessGame* game, char* filePath){
 		}
 		fscanf(file, "</row_%d>\n", &temp);
 	}
-	fscanf(file, "\t</board>\n</game>");
+	fscanf(file, "\t</board>\n");
+	fscanf(file, "\t<general>\n");
+	for(int i=7; i>=0; i--){
+		fscanf(file, "\t\t<row_%d>", &temp);
+		for(int j=0; j<8; j++){
+			char chr = fgetc(file);
+			if(chr != '_') game->gameBoard[i][j]->numOfMoves = chr-'0';
+		}
+		fscanf(file, "</row_%d>\n", &temp);
+	}
+	fscanf(file, "\t</general>\n");
+	fscanf(file,"</game>");
 	//closing the FILE
 	if(fclose(file) != 0)
 	{
@@ -351,6 +350,7 @@ bool loadGame(ChessGame* game, char* filePath){
 		return false;
 	}
 	return true;
+
 }
 
 Piece* letterToPieceGenerator(char c, int row, int col){

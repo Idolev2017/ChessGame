@@ -118,11 +118,13 @@ void drawGetAllMoves(GameWin* gameWin,ChessGame* game){
 	if(gameWin == NULL || gameWin->steps == NULL || gameWin->numOfSteps == 0) return;
 	SDL_Rect rec;
 	Step step;
+	Piece* piece = getPieceOnBoard(game,gameWin->getAllMovesLoc);
+	Piece* king = piece->color == WHITE ? game->whiteKing : game->blackKing;
+
 	for(int i = 0; i < gameWin->numOfSteps; ++i){
 		step = gameWin->steps[i];
 
 		//castling
-		Piece* piece = getPieceOnBoard(game,gameWin->getAllMovesLoc);
 		if(piece->type == KING && piece->numOfMoves == 0 && abs(step.dest.col - piece->loc.col) == 2){
 			bool rightCastling = step.dest.col == piece->loc.col + 2;
 			Location rookTmp = rightCastling ? createLocation(piece->loc.row, piece->loc.col + 3) :
@@ -133,22 +135,17 @@ void drawGetAllMoves(GameWin* gameWin,ChessGame* game){
 			continue;
 		}
 
-		else if(piece->type == ROOK && piece->numOfMoves == 0){
-			Piece* king = piece->color == WHITE ? game->whiteKing : game->blackKing;
-			if(king->numOfMoves == 0){
-				bool rightCastling = (king->loc.col < piece->loc.col);
-				if(canCastling(game, king, rightCastling)){
-
-					rec = boardLocToRect(king->loc);
-					SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,10,240,255,1);
-					SDL_RenderFillRect(gameWin->simpleWindow->renderer,&rec);
-				}
-			}
-			continue;
-		}
-
 		rec = boardLocToRect(step.dest);
 		fillRecColor(gameWin,&rec,step.class);
+	}
+
+	if(piece->type == ROOK && piece->numOfMoves == 0 && king->numOfMoves == 0){
+		bool rightCastling = (king->loc.col < piece->loc.col);
+		if(canCastling(game, king, rightCastling)){
+			rec = boardLocToRect(king->loc);
+			SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,10,240,255,1);
+			SDL_RenderFillRect(gameWin->simpleWindow->renderer,&rec);
+		}
 	}
 }
 

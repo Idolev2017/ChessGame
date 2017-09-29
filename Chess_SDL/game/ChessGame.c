@@ -461,6 +461,16 @@ bool saveGame(ChessGame* game,char* filePath){
 		fprintf(file, "</row_%d>\n", (i+1));
 	}
 	fprintf(file, "\t</board>\n");
+	fprintf(file, "\t<general>\n");
+	for(int i=7; i>=0; i--){
+		fprintf(file, "\t\t<row_%d>",(i+1));
+		for(int j=0; j<8; j++){
+			if(game->gameBoard[i][j] == NULL) fprintf(file,"_");
+			else fprintf(file, "%d", game->gameBoard[i][j]->numOfMoves);
+		}
+		fprintf(file, "</row_%d>\n", (i+1));
+	}
+	fprintf(file, "\t</general>\n");
 	fprintf(file, "</game>\n");
 	//closing the FILE
 	if(fclose(file) != 0){
