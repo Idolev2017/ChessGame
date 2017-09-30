@@ -7,12 +7,10 @@ Step createStep(Location dest, MoveClass class){
 	return step;
 }
 
-
 GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 	GAME_MESSAGE msg;
 	Location possibleMoves[MAX_MOVES];
 	int actualSize = 0;
-
 	switch(cmd.type){
 
 	case UNDO_MOVE_COMMAND:
@@ -27,7 +25,7 @@ GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd){
 
 	case GET_MOVES_COMMAND:
 		msg = getAllMoves(game, cmd.src, possibleMoves, &actualSize,true);
-		if(actualSize == 0) break;
+		if(actualSize == 0 || msg == GAME_FAILED) break;
 		Step* steps = distinguishMovesByPiece(game, possibleMoves,actualSize, cmd.src);
 		if(steps == NULL) msg = GAME_FAILED;
 		else{
@@ -88,13 +86,20 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 		chessMoveDestroy(lastMove);
 		return GAME_FAILED;
 	}
+	bool undoCastling = lastMove->capturedPiece != NULL && lastMove->capturedPiece->color == lastMove->piece->color &&
+			lastMove->capturedPiece->type == ROOK && lastMove->piece->type == KING;
 	if(toPrint){
 		char* player = (game->currentPlayer == BLACK) ?  "white" : "black";
-		printf("Undo move for player %s : <%d,%c> -> <%d,%c>\n",player,lastMove->newLoc.row+1,lastMove->newLoc.col + 'A',lastMove->prevLoc.row+1,lastMove->prevLoc.col + 'A');
+		if(!undoCastling) printf("Undo move for player %s : <%d,%c> -> <%d,%c>\n",player,lastMove->newLoc.row+1,lastMove->newLoc.col + 'A',lastMove->prevLoc.row+1,lastMove->prevLoc.col + 'A');
+		else {
+			Location rookLoc = lastMove->prevLoc.col < lastMove->newLoc.col ? createLocation(lastMove->prevLoc.row, RIGHT_ROOK_COL) :
+					createLocation(lastMove->prevLoc.row, LEFT_ROOK_COL);
+			printf("Undo move for player %s: castle King at <%d,%c> and Rook at <%d,%c>\n",player,
+					lastMove->prevLoc.row + 1, lastMove->prevLoc.col + 'A', rookLoc.row + 1,rookLoc.col + 'A');
+		}
 	}
 	//castling
-	if(lastMove->capturedPiece != NULL && lastMove->capturedPiece->color == lastMove->piece->color &&
-			lastMove->capturedPiece->type == ROOK && lastMove->piece->type == KING){
+	if(undoCastling){
 		simpleMovePiece(game, lastMove->newLoc, copyLocation(lastMove->capturedPiece->loc));
 		getPieceOnBoard(game, lastMove->capturedPiece->loc)->numOfMoves -= 1;
 		simpleMovePiece(game, lastMove->piece->loc, lastMove->prevLoc);
@@ -159,15 +164,15 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 	//adding the move to history
 	else if(msg == GAME_SUCCESS){
 		if((move = chessMoveCreate(movingPiece, src, dest, promotionSucceed, destPiece)) == NULL) return GAME_FAILED;
-		if(ChessArrayListAddFirst(game->LastMoves,move) != Chess_ARRAY_LIST_SUCCESS) {
-			pieceDestroy(destPiece);
-			printf("ERROR: cannot add to array list\n");
-			return GAME_FAILED; //Unknown Error
-		}
+		ChessArrayListAddFirst(game->LastMoves,move);
 		game->currentPlayer = 1 - game->currentPlayer; //changing the current player.
 		movingPiece->numOfMoves += 1;
 	}
-	if(msg == GAME_CASTLING) msg = GAME_SUCCESS;
+	if(msg == GAME_CASTLING && userTurn) {
+		undoPrevMove(game, false);
+		printf("Illegal move\n");
+		msg = GAME_INVALID_MOVE;
+	}
 	pieceDestroy(destPiece);
 	return msg;
 }
@@ -209,7 +214,7 @@ GAME_MESSAGE getAllMoves(ChessGame* game, Location loc,Location* possibleMoves, 
 		break;
 	}
 	if(msg == GAME_FAILED) return msg;
-	qsort(possibleMoves,*actualSize,sizeof(Location),*compareFunc);
+	qsort(possibleMoves,*actualSize,sizeof(Location),*compareLocFunc);
 	return msg;
 
 }
@@ -399,25 +404,32 @@ Step* distinguishMovesByPiece(ChessGame* game, Location* locArray,int size, Loca
 	}
 	Piece* capturedPiece;
 	Piece* playedPiece = getPieceOnBoard(game, src);
+	Location dest;
 
 	for(int i = 0; i < size; ++i){
 		steps[i] = createStep(locArray[i], NormalStep);
-		capturedPiece = getPieceOnBoard(game, steps[i].dest);
+		dest = steps[i].dest;
+		if(playedPiece->type == KING && abs(dest.col - src.col) == 2) {
+			steps[i].class = CaslingStep;
+			continue;
+		}
+		capturedPiece = getPieceOnBoard(game, dest);
 		if(capturedPiece != NULL && (playedPiece->color != capturedPiece->color)) steps[i].class = EatSomeone;
-		simpleMovePiece(game,src,steps[i].dest);
+		simpleMovePiece(game,src,dest);
 		GAME_MESSAGE msg = isPieceThreatened(game,playedPiece);
 		if(msg == PIECE_THREATENED) {
 			steps[i].class = (steps[i].class == EatSomeone) ? ThreatenedAndEat : Threatened;
 		}
-		simpleMovePiece(game, steps[i].dest, src);
-		setPieceOnBoard(game,steps[i].dest,capturedPiece);
+		simpleMovePiece(game, dest, src);
+		setPieceOnBoard(game,dest,capturedPiece);
 	}
+	qsort(steps,size,sizeof(Step),*compareStepsFunc);
 	return steps;
 }
 
 void printSteps(Step* steps,int size){
 	for(int i = 0; i < size; ++i){
-		printLoc(steps[i].dest);
+		if(steps[i].class != CaslingStep) printLoc(steps[i].dest);
 		switch(steps[i].class){
 		case Threatened:
 			printf("*\n");
@@ -430,6 +442,9 @@ void printSteps(Step* steps,int size){
 			break;
 		case NormalStep:
 			printf("\n");
+			break;
+		case CaslingStep:
+			printf("castle <%d,%c>\n", steps[i].dest.row + 1, KING_COL < steps[i].dest.col ? 'H' : 'A');
 			break;
 		}
 	}
@@ -651,17 +666,16 @@ GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest){
 GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd) {
 	GAME_MESSAGE msg;
 	Location twoSteps;
-	Location kingLoc;
 	Piece* king;
 	if (!isLegalLoc(cmd.src)) {
 		printf("Invalid position on the board\n");
 		msg = GAME_INVALID_POSITION;
 	}
 
-	twoSteps = game->whiteKing->loc.col < cmd.src.col ?createLocation(game->whiteKing->loc.row,game->whiteKing->loc.col + 2) :
-			createLocation(game->whiteKing->loc.row,game->whiteKing->loc.col - 2);
 	king = game->currentPlayer == WHITE ? game->whiteKing : game->blackKing;
-	kingLoc = king->loc;
+
+	twoSteps = king->loc.col < cmd.src.col ? createLocation(king->loc.row,king->loc.col + 2) :
+			createLocation(king->loc.row,king->loc.col - 2);
 
 	if (getPieceOnBoard(game, cmd.src) == NULL|| getPieceOnBoard(game, cmd.src)->type != ROOK) {
 		printf("Wrong position for a rook\n");
@@ -674,11 +688,8 @@ GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd) {
 	}
 	else{
 		msg = playMove(game, king->loc, twoSteps, false);
-		if (msg == GAME_SUCCESS) {
-			printf("Computer: castle King at <%d,%c> and Rook at <%d,%c>\n",
-					kingLoc.row + 1, kingLoc.col + 'A', cmd.src.row + 1,cmd.src.col + 'A');
-		}
-		else if(msg != GAME_FAILED) printf("Illegal castling move\n");
+		if(msg != GAME_CASTLING && msg != GAME_FAILED) printf("Illegal castling move\n");
+		msg = GAME_SUCCESS;
 
 	}
 	return msg;
@@ -923,4 +934,25 @@ GAME_STATUS printWinner(ChessGame* game){
 
 char* getCurrentPlayerString(ChessGame* game){
 	return game->currentPlayer == WHITE ? "white" : "black";
+}
+
+int compareStepsFunc(const void* object1, const void* object2){
+	Step* step1 = (Step*) object1;
+	Step* step2 = (Step*) object2;
+	if(step1->class == CaslingStep){
+		if(step2->class == CaslingStep){
+			return step1->dest.col - step2->dest.col;
+		}
+		return 1;
+	}
+	else if(step2->class == CaslingStep){
+		return -1;
+	}
+	return (step1->dest.row == step2->dest.row) ? step1->dest.col - step2->dest.col : step1->dest.row - step2->dest.row;
+}
+
+int compareLocFunc(const void* object1, const void* object2){
+	Location* loc1 = (Location*) object1;
+	Location* loc2 = (Location*) object2;
+	return (loc1->row == loc2->row) ? loc1->col - loc2->col : loc1->row - loc2->row;
 }

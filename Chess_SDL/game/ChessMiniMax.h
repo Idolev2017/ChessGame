@@ -48,5 +48,4 @@ int scoringFunction(ChessGame* game);
  * positive for computer turn, negative for user turn.
  */
 int pieceScoreFunction(Piece* piece,Color positiveColor);
-
 #endif /* CHESSMINIMAX_H_ */

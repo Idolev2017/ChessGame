@@ -17,11 +17,7 @@
 int consoleMode();
 int guiMode();
 #define HistorySize 6
-#define DESTROY_GAME_AND_LINE(game, line) {\
-		free(line);\
-		gameDestroy(game);\
-		return 0;\
-}
+
 #define SP_BUFF_SET() {	               \
 		setvbuf(stdout,NULL,_IONBF,0); 	   \
 		setvbuf(stderr,NULL,_IONBF,0);     \
@@ -73,23 +69,31 @@ int consoleMode(){
 	}
 	GAME_STATUS status;
 	while(true){
-		if(game->gameMode == 1 && game->currentPlayer != game->userColor){
-			if(chessPlayCom(game,true) == GAME_FAILED) DESTROY_GAME_AND_LINE(game, line)
-			status = printWinner(game);
-			if(status == CHECKMATE || status == TIE) DESTROY_GAME_AND_LINE(game, line)
+
+		if(game->gameMode == 1 && game->currentPlayer != game->userColor){  //computer turn.
+			gameMSG = chessPlayCom(game,true);
+			if(gameMSG == GAME_FAILED || gameMSG == GAME_QUITED) break;
 		}
-		if(gameMSG == GAME_SUCCESS) gamePrintBoard(game);
+
+		if(gameMSG == GAME_SUCCESS) gamePrintBoard(game);  //print the game board only if the command was legal and the turn is execute
 
 		printf("%s player - enter your move:\n",getCurrentPlayerString(game));
-		if(fgets(line,MAX_LINE,stdin) == NULL) DESTROY_GAME_AND_LINE(game, line)
-		cmd = chessCommandParser(line);
-		if(cmd.type == FAILED_COMMAND) DESTROY_GAME_AND_LINE(game, line)
-		gameMSG = setCommand(game, cmd);
-		if(gameMSG == GAME_FAILED || gameMSG == GAME_QUITED) DESTROY_GAME_AND_LINE(game, line)
-		if(gameMSG == GAME_SUCCESS){
-		status = printWinner(game);
-		if(status == CHECKMATE || status == TIE) DESTROY_GAME_AND_LINE(game, line)
-		}
 
+		if(fgets(line,MAX_LINE,stdin) == NULL) break;
+
+		cmd = chessCommandParser(line);
+		if(cmd.type == FAILED_COMMAND) break;
+		gameMSG = setCommand(game, cmd);
+
+		if(gameMSG == GAME_FAILED || gameMSG == GAME_QUITED) break;
+
+		if(gameMSG == GAME_SUCCESS){
+			status = printWinner(game);
+			if(status == CHECKMATE || status == TIE) break;
+		}
 	}
+
+	free(line);
+	gameDestroy(game);
+	return 0;
 }

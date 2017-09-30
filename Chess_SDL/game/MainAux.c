@@ -9,13 +9,23 @@
 GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode){
 	Location* move;
 	int typeValue = PAWN;
-	char path[20];
+
 	move = chessMinimaxSuggestMove(game,game->gameDifficulty,&typeValue);
-	sprintf(path,"%d",typeValue);
 	if(move == NULL) return GAME_FAILED;
+
 	GAME_MESSAGE msg = playMove(game, move[0], move[1], false);
-	if(msg == GAME_SUCCESS && consoleMode) printComMove(game,move);
-	if(msg != GAME_SUCCESS && msg != GAME_FAILED) printf("ERROR IN chessPlayCom\n"); //toDelete
+
+	if(msg == GAME_SUCCESS && consoleMode)
+		printComMove(game,move);
+
+	//castling by computer.
+	else if(msg == GAME_CASTLING && consoleMode){
+		Location rookLoc = move[0].col < move[1].col ? createLocation(move[0].row, RIGHT_ROOK_COL) :
+				createLocation(move[0].row, LEFT_ROOK_COL);
+		printf("Computer: castle King at <%d,%c> and Rook at <%d,%c>\n",
+				move[0].row + 1, move[0].col + 'A', rookLoc.row + 1,rookLoc.col + 'A');
+		msg = GAME_SUCCESS;
+	}
 
 	//execute pawn promotion
 	Piece* movingPiece = getPieceOnBoard(game, move[1]);
@@ -29,7 +39,10 @@ GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode){
 		move->piece->type = typeValue;
 		ChessArrayListAddFirst(game->LastMoves, move);
 	}
+
 	free(move);
+	GAME_STATUS status = printWinner(game);
+	if(status == CHECKMATE || status == TIE) msg = GAME_QUITED;
 	return msg;
 }
 
@@ -41,3 +54,4 @@ void printComMove(ChessGame* game,Location* move){
 	printf("\n");
 
 }
+

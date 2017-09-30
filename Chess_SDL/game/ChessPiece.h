@@ -139,12 +139,5 @@ void printLoc(Location loc);
  * otherwise it returns false.
  */
 bool isRepresentLocation(char* str);
-/**
- * Name: compareFunc
- * Description:
- * if (loc1->row == loc2->row) the it returns  (loc1->col - loc2->col),
- * otherwise it returns (loc1->row - loc2->row).
- */
-int compareFunc(const void* object1, const void* object2);
 
 #endif /* CHESSPIECE_H_ */

@@ -21,8 +21,7 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, int* t
 	Location tmpLoc;
 	bool maxFlag = true;
 	int actualSize = 0;
-	Location* locs = NULL;
-	locs = (Location*) malloc(sizeof(Location)*2);
+	Location* locs = (Location*) malloc(sizeof(Location)*2);
 	if(locs == NULL){
 		free(locs);
 		gameDestroy(copy);
@@ -41,7 +40,7 @@ Location* chessMinimaxSuggestMove(ChessGame* game, unsigned int maxDepth, int* t
 			else if(actualSize == 0) continue;
 			for(int moveIndex = 0; moveIndex < actualSize; ++moveIndex){
 				destLoc = copyLocation(possibleMoves[moveIndex]);
-				if(playMove(copy,tmpLoc,destLoc,false) != GAME_SUCCESS) {
+				if(playMove(copy,tmpLoc,destLoc,false) == GAME_FAILED) {
 					printf("ERROR IN FIRST MINI MAX\n");
 					free(locs);
 					gameDestroy(copy);
@@ -95,7 +94,6 @@ int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, in
 	int tmpScoring;
 	int actualSize = 0;
 	Location tmpLoc;
-	GAME_MESSAGE msg;
 	for(int i = 0; i < 8; ++i){
 		for(int j = 0; j < 8; ++j){
 			if(beta <= alpha) return maxFlag ? alpha : beta;
@@ -109,8 +107,7 @@ int chessRecursiveMiniMax(ChessGame* game,unsigned int maxDepth,bool maxFlag, in
 			theresLegalMove = true;
 			for(int moveIndex = 0; moveIndex < actualSize; ++moveIndex){
 				destLoc = copyLocation(possibleMoves[moveIndex]);
-				msg = playMove(game,tmpLoc,destLoc,false);
-				if(msg != GAME_SUCCESS) {
+				if(playMove(game,tmpLoc,destLoc,false) == GAME_FAILED) {
 					printf("ERROR IN SECOND MINI MAX\n");
 					return ERROR;
 				}

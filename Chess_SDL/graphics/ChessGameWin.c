@@ -123,20 +123,9 @@ void drawGetAllMoves(GameWin* gameWin,ChessGame* game){
 
 	for(int i = 0; i < gameWin->numOfSteps; ++i){
 		step = gameWin->steps[i];
-
 		//castling
-		if(piece->type == KING && piece->numOfMoves == 0 && abs(step.dest.col - piece->loc.col) == 2){
-			bool rightCastling = step.dest.col == piece->loc.col + 2;
-			Location rookTmp = rightCastling ? createLocation(piece->loc.row, piece->loc.col + 3) :
-					createLocation(piece->loc.row, piece->loc.col - 4);
-			rec = boardLocToRect(rookTmp);
-			SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,10,240,255,1);
-			SDL_RenderFillRect(gameWin->simpleWindow->renderer,&rec);
-			continue;
-		}
-
 		rec = boardLocToRect(step.dest);
-		fillRecColor(gameWin,&rec,step.class);
+		fillRecColor(gameWin,&rec,step);
 	}
 
 	if(piece->type == ROOK && piece->numOfMoves == 0 && king->numOfMoves == 0){
@@ -196,8 +185,10 @@ GAME_WINDOW_MESSAGE drawPiece(GameWin* gameWin,SDL_Rect* rec, char piece){
 	return GAME_WINDOW_SUCCESS;
 }
 
-void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass){
-	switch(moveClass){
+void fillRecColor(GameWin* gameWin,SDL_Rect* rec,Step step){
+	bool rightCastling;
+	Location rookTmp;
+	switch(step.class){
 	case Threatened:
 		SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,255,0,0,1);
 		break;
@@ -210,6 +201,12 @@ void fillRecColor(GameWin* gameWin,SDL_Rect* rec,MoveClass moveClass){
 	case NormalStep:
 		SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,240,215,130,1);
 		break;
+	case CaslingStep:
+			rightCastling = KING_COL < step.dest.col;
+			rookTmp = rightCastling ? createLocation(step.dest.row, RIGHT_ROOK_COL) :
+					createLocation(step.dest.row, LEFT_ROOK_COL);
+			*rec = boardLocToRect(rookTmp);
+			SDL_SetRenderDrawColor(gameWin->simpleWindow->renderer,10,240,255,1);
 	}
 	SDL_RenderFillRect(gameWin->simpleWindow->renderer,rec);
 }
@@ -309,7 +306,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	case SDL_MOUSEBUTTONDOWN:
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
-			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 2){
+			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 4){
 				removeAllMoves = equalLocations(tmpLoc,gameWin->getAllMovesLoc);
 				destroyStepsArray(gameWin); //remove,different or new getAllMoves
 				if(removeAllMoves)  return GAME_NONE_EVENT; //allready remove.
@@ -341,7 +338,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		gameWin->chosenLoc = createLocation(NOT_CHOOSED,NOT_CHOOSED); //return the piece to his place.
 
 		if(msg == GAME_FAILED) return GAME_EXIT_EVENT;
-		if(msg != GAME_SUCCESS) return GAME_NONE_EVENT;
+		if(msg != GAME_SUCCESS && msg != GAME_CASTLING) return GAME_NONE_EVENT;
 		if(needPromoting(getPieceOnBoard(game, tmpLoc))){
 			type = pawnPromotingGUI();
 			if(type == ERROR_GUI) return GAME_EXIT_EVENT;
@@ -357,7 +354,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 		destroyStepsArray(gameWin); //remove getAllMoves.
 
 		//move is legal
-		//gameWindowDraw(gameWin,game,event);
+		gameWindowDraw(gameWin,game,event);
 		winnerEvent = gameCheckingWinnerGui(game);
 		if(winnerEvent == GAME_BLACK_CHECKMATE_EVENT || winnerEvent == GAME_WHITE_CHECKMATE_EVENT){
 			return winnerEvent;

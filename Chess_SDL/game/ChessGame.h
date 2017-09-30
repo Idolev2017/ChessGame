@@ -12,7 +12,9 @@
 #include "GameSettings.h"
 
 
-
+#define KING_COL 4
+#define LEFT_ROOK_COL 0
+#define RIGHT_ROOK_COL 7
 #define max(a,b) (((a) < (b)) ? (b) : (a))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -20,7 +22,8 @@ typedef enum {
 	Threatened,
 	EatSomeone,
 	ThreatenedAndEat,
-	NormalStep
+	NormalStep,
+	CaslingStep
 }MoveClass;
 
 /**
@@ -351,5 +354,12 @@ GAME_STATUS printWinner(ChessGame* game);
  * returns the current player's string: black or white.
  */
 char* getCurrentPlayerString(ChessGame* game);
-
+/**
+ * Name: compareFunc
+ * Description:
+ * if (loc1->row == loc2->row) the it returns  (loc1->col - loc2->col),
+ * otherwise it returns (loc1->row - loc2->row).
+ */
+int compareStepsFunc(const void* object1, const void* object2);
+int compareLocFunc(const void* object1, const void* object2);
 #endif /* GAME_H_ */

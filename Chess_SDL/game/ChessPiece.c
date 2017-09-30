@@ -115,10 +115,5 @@ bool isRepresentLocation(char* str){
 	return true;
 }
 
-int compareFunc(const void* object1, const void* object2){
-	Location* loc1 = (Location*) object1;
-	Location* loc2 = (Location*) object2;
-	return (loc1->row == loc2->row) ? loc1->col - loc2->col : loc1->row - loc2->row;
-}
 
 
