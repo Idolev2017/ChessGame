@@ -3,9 +3,9 @@
 	<current_turn>1</current_turn>
 	<game_mode>1</game_mode>
 	<difficulty>2</difficulty>
-	<user_color>1</user_color>
+	<user_color>0</user_color>
 	<board>
-		<row_8>RNBQKBNR</row_8>
+		<row_8>R___K__R</row_8>
 		<row_7>___M_M_M</row_7>
 		<row_6>______M_</row_6>
 		<row_5>____M___</row_5>
@@ -15,7 +15,7 @@
 		<row_1>r___k__r</row_1>
 	</board>
 	<general>
-		<row_8>00000000</row_8>
+		<row_8>0___0__0</row_8>
 		<row_7>___0_0_0</row_7>
 		<row_6>______1_</row_6>
 		<row_5>____2___</row_5>

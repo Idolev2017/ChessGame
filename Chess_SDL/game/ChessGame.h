@@ -58,6 +58,8 @@ GAME_MESSAGE setCommand(ChessGame* game, ChessCommand cmd);
  * executes the following move if and only if it's a legal chess move:
  * move the piece that in location src to the location dest in the ChessGame game.
  * if the userTurn boolean is true it also prints error messages to the console.
+ * castling is represent by moving the king two steps right or left. it is execute only
+ * if userTurn == false, otherwise, nothing happen.
  */
 GAME_MESSAGE playMove(ChessGame* game, Location src,Location dest, bool userTurn);
 /**
@@ -260,7 +262,11 @@ GAME_MESSAGE moveKing(ChessGame* game, Piece* piece, Location dest);
  * otherwise it returns GAME_INVALID_MOVE.
  */
 GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest);
-
+/**
+ * Name: GameCastling
+ * Description:
+ * playing the caslting movement, if it's legal move. if not, printing error.
+ */
 GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd);
 
 GAME_MESSAGE canCastling(ChessGame* game, Piece* king,bool rightCastling);
@@ -355,11 +361,17 @@ GAME_STATUS printWinner(ChessGame* game);
  */
 char* getCurrentPlayerString(ChessGame* game);
 /**
- * Name: compareFunc
+ * Name: compareLocFunc
  * Description:
  * if (loc1->row == loc2->row) the it returns  (loc1->col - loc2->col),
  * otherwise it returns (loc1->row - loc2->row).
  */
-int compareStepsFunc(const void* object1, const void* object2);
 int compareLocFunc(const void* object1, const void* object2);
+/**
+ * Name: compareStepsFunc
+ * Description:
+ * sort the Locations from left to right. castling move will be last in the sort.
+ */
+int compareStepsFunc(const void* object1, const void* object2);
+
 #endif /* GAME_H_ */

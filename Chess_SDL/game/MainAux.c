@@ -27,7 +27,7 @@ GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode){
 		msg = GAME_SUCCESS;
 	}
 
-	//execute pawn promotion
+	//pawn promotion by computer
 	Piece* movingPiece = getPieceOnBoard(game, move[1]);
 	if(needPromoting(movingPiece)){
 		movingPiece->type = typeValue; // promotion
@@ -41,8 +41,10 @@ GAME_MESSAGE chessPlayCom(ChessGame* game,bool consoleMode){
 	}
 
 	free(move);
-	GAME_STATUS status = printWinner(game);
-	if(status == CHECKMATE || status == TIE) msg = GAME_QUITED;
+	if(consoleMode){
+		GAME_STATUS status = printWinner(game);
+		if(status == CHECKMATE || status == TIE) msg = GAME_QUITED;
+	}
 	return msg;
 }
 
