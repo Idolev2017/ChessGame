@@ -254,6 +254,7 @@ GAME_MESSAGE getAllMovesBishop(ChessGame* game,Piece* piece,Location* possibleMo
 	Location rightDownLoc = copyLocation(pieceLoc);
 	Location leftDownLoc = copyLocation(pieceLoc);
 	GAME_MESSAGE msg;
+
 	while(!leftDownEnd || !rightUpEnd || !leftUpEnd || !rightDownEnd){
 		rightUpLoc.row += 1;
 		rightUpLoc.col += 1;
@@ -307,6 +308,7 @@ GAME_MESSAGE getAllMovesRook(ChessGame* game,Piece* piece,Location* possibleMove
 	Location downLoc = copyLocation(pieceLoc);
 	Location upLoc = copyLocation(pieceLoc);
 	GAME_MESSAGE msg;
+
 	while(!rightEnd || !leftEnd || !downEnd || !upEnd){
 		rightLoc.col += 1;
 		leftLoc.col -= 1;
