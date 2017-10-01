@@ -268,7 +268,12 @@ GAME_MESSAGE moveKnight(ChessGame* game, Piece* piece, Location dest);
  * playing the caslting movement, if it's legal move. if not, printing error.
  */
 GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd);
-
+/**
+ * Name: canCastling
+ * Description:
+ * checks if the argument's king can do a castling move.
+ * returns an appropriate GAME_MESSAGE.
+ */
 GAME_MESSAGE canCastling(ChessGame* game, Piece* king,bool rightCastling);
 /**
  * Name: pawnPromoting

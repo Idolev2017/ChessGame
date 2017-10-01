@@ -22,17 +22,33 @@ typedef enum {
 	INACTIVE_TEXTURE,
 	NON_CLICKABLE_TEXTURE
 }TEXTURE_TYPE;
-
+/**
+ * Struct: ButtonTextures
+ * Description:
+ * symbols the different texutre of a given button.
+ * contains the activeTexture, inactiveTexture and the nonClickableTexture.
+ */
 typedef struct{
 	SDL_Texture* activeTexture;
 	SDL_Texture* inactiveTexture;
 	SDL_Texture* nonClickableTexture;
 }ButtonTextures;
-
+/**
+ * Name: createButtonTextures
+ * Description:
+ * Creates a ButtonTextures object, initializes it and its fields to NULL.
+ * returns a pointer to the new ButtonTextures object that was created.
+ */
 ButtonTextures createButtonTextures();
-
+/**
+ * Name: destroyButtonTextures
+ * Description:
+ * Destroys all the textures of the given ButtonTextures
+ */
 void destroyButtonTextures(ButtonTextures* buttonTextures);
-
+/**
+ * All these functions sets a texture to its appropriate button.
+ */
 //main window
 TEXTURE_MESSAGE setMainTitleTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
 TEXTURE_MESSAGE setMainNewGameTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
@@ -56,7 +72,7 @@ TEXTURE_MESSAGE setUserColorTitleTextures(ButtonTextures* buttonTextures,SDL_Ren
 TEXTURE_MESSAGE setUserColor1Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
 TEXTURE_MESSAGE setUserColor2Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
 
-	//load window
+//load window
 TEXTURE_MESSAGE setLoadTitleTextures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
 TEXTURE_MESSAGE setGameSlot1Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
 TEXTURE_MESSAGE setGameSlot2Textures(ButtonTextures* buttonTextures,SDL_Renderer* renderer);
