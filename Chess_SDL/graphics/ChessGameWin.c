@@ -306,7 +306,7 @@ GAME_EVENT gameWindowBoardHandleEvent(GameWin* gameWin,ChessGame* game, SDL_Even
 	case SDL_MOUSEBUTTONDOWN:
 		tmpLoc = mouseLocToBoardLoc(event->button.x,event->button.y);
 		if(getPieceOnBoard(game,tmpLoc) != NULL && getPieceOnBoard(game,tmpLoc)->color == game->currentPlayer){
-			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 4){
+			if(event->button.button == SDL_BUTTON_RIGHT && game->gameMode == 1 && game->gameDifficulty <= 2){
 				removeAllMoves = equalLocations(tmpLoc,gameWin->getAllMovesLoc);
 				destroyStepsArray(gameWin); //remove,different or new getAllMoves
 				if(removeAllMoves)  return GAME_NONE_EVENT; //allready remove.
