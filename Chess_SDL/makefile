@@ -1,5 +1,5 @@
 CC = gcc
-OBJS = ChessAux.o ChessArrayList.o ChessCommand.o ChessGame.o\
+OBJS = ChessLocation.o ChessAux.o ChessArrayList.o ChessCommand.o ChessGame.o\
 ChessMiniMax.o ChessMove.o ChessPiece.o GameSettings.o MainAux.o main.o\
 Button.o ChessGameWin.o ChessGUIManager.o TextureGenerator.o\
 ChessLoadWin.o ChessMainWin.o ChessSettingsWin.o SimpleWindow.o
@@ -26,11 +26,13 @@ ChessMiniMax.o: game/ChessMiniMax.c game/ChessMiniMax.h game/ChessGame.h
 	$(CC) $(COMP_FLAG) -c game/$*.c
 ChessMove.o: game/ChessMove.c game/ChessMove.h game/ChessPiece.h
 	$(CC) $(COMP_FLAG) -c game/$*.c
-ChessPiece.o: game/ChessPiece.c game/ChessPiece.h game/ChessAux.h
+ChessPiece.o: game/ChessPiece.c game/ChessPiece.h game/ChessAux.h game/ChessLocation.h
 	$(CC) $(COMP_FLAG) -c game/$*.c
 GameSettings.o: game/GameSettings.c game/GameSettings.h game/ChessArrayList.h game/ChessCommand.h
 	$(CC) $(COMP_FLAG) -c game/$*.c
 MainAux.o: game/MainAux.c game/MainAux.h game/ChessMiniMax.h
+	$(CC) $(COMP_FLAG) -c game/$*.c
+ChessLocation.o: game/ChessLocation.c game/ChessLocation.h
 	$(CC) $(COMP_FLAG) -c game/$*.c
 main.o: game/main.c game/MainAux.h graphics/ChessGUIManager.h
 	$(CC) $(COMP_FLAG) $(SDL_COMP_FLAG) -c game/$*.c

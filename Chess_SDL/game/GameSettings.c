@@ -353,6 +353,7 @@ bool loadGame(ChessGame* game, char* filePath){
 
 }
 
+
 Piece* letterToPieceGenerator(char c, int row, int col){
 	char d = c;
 	Color color = WHITE;
