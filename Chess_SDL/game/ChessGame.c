@@ -677,7 +677,7 @@ GAME_MESSAGE GameCastling(ChessGame* game,ChessCommand cmd) {
 	twoSteps = king->loc.col < cmd.src.col ? createLocation(king->loc.row,king->loc.col + 2) :
 			createLocation(king->loc.row,king->loc.col - 2);
 
-	if (getPieceOnBoard(game, cmd.src) == NULL|| getPieceOnBoard(game, cmd.src)->type != ROOK) {
+	if (getPieceOnBoard(game, cmd.src) == NULL|| getPieceOnBoard(game, cmd.src)->type != ROOK || getPieceOnBoard(game, cmd.src)->color != game->currentPlayer) {
 		printf("Wrong position for a rook\n");
 		msg = GAME_INVALID_MOVE;
 	}
