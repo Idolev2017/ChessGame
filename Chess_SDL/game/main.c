@@ -16,7 +16,6 @@
 #include "../graphics/ChessGUIManager.h"
 int consoleMode();
 int guiMode();
-#define HistorySize 6
 
 #define SP_BUFF_SET() {	               \
 		setvbuf(stdout,NULL,_IONBF,0); 	   \

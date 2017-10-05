@@ -58,3 +58,12 @@ char* getPieceString(Piece* piece, bool fullName){
 	}
 	return name;
 }
+
+void pieceIncreaseNumOfMoves(Piece* piece){
+	if(piece == NULL) return;
+	piece->numOfMoves = min(piece->numOfMoves + 1,HistorySize + 1);
+}
+void pieceDecreaseNumOfMoves(Piece* piece){
+	if(piece == NULL) return;
+	piece->numOfMoves -= 1;
+}

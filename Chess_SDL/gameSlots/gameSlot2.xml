@@ -5,23 +5,23 @@
 	<difficulty>4</difficulty>
 	<user_color>1</user_color>
 	<board>
-		<row_8>R___K__R</row_8>
-		<row_7>M______M</row_7>
-		<row_6>___b_m__</row_6>
-		<row_5>________</row_5>
-		<row_4>________</row_4>
-		<row_3>________</row_3>
-		<row_2>mmmmmmmm</row_2>
-		<row_1>rnbqkbnr</row_1>
+		<row_8>________</row_8>
+		<row_7>___K____</row_7>
+		<row_6>________</row_6>
+		<row_5>__Bb_M_M</row_5>
+		<row_4>__m_____</row_4>
+		<row_3>___m____</row_3>
+		<row_2>____mm_m</row_2>
+		<row_1>Q_b_qk_r</row_1>
 	</board>
 	<general>
-		<row_8>0___0__0</row_8>
-		<row_7>0______0</row_7>
-		<row_6>___0_0__</row_6>
-		<row_5>________</row_5>
-		<row_4>________</row_4>
-		<row_3>________</row_3>
-		<row_2>00000000</row_2>
-		<row_1>00000000</row_1>
+		<row_8>________</row_8>
+		<row_7>___7____</row_7>
+		<row_6>________</row_6>
+		<row_5>__83_1_1</row_5>
+		<row_4>__8_____</row_4>
+		<row_3>___7____</row_3>
+		<row_2>____00_0</row_2>
+		<row_1>26_0_251_0</row_1>
 	</general>
 </game>

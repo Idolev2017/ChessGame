@@ -15,6 +15,7 @@
 
 #include "ChessAux.h"
 #define LOC_LENGTH 6
+#define HistorySize 6
 //DON'T TOUCH THE ORDER OF ENUM TYPES !!!
 typedef enum {
 	PAWN,
@@ -76,5 +77,18 @@ void pieceDestroy(Piece* src);
  * m/M will be returned for the Pawn and n/N for the Knight by the same rules.
  */
 char* getPieceString(Piece* p, bool fullName);
+/**
+ * Name: pieceIncreaseNumOfMoves
+ * Description:
+ * increasing piece's numOfMoves field. numOfMoves maximum value is history size
+ * because this is the max number of undo that the user can do.
+ */
+void pieceIncreaseNumOfMoves(Piece* piece);
+/**
+ * Name: pieceDecreaseNumOfMoves
+ * Description:
+ * Decreasing piece's numOfMoves field.
+ */
+void pieceDecreaseNumOfMoves(Piece* piece);
 
 #endif /* CHESSPIECE_H_ */

@@ -15,8 +15,6 @@
 #define KING_COL 4
 #define LEFT_ROOK_COL 0
 #define RIGHT_ROOK_COL 7
-#define max(a,b) (((a) < (b)) ? (b) : (a))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
 
 typedef enum {
 	Threatened,

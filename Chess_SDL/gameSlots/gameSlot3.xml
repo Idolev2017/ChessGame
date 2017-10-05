@@ -6,22 +6,22 @@
 	<user_color>1</user_color>
 	<board>
 		<row_8>________</row_8>
-		<row_7>________</row_7>
+		<row_7>___K____</row_7>
 		<row_6>________</row_6>
-		<row_5>_____M__</row_5>
-		<row_4>___K____</row_4>
-		<row_3>m__m___M</row_3>
-		<row_2>m_m_mm_m</row_2>
-		<row_1>r__q_k_r</row_1>
+		<row_5>M_Bb_M_M</row_5>
+		<row_4>________</row_4>
+		<row_3>________</row_3>
+		<row_2>mmmmmm_m</row_2>
+		<row_1>r_bq_k_r</row_1>
 	</board>
 	<general>
 		<row_8>________</row_8>
-		<row_7>________</row_7>
+		<row_7>___7____</row_7>
 		<row_6>________</row_6>
-		<row_5>_____1__</row_5>
-		<row_4>___7____</row_4>
-		<row_3>1__1___3</row_3>
-		<row_2>0_0_00_0</row_2>
-		<row_1>1__7_1_0</row_1>
+		<row_5>1_23_1_1</row_5>
+		<row_4>________</row_4>
+		<row_3>________</row_3>
+		<row_2>000000_0</row_2>
+		<row_1>1_00_1_0</row_1>
 	</general>
 </game>

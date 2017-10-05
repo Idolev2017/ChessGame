@@ -101,7 +101,7 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 	//castling
 	if(undoCastling){
 		simpleMovePiece(game, lastMove->newLoc, copyLocation(lastMove->capturedPiece->loc));
-		getPieceOnBoard(game, lastMove->capturedPiece->loc)->numOfMoves -= 1;
+		pieceDecreaseNumOfMoves(getPieceOnBoard(game, lastMove->capturedPiece->loc));
 		simpleMovePiece(game, lastMove->piece->loc, lastMove->prevLoc);
 	}
 
@@ -111,7 +111,7 @@ GAME_MESSAGE undoPrevMove(ChessGame* game,bool toPrint){
 		if(lastMove->wasPromoted) getPieceOnBoard(game, lastMove->prevLoc)->type = PAWN;
 	}
 	game->currentPlayer = 1 - game->currentPlayer;
-	getPieceOnBoard(game, lastMove->prevLoc)->numOfMoves -= 1;
+	pieceDecreaseNumOfMoves(getPieceOnBoard(game, lastMove->prevLoc));
 
 	chessMoveDestroy(lastMove);
 	return GAME_SUCCESS;
@@ -166,7 +166,7 @@ GAME_MESSAGE playMove(ChessGame* game, Location src, Location dest, bool userTur
 		if((move = chessMoveCreate(movingPiece, src, dest, promotionSucceed, destPiece)) == NULL) return GAME_FAILED;
 		ChessArrayListAddFirst(game->LastMoves,move);
 		game->currentPlayer = 1 - game->currentPlayer; //changing the current player.
-		movingPiece->numOfMoves += 1;
+		pieceIncreaseNumOfMoves(movingPiece);
 	}
 	if(msg == GAME_CASTLING && userTurn) {
 		undoPrevMove(game, false);
@@ -640,8 +640,8 @@ GAME_MESSAGE moveKing(ChessGame* game, Piece* piece, Location dest){
 
 	simpleMovePiece(game,kingLoc,movingTwoSteps);
 	simpleMovePiece(game,rookLoc,movingOneStep);
-	getPieceOnBoard(game, movingOneStep)->numOfMoves += 1;
-	piece->numOfMoves += 1;
+	pieceIncreaseNumOfMoves(getPieceOnBoard(game, movingOneStep));
+	pieceIncreaseNumOfMoves(piece);
 
 	if((move = chessMoveCreate(piece, kingLoc, movingOneStep, false, Rook)) == NULL) {
 		pieceDestroy(Rook);

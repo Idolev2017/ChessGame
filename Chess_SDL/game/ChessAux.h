@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#define max(a,b) (((a) < (b)) ? (b) : (a))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+
 typedef enum game_message_t {
 	GAME_INVALID_MOVE,
 	GAME_INVALID_PIECE,
